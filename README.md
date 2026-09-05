@@ -173,6 +173,27 @@ In repository **Settings → Actions → General → Workflow permissions**:
 
 ## Local Execution & Testing
 
+### Running Locally
+
+Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+#### Discovery Job (Dry-Run Mode)
+Run the discovery workflow locally without posting to GitHub API:
+```bash
+python3 -m watcher.main discover --dry-run
+```
+
+#### 24-Hour Tracking Job (Dry-Run Mode)
+Run the 24-hour tracking update workflow locally:
+```bash
+python3 -m watcher.main update --dry-run
+```
+
+---
+
 ### Running Unit Tests
 
 The test suite uses Python's built-in `unittest` module and includes unit tests for state management, new ticket discovery, baseline setup, duplicate prevention, 24-hour change tracking, failure recovery, and completion handling.
@@ -209,26 +230,6 @@ You can run individual test files for targeted testing:
   python3 -m unittest tests/test_completion.py
   ```
 
----
-
-### Local Dry-Run Execution
-
-You can test discovery and tracking CLI execution locally against live issue trackers without modifying GitHub Issues by passing `--dry-run`:
-
-1. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-2. **Run Discovery Job (Dry Run)**:
-   ```bash
-   python3 -m watcher.main discover --dry-run
-   ```
-
-3. **Run 24-Hour Tracking Job (Dry Run)**:
-   ```bash
-   python3 -m watcher.main update --dry-run
-   ```
 
 
 ## Completed Tickets vs Permanent History
