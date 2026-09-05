@@ -1,51 +1,17 @@
 # Open-Source Ticket Watcher
 
-A stateful Python application and GitHub Actions system designed to monitor open-source issue trackers (starting with **Django Trac** and extensible to **GitHub repositories** and other issue trackers).
+Stateful Python watcher powered by **GitHub Actions** to monitor open-source issue trackers (e.g., **Django Trac**, GitHub repos).
 
-Whenever a new ticket appears on a monitored issue tracker, Ticket Watcher creates an Issue in your personal watcher repository and notifies you via a separate `@mention` comment (`@saikat709`). It continuously tracks active tickets every 24 hours for meaningful changes (status changes, owner/assignee changes, triage stage updates, patch flags, pull requests, and PR merges) and automatically stops tracking them once work is completed.
-
----
-
-## High-Level Architecture
-
-The system consists of two independent, automated jobs powered by **GitHub Actions** using a single JSON file (`state.json`) as machine state and **GitHub Issues** as human-readable history.
-
-```text
-               ┌────────────────────────────────────────┐
-               │           Source Tracker               │
-               │   (Django Trac / GitHub Repositories)  │
-               └───────────────────┬────────────────────┘
-                                   │
-         ┌─────────────────────────┴─────────────────────────┐
-         ▼                                                   ▼
-┌───────────────────────────────┐           ┌───────────────────────────────┐
-│ Discovery Job                 │           │ 24-Hour Tracking Job          │
-│ (Runs every 30 mins)          │           │ (Runs once daily)             │
-├───────────────────────────────┤           ├───────────────────────────────┤
-│ 1. Read state.json            │           │ 1. Read tracked tickets       │
-│ 2. Fetch new tickets          │           │ 2. Fetch current ticket state │
-│ 3. Detect tickets > baseline  │           │ 3. Compare against prev state │
-│ 4. Create watcher Issue       │           │ 4. Detect changes / PR merge  │
-│ 5. Post @saikat709 comment    │           │ 5. Update existing Issue      │
-│ 6. Add to tracked state       │           │ 6. If completed: remove from  │
-│ 7. Advance last_seen_id       │           │    tracked (keep cursor)      │
-│ 8. Commit state.json          │           │ 7. Commit state.json          │
-└───────────────────────────────┘           └───────────────────────────────┘
-```
+Discovers new tickets, creates GitHub Issues in your personal watcher repo, and mentions `@saikat709` via a separate comment. Continuously tracks active tickets every 24 hours for status updates, PR links, and merges until completion.
 
 ---
 
-## VERY IMPORTANT: Initial State Configuration
+## ⚠️ Important: Manual Initial Setup
 
 > [!IMPORTANT]
-> **Initial `last_seen_id` is NOT automatically discovered!**
-> You MUST manually inspect the source issue tracker and set the baseline ticket ID in `state.json` BEFORE enabling scheduled discovery.
+> The initial `last_seen_id` is **NOT** auto-discovered. You must manually inspect the source tracker and set the baseline ticket ID in `state.json` before enabling discovery.
 
-### Manual Initial Setup Steps
-
-1. Visit [Django Trac](https://code.djangoproject.com/) (or the target issue tracker) to find the current latest ticket ID.
-2. If the current latest Django ticket is `#37350`, update `state.json` to:
-
+Set `state.json` baseline:
 ```json
 {
   "sources": {
@@ -56,187 +22,64 @@ The system consists of two independent, automated jobs powered by **GitHub Actio
   "tracked": {}
 }
 ```
-
-3. Commit and push `state.json`.
-
-### Behavior:
-* Tickets with ID `<= 37350` will **not** trigger notifications or historical watcher Issues.
-* Only tickets with ID `> 37350` discovered after initial deployment will trigger new watcher Issues and notifications.
-* After processing new tickets, `last_seen_id` automatically advances to the latest successfully processed ticket ID.
+* Tickets `<= 37350` will be ignored.
+* Only new tickets `> 37350` will trigger watcher Issues & `@saikat709` mentions.
 
 ---
 
-## State File (`state.json`)
+## Workflows & Schedules
 
-`state.json` contains two conceptual sections:
+| Workflow | Triggers | Frequency | Action |
+| --- | --- | --- | --- |
+| **`discover.yml`** | `push` (main), `schedule`, `workflow_dispatch` | Every 30 mins | Detects new tickets > `last_seen_id`, creates watcher Issue, posts `@saikat709` comment, updates `last_seen_id` |
+| **`update.yml`** | `schedule`, `workflow_dispatch` | Every 24 hours | Checks active `tracked` tickets, posts updates, removes completed/merged tickets |
 
-```json
-{
-  "sources": {
-    "django": {
-      "last_seen_id": 37351
-    }
-  },
-  "tracked": {
-    "django:37351": {
-      "source": "django",
-      "ticket_id": 37351,
-      "watcher_issue_number": 15,
-      "status": "assigned",
-      "notification_comment_created": true,
-      "last_checked": "2026-09-05T18:00:00Z",
-      "last_updated": "2026-09-05T17:30:00Z",
-      "ticket_data": {
-        "id": 37351,
-        "title": "Cannot assign expressions to spatial fields",
-        "owner": "Md. Saikat Islam",
-        "component": "GIS",
-        "pr_url": "https://github.com/django/django/pull/21893",
-        "pr_status": "open"
-      }
-    }
-  }
-}
-```
-
-* **`sources`**: Maintains permanent cursor (`last_seen_id`) per source. `last_seen_id` is **never** reset or deleted when a ticket finishes.
-* **`tracked`**: Contains active tickets currently being monitored using `source:ticket_id` (e.g. `"django:37351"`) as unique identity key.
+**Permissions**: Set GitHub Actions Workflow permissions to **Read and write permissions**.
 
 ---
 
-## Configuration (`config.yaml`)
+## Configuration & State
 
-Configuration defines target repository, user notification handle, and active sources:
-
-```yaml
-watcher_repository: "saikat709/ticket-watcher"
-
-notification_user: "saikat709"
-
-sources:
-  - id: "django"
-    type: "django_trac"
-    url: "https://code.djangoproject.com"
-
-  # Example future GitHub repository sources:
-  # - id: "pylint"
-  #   type: "github"
-  #   repository: "pylint-dev/pylint"
-```
+* **`config.yaml`**: Defines target repo (`saikat709/ticket-watcher`), notification handle (`saikat709`), and active sources.
+* **`state.json`**:
+  * `sources`: Permanent cursor (`last_seen_id`) per tracker source.
+  * `tracked`: Active tickets under key `source:ticket_id` (e.g. `django:37351`).
 
 ---
 
-## GitHub Actions Workflows
+## Local Usage & Testing
 
-Two workflows in `.github/workflows/` manage automated tasks:
-
-1. **`discover.yml`**: Scheduled every 30 minutes (`cron: "*/30 * * * *"` and manual `workflow_dispatch`).
-   - Fetches new tickets > `last_seen_id`.
-   - Creates watcher GitHub Issue and initial notification comment (`@saikat709 — New ticket detected. Please check this out.`).
-   - Updates `last_seen_id` and commits `state.json`.
-
-2. **`update.yml`**: Scheduled every 24 hours (`cron: "0 0 * * *"` and manual `workflow_dispatch`).
-   - Checks active tickets in `tracked`.
-   - Detects status changes, owner changes, patch updates, pull requests, and PR merge state.
-   - Updates watcher Issue body and posts update summary.
-   - When PR is merged or ticket resolved: updates watcher Issue with `✅ Completed`, posts final completion comment, and removes ticket from `tracked` (while preserving `last_seen_id`).
-
-### Permissions & Secrets Required
-
-In repository **Settings → Actions → General → Workflow permissions**:
-* Select **Read and write permissions**.
-* The workflows use `secrets.GITHUB_TOKEN` automatically provided by GitHub Actions.
-
----
-
-## Features & Design Principles
-
-1. **Every New Ticket Triggers Notification**:
-   - Ticket Watcher does **not** filter tickets based on whether they are "easy" or suitable for beginners.
-   - Metadata flags like `easy-pickings`, `has-patch`, `needs-tests`, `UI/UX` are displayed in Issue body as labels, not used for filtering.
-
-2. **Duplicate Prevention**:
-   - Uses `source:ticket_id` as unique key.
-   - Checks `tracked` state AND searches GitHub Issues in the watcher repository before issue creation.
-   - Idempotent against workflow crashes, retries, and network timeouts.
-
-3. **Explicit Notifications**:
-   - Does NOT assign watcher Issue to user.
-   - Posts a dedicated comment mentioning `@saikat709` after Issue creation to reliably trigger a GitHub notification.
-   - Does NOT mention `@saikat709` on standard 24-hour updates to avoid notification noise.
-
-4. **Source Abstraction**:
-   - Generic `TicketSource` interface (`watcher/sources/base.py`).
-   - Extensible architecture supports adding GitHub repositories (`GitHubSource`) or custom trackers cleanly.
-
----
-
-## Local Execution & Testing
-
-### Running Locally
-
-Install dependencies:
+### 1. Local Dry-Run Execution
 ```bash
 pip install -r requirements.txt
-```
 
-#### Discovery Job (Dry-Run Mode)
-Run the discovery workflow locally without posting to GitHub API:
-```bash
+# Run discovery job locally
 python3 -m watcher.main discover --dry-run
-```
 
-#### 24-Hour Tracking Job (Dry-Run Mode)
-Run the 24-hour tracking update workflow locally:
-```bash
+# Run 24-hour tracking update locally
 python3 -m watcher.main update --dry-run
 ```
 
+### 2. Unit Testing
+```bash
+# Run complete test suite
+python3 -m unittest discover tests
+
+# Verbose test run
+python3 -m unittest discover tests -v
+
+# Run individual test modules
+python3 -m unittest tests/test_state.py
+python3 -m unittest tests/test_discovery.py
+python3 -m unittest tests/test_tracking.py
+python3 -m unittest tests/test_completion.py
+```
+
 ---
 
-### Running Unit Tests
+## Key Design Principles
 
-The test suite uses Python's built-in `unittest` module and includes unit tests for state management, new ticket discovery, baseline setup, duplicate prevention, 24-hour change tracking, failure recovery, and completion handling.
-
-#### 1. Run the Complete Test Suite
-Run all unit tests across the `tests/` directory:
-```bash
-python3 -m unittest discover tests
-```
-
-#### 2. Run Tests in Verbose Mode
-To see detailed output for each individual test case:
-```bash
-python3 -m unittest discover tests -v
-```
-
-#### 3. Run Specific Test Modules
-You can run individual test files for targeted testing:
-
-* **State Management Tests**:
-  ```bash
-  python3 -m unittest tests/test_state.py
-  ```
-* **Discovery & Duplicate Prevention Tests**:
-  ```bash
-  python3 -m unittest tests/test_discovery.py
-  ```
-* **24-Hour Change Tracking Tests**:
-  ```bash
-  python3 -m unittest tests/test_tracking.py
-  ```
-* **Completion Lifecycle & Removal Tests**:
-  ```bash
-  python3 -m unittest tests/test_completion.py
-  ```
-
-
-
-## Completed Tickets vs Permanent History
-
-When a ticket's pull request is merged or status is resolved:
-1. The watcher GitHub Issue is updated with a `✅ Completed` summary.
-2. A completion comment is posted explaining the resolution.
-3. The ticket is removed from `tracked` in `state.json`.
-4. The watcher GitHub Issue remains permanently in your repository as history.
-5. The `last_seen_id` in `state.json` remains saved so the completed ticket is never rediscovered.
+1. **No Beginner Filtering**: Every genuinely new ticket triggers a notification regardless of difficulty or labels.
+2. **Duplicate Safe**: Uses `source:ticket_id` and searches existing watcher Issues to prevent duplicates on retries.
+3. **Explicit Mention**: Posts a separate `@saikat709` comment on Issue creation for direct notifications.
+4. **Permanent History**: Completed/merged tickets are removed from `tracked` while watcher Issues remain permanently in your repository.
