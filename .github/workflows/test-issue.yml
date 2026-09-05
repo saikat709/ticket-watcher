@@ -1,0 +1,36 @@
+name: Test GITHUB_TOKEN Issue Creation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  test-issue:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Test Issue Creation with built-in GITHUB_TOKEN
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 -c "
+          from watcher.github.client import GitHubClient
+          client = GitHubClient()
+          res = client.create_issue(
+              repo='saikat709/ticket-watcher',
+              title='[TEST] Verification Issue for GITHUB_TOKEN',
+              body='This is an automated test issue verifying that secrets.GITHUB_TOKEN works without manual secret setup!'
+          )
+          print('SUCCESS! Created Issue #', res.get('number'))
+          "
