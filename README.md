@@ -173,31 +173,63 @@ In repository **Settings → Actions → General → Workflow permissions**:
 
 ## Local Execution & Testing
 
-### Running Locally
-
-Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-Run Discovery job in dry-run mode (without posting to GitHub API):
-```bash
-python -m watcher.main discover --dry-run
-```
-
-Run 24-Hour Tracking job in dry-run mode:
-```bash
-python -m watcher.main update --dry-run
-```
-
 ### Running Unit Tests
 
-Run the complete test suite with mocks:
+The test suite uses Python's built-in `unittest` module and includes unit tests for state management, new ticket discovery, baseline setup, duplicate prevention, 24-hour change tracking, failure recovery, and completion handling.
+
+#### 1. Run the Complete Test Suite
+Run all unit tests across the `tests/` directory:
 ```bash
-python -m unittest discover tests
+python3 -m unittest discover tests
 ```
 
+#### 2. Run Tests in Verbose Mode
+To see detailed output for each individual test case:
+```bash
+python3 -m unittest discover tests -v
+```
+
+#### 3. Run Specific Test Modules
+You can run individual test files for targeted testing:
+
+* **State Management Tests**:
+  ```bash
+  python3 -m unittest tests/test_state.py
+  ```
+* **Discovery & Duplicate Prevention Tests**:
+  ```bash
+  python3 -m unittest tests/test_discovery.py
+  ```
+* **24-Hour Change Tracking Tests**:
+  ```bash
+  python3 -m unittest tests/test_tracking.py
+  ```
+* **Completion Lifecycle & Removal Tests**:
+  ```bash
+  python3 -m unittest tests/test_completion.py
+  ```
+
 ---
+
+### Local Dry-Run Execution
+
+You can test discovery and tracking CLI execution locally against live issue trackers without modifying GitHub Issues by passing `--dry-run`:
+
+1. **Install Dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. **Run Discovery Job (Dry Run)**:
+   ```bash
+   python3 -m watcher.main discover --dry-run
+   ```
+
+3. **Run 24-Hour Tracking Job (Dry Run)**:
+   ```bash
+   python3 -m watcher.main update --dry-run
+   ```
+
 
 ## Completed Tickets vs Permanent History
 
