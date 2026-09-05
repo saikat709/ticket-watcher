@@ -1,0 +1,17 @@
+watcher_repository: "saikat709/ticket-watcher"
+
+notification_user: "saikat709"
+
+sources:
+  - id: "django"
+    type: "django_trac"
+    url: "https://code.djangoproject.com"
+
+  # Example additional sources that can be enabled:
+  # - id: "pylint"
+  #   type: "github"
+  #   repository: "pylint-dev/pylint"
+  #
+  # - id: "metacall"
+  #   type: "github"
+  #   repository: "metacall/core"
