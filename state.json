@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37330
+      "last_seen_id": 37331
     }
   },
   "tracked": {
@@ -255,6 +255,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Applying a transform to an annotation alias raises AttributeError when the\r\nannotation's output_field is not attached to a model:\r\n\r\n{{{#!python\r\nBook.objects.annotate(\r\n    published=ExpressionWrapper(F(\"pubdate\"), output_field=DateField())\r\n).values(\"published__year\")\r\n}}}\r\n\r\n{{{\r\nAttributeError: 'DateField' object has no attribute 'model'\r\n}}}\r\n\r\nValue(..., output_field=DateField()) fails the same way.\r\n\r\nThe same query works when the annotation's output_field happens to be a model\r\nfield, so the outcome depends on how the annotation was spelled rather than on\r\nwhat it asks for:\r\n\r\n|| annotation || .values(\"a__year\") ||\r\n|| annotate(a=F(\"pubdate\")) || works ||\r\n|| annotate(a=ExpressionWrapper(F(\"pubdate\"), output_field=DateField())) || AttributeError ||\r\n|| annotate(a=Value(date(2026, 1, 1), output_field=DateField())) || AttributeError ||\r\n\r\nCause: names_to_path() resolves an annotation name to\r\nself.annotations[name].output_field, which annotate() does not require to be\r\nattached to a model. setup_joins()'s final_transformer() then calls\r\nfield.get_col(alias), and Field.get_col() dereferences self.model.\r\n\r\nnames_to_path() already anticipates this a few lines earlier:\r\n\r\n{{{#!python\r\ntry:\r\n    model = field.model._meta.concrete_model\r\nexcept AttributeError:\r\n    # QuerySet.annotate() may introduce fields that aren't attached to a model.\r\n    model = None\r\n}}}\r\n\r\nAn AttributeError escaping here also bypasses add_fields(), which catches\r\nFieldError to build a helpful message.\r\n\r\nClosest precedent found: #34921, same class of failure (an unsuccessful\r\nself.model access on an unbound field, there in DateTimeField.to_python()).\r\nI also searched for \"unbound annotation\", \"output_field model attribute\" and\r\n\"has no attribute model\"; #36787 and #37248 are the nearest hits and neither\r\ncovers this path \u2014 both are closed/fixed with different symptoms.\r\n\r\nPatch: https://github.com/django/django/pull/21914"
+        }
+      }
+    },
+    "django:37331": {
+      "source": "django",
+      "ticket_id": 37331,
+      "watcher_issue_number": 7,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-07T21:09:49.991796+00:00",
+      "last_updated": "2026-09-07T21:09:49.991796+00:00",
+      "ticket_data": {
+        "id": 37331,
+        "source_id": "django",
+        "title": "Drop support for GEOS 3.10",
+        "description": "Geospatial libraries are typically supported for 5 years. GEOS 3.10.0 was released in October 2021, and therefore support could be removed. See [https://github.com/libgeos/geos/blob/main/NEWS.md \u200bNews].\r\n\r\nPrior ticket for 3.9 was #36929.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Sep 7, 2026, 3:38:10 PM",
+        "updated_at": "Sep 7, 2026, 3:38:10 PM",
+        "reporter": "Jacob Walls",
+        "owner": "",
+        "component": "GIS",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37331",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37331",
+          "Summary": "Drop support for GEOS 3.10",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "GIS",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 7, 2026, 3:38:10 PM",
+          "Modified": "Sep 7, 2026, 3:38:10 PM",
+          "Reporter": "Jacob Walls",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Geospatial libraries are typically supported for 5 years. GEOS 3.10.0 was released in October 2021, and therefore support could be removed. See [https://github.com/libgeos/geos/blob/main/NEWS.md \u200bNews].\r\n\r\nPrior ticket for 3.9 was #36929."
         }
       }
     }
