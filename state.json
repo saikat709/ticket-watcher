@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37333
+      "last_seen_id": 37334
     }
   },
   "tracked": {
@@ -360,6 +360,57 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "The language de_CH actually exists in conf/locale, but there is no language info in conf/locale/__init__.py. \r\n\r\nBackground: The automatic detection of the language fails if there is no entry in __init__.py. Additionally, providing a translated list of languages to the user is impossible without full manual override. The problems are described as well in https://code.djangoproject.com/ticket/32737. The problem was never solved since the requested languages were not official languages. \r\nSince de_CH is an offical Django language, it should be ok to fix in the way proposed in https://github.com/django/django/pull/21100.\r\n\r\n(Sorry, if this is not a proper ticket. I'm not (yet) used to provide input.)"
+        }
+      }
+    },
+    "django:37334": {
+      "source": "django",
+      "ticket_id": 37334,
+      "watcher_issue_number": 10,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-09T16:47:31.184624+00:00",
+      "last_updated": "2026-09-09T16:47:31.184624+00:00",
+      "ticket_data": {
+        "id": 37334,
+        "source_id": "django",
+        "title": "Ignore max_geom_collections for GEOS 3.15+.",
+        "description": "GEOS 3.15 and later provide built-in protection against deeply nested geometry collections. See: https://github.com/libgeos/geos/commit/8b8b3da7a3d9fb8953ff60bc49aa0320d51ae45c\r\n\r\nThe max_geom_collections security limit can be ignored for GEOS 3.15+.\r\nWe may want to deprecate max_geom_collections in future.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Sep 9, 2026, 8:43:28 AM",
+        "updated_at": "Sep 9, 2026, 9:16:28 AM",
+        "reporter": "Sarah Boyce",
+        "owner": "Sarah Boyce",
+        "component": "GIS",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37334",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37334",
+          "Summary": "Ignore max_geom_collections for GEOS 3.15+.",
+          "Type": "Cleanup/optimization",
+          "Status": "assigned",
+          "Component": "GIS",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 9, 2026, 8:43:28 AM",
+          "Modified": "Sep 9, 2026, 9:16:28 AM",
+          "Reporter": "Sarah Boyce",
+          "Owner": "Sarah Boyce",
+          "Triage Stage": "Accepted",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "GEOS 3.15 and later provide built-in protection against deeply nested geometry collections. See: https://github.com/libgeos/geos/commit/8b8b3da7a3d9fb8953ff60bc49aa0320d51ae45c\r\n\r\nThe max_geom_collections security limit can be ignored for GEOS 3.15+.\r\nWe may want to deprecate max_geom_collections in future."
         }
       }
     }
