@@ -11,7 +11,7 @@
       "watcher_issue_number": 2,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-08T03:18:44.623520+00:00",
+      "last_checked": "2026-09-09T03:21:47.477014+00:00",
       "last_updated": "2026-09-06T03:12:14.317214+00:00",
       "ticket_data": {
         "id": 37326,
@@ -61,7 +61,7 @@
       "watcher_issue_number": 3,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-08T03:18:44.623520+00:00",
+      "last_checked": "2026-09-09T03:21:47.477014+00:00",
       "last_updated": "2026-09-06T03:12:14.317214+00:00",
       "ticket_data": {
         "id": 37327,
@@ -112,7 +112,7 @@
       "watcher_issue_number": 4,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-08T03:18:44.623520+00:00",
+      "last_checked": "2026-09-09T03:21:47.477014+00:00",
       "last_updated": "2026-09-06T03:12:14.317214+00:00",
       "ticket_data": {
         "id": 37328,
@@ -163,8 +163,8 @@
       "watcher_issue_number": 5,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-08T03:18:44.623520+00:00",
-      "last_updated": "2026-09-06T03:12:14.317214+00:00",
+      "last_checked": "2026-09-09T03:21:47.477014+00:00",
+      "last_updated": "2026-09-09T03:21:47.477014+00:00",
       "ticket_data": {
         "id": 37329,
         "source_id": "django",
@@ -173,7 +173,7 @@
         "status": "assigned",
         "resolution": "",
         "created_at": "Sep 5, 2026, 11:47:03 AM",
-        "updated_at": "Sep 6, 2026, 12:45:03 PM",
+        "updated_at": "Sep 8, 2026, 12:56:42 PM",
         "reporter": "Tim Schilling",
         "owner": "Md. Saikat Islam",
         "component": "Database layer (models, ORM)",
@@ -181,7 +181,9 @@
         "severity": "Normal",
         "triage_stage": "Accepted",
         "labels": [
-          "Accepted"
+          "Accepted",
+          "has-patch",
+          "needs-tests"
         ],
         "url": "https://code.djangoproject.com/ticket/37329",
         "pr_url": "https://github.com/django/django/pull/16598",
@@ -195,12 +197,12 @@
           "Severity": "Normal",
           "Resolution": "",
           "Created": "Sep 5, 2026, 11:47:03 AM",
-          "Modified": "Sep 6, 2026, 12:45:03 PM",
+          "Modified": "Sep 8, 2026, 12:56:42 PM",
           "Reporter": "Tim Schilling",
           "Owner": "Md. Saikat Islam",
           "Triage Stage": "Accepted",
-          "Has patch": "0",
-          "Needs tests": "0",
+          "Has patch": "1",
+          "Needs tests": "1",
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "This is based on @xafer's [https://github.com/django/django/pull/16598 PR]. It was a follow-up to #34338.\r\n\r\n> Since violation_error_code could never be defined for UniqueConstraint prior to [https://github.com/django/django/pull/16560 #16560] there is no backward compatibility to bother with.\r\n> But if the user bothered to provide a violation_error_code to its UniqueConstraint it is likely expecting it to be used.\r\n\r\nI think it makes sense given that we now allow more customization of these constraints to allow customizing the `violation_error_code` as well."
@@ -213,7 +215,7 @@
       "watcher_issue_number": 6,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-08T03:18:44.623520+00:00",
+      "last_checked": "2026-09-09T03:21:47.477014+00:00",
       "last_updated": "2026-09-08T03:18:44.623520+00:00",
       "ticket_data": {
         "id": 37330,
@@ -258,64 +260,13 @@
         }
       }
     },
-    "django:37331": {
-      "source": "django",
-      "ticket_id": 37331,
-      "watcher_issue_number": 7,
-      "status": "assigned",
-      "notification_comment_created": true,
-      "last_checked": "2026-09-08T03:18:44.623520+00:00",
-      "last_updated": "2026-09-08T03:18:44.623520+00:00",
-      "ticket_data": {
-        "id": 37331,
-        "source_id": "django",
-        "title": "Drop support for GEOS 3.10",
-        "description": "Geospatial libraries are typically supported for 5 years. GEOS 3.10.0 was released in October 2021, and therefore support could be removed. See [https://github.com/libgeos/geos/blob/main/NEWS.md \u200bNews].\r\n\r\nPrior ticket for 3.9 was #36929.",
-        "status": "assigned",
-        "resolution": "",
-        "created_at": "Sep 7, 2026, 3:38:10 PM",
-        "updated_at": "Sep 7, 2026, 8:46:02 PM",
-        "reporter": "Jacob Walls",
-        "owner": "Md. Saikat Islam",
-        "component": "GIS",
-        "priority": "Normal",
-        "severity": "Normal",
-        "triage_stage": "Accepted",
-        "labels": [
-          "Accepted",
-          "needs-docs"
-        ],
-        "url": "https://code.djangoproject.com/ticket/37331",
-        "pr_url": null,
-        "pr_status": null,
-        "raw_data": {
-          "id": "37331",
-          "Summary": "Drop support for GEOS 3.10",
-          "Type": "Cleanup/optimization",
-          "Status": "assigned",
-          "Component": "GIS",
-          "Severity": "Normal",
-          "Resolution": "",
-          "Created": "Sep 7, 2026, 3:38:10 PM",
-          "Modified": "Sep 7, 2026, 8:46:02 PM",
-          "Reporter": "Jacob Walls",
-          "Owner": "Md. Saikat Islam",
-          "Triage Stage": "Accepted",
-          "Has patch": "0",
-          "Needs tests": "0",
-          "Needs documentation": "1",
-          "UI/UX": "0",
-          "Description": "Geospatial libraries are typically supported for 5 years. GEOS 3.10.0 was released in October 2021, and therefore support could be removed. See [https://github.com/libgeos/geos/blob/main/NEWS.md \u200bNews].\r\n\r\nPrior ticket for 3.9 was #36929."
-        }
-      }
-    },
     "django:37332": {
       "source": "django",
       "ticket_id": 37332,
       "watcher_issue_number": 8,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-08T15:33:33.254698+00:00",
+      "last_checked": "2026-09-09T03:21:47.477014+00:00",
       "last_updated": "2026-09-08T15:33:33.254698+00:00",
       "ticket_data": {
         "id": 37332,
