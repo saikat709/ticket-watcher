@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37336
+      "last_seen_id": 37337
     }
   },
   "tracked": {
@@ -512,6 +512,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "The \"Writing your first contribution\" tutorial (docs/intro/contributing.txt) has some unclear wording in places, and several sections only show macOS/Linux commands (e.g. venv creation, running the test suite) without Windows equivalents. This ticket proposes clarifying the prose and adding the missing Windows commands alongside the existing ones, consistent with the pattern already used elsewhere in the doc."
+        }
+      }
+    },
+    "django:37337": {
+      "source": "django",
+      "ticket_id": 37337,
+      "watcher_issue_number": 13,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-09T22:04:16.608615+00:00",
+      "last_updated": "2026-09-09T22:04:16.608615+00:00",
+      "ticket_data": {
+        "id": 37337,
+        "source_id": "django",
+        "title": "MigrationAutodetector defers ForeignKey components of CompositePrimaryKey to AddField, causing FieldDoesNotExist on CreateModel",
+        "description": "== Problem Description ==\r\n\r\nWhen a model uses {{{models.CompositePrimaryKey}}} where one of the constituent foreign keys points to a model whose own primary key is a relation (e.g. {{{OneToOneField(primary_key=True)}}}), running {{{makemigrations}}} generates an invalid migration that fails on {{{migrate}}} with {{{FieldDoesNotExist}}}.\r\n\r\n== Root Cause Analysis ==\r\n\r\n 1. '''Autodetector field classification ({{{django/db/migrations/autodetector.py}}}):'''\r\n    In {{{MigrationAutodetector.generate_created_models()}}}, fields are inspected:\r\n{{{\r\n#!python\r\nfor field_name, field in model_state.fields.items():\r\n    if field.remote_field:\r\n        if field.remote_field.model:\r\n            if field.primary_key:\r\n                primary_key_rel = field.remote_field.model\r\n            elif not field.remote_field.parent_link:\r\n                related_fields[field_name] = field\r\n}}}\r\n    For a {{{CompositePrimaryKey}}}, the constituent ForeignKey fields have {{{field.primary_key == False}}} (the primary key is the virtual {{{pk}}} field). Consequently, the autodetector classifies them as {{{related_fields}}} and excludes them from {{{CreateModel.fields}}}, deferring them into separate {{{AddField}}} operations.\r\n\r\n 2. '''Topological sorting level displacement ({{{_sort_migrations}}}):'''\r\n    * The target model ({{{CrewMember}}}) has {{{employee = OneToOneField('Employee', primary_key=True)}}}. Because of {{{primary_key_rel}}}, {{{CreateModel('CrewMember')}}} depends on {{{CreateModel('Employee')}}} (Level 1 in {{{TopologicalSorter}}}).\r\n    * Therefore, {{{AddField('crewmemberboat', 'crewmember')}}} depends on {{{CreateModel('CrewMember')}}} and is assigned to Level 2.\r\n\r\n 3. '''Optimization barrier in {{{IndexOperation}}} ({{{django/db/migrations/operations/models.py}}}):'''\r\n    * At Level 2, many {{{AddIndex}}} and {{{AddConstraint}}} operations from Level 0/1 models are emitted before {{{AddField}}}.\r\n    * Neither {{{IndexOperation}}} nor {{{AddConstraint}}} overrides {{{references_model()}}}, inheriting the default from {{{Operation}}}:\r\n{{{\r\n#!python\r\ndef references_model(self, name, app_label):\r\n    return True  # If in doubt, return True\r\n}}}\r\n    * As a result, {{{ModelOperation.can_reduce_through(operation)}}} returns {{{False}}} for ANY index or constraint belonging to other models.\r\n    * {{{MigrationOptimizer.optimize_inner()}}} cannot reduce {{{AddField}}} into {{{CreateModel}}} across these unrelated index operations.\r\n\r\n 4. '''Failure during {{{CreateModel}}} execution ({{{django/db/models/fields/composite.py}}}):'''\r\n    When the migration runs, {{{CreateModel}}} invokes {{{schema_editor.create_model()}}}, which inspects {{{model._meta.pk.columns}}} -> {{{CompositePrimaryKey.fields}}}. Since the constituent field was deferred to {{{AddField}}}, {{{meta.get_field(...)}}} raises:\r\n    {{{django.core.exceptions.FieldDoesNotExist: CrewMemberBoat has no field named 'crewmember'}}}.\r\n\r\n== Minimal Reproducible Example (MRE) ==\r\n\r\n{{{\r\n#!python\r\n# models.py\r\nfrom django.db import models\r\n\r\nclass Employee(models.Model):\r\n    name = models.CharField(max_length=64)\r\n\r\nclass CrewMember(models.Model):\r\n    employee = models.OneToOneField(Employee, on_delete=models.CASCADE, primary_key=True)\r\n\r\nclass Boat(models.Model):\r\n    name = models.CharField(max_length=64)\r\n    class Meta:\r\n        indexes = [models.Index(fields=[\"name\"], name=\"idx_boat_name\")]\r\n\r\nclass CrewMemberBoat(models.Model):\r\n    pk = models.CompositePrimaryKey(\"crewmember\", \"boat\")\r\n    crewmember = models.ForeignKey(CrewMember, on_delete=models.CASCADE)\r\n    boat = models.ForeignKey(Boat, on_delete=models.CASCADE)\r\n}}}\r\n\r\nRun {{{python manage.py makemigrations}}} followed by {{{python manage.py migrate}}}.\r\n\r\n== Traceback ==\r\n\r\n{{{\r\ndjango.core.exceptions.FieldDoesNotExist: CrewMemberBoat has no field named 'crewmember'\r\n  File \"django/db/models/options.py\", line 686, in get_field\r\n    raise FieldDoesNotExist(\"%s has no field named '%s'\" % (self.object_name, field_name))\r\n  File \"django/db/models/fields/composite.py\", line 86, in <genexpr>\r\n    return tuple(meta.get_field(field_name) for field_name in self.field_names)\r\n  File \"django/db/backends/base/schema.py\", line 472, in create_model\r\n}}}\r\n\r\n== Suggested Fixes ==\r\n\r\n 1. In {{{IndexOperation}}} ({{{django/db/migrations/operations/models.py}}}), implement {{{references_model}}}:\r\n{{{\r\n#!python\r\ndef references_model(self, name, app_label):\r\n    return self.model_name_lower == name.lower()\r\n}}}\r\n 2. In {{{MigrationAutodetector.generate_created_models()}}}, check whether a related field belongs to a {{{CompositePrimaryKey}}} before deferring it to {{{related_fields}}}.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Sep 9, 2026, 3:57:47 PM",
+        "updated_at": "Sep 9, 2026, 3:59:33 PM",
+        "reporter": "Vasiliy Tyukin",
+        "owner": "",
+        "component": "Migrations",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37337",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37337",
+          "Summary": "MigrationAutodetector defers ForeignKey components of CompositePrimaryKey to AddField, causing FieldDoesNotExist on CreateModel",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Migrations",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 9, 2026, 3:57:47 PM",
+          "Modified": "Sep 9, 2026, 3:59:33 PM",
+          "Reporter": "Vasiliy Tyukin",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "== Problem Description ==\r\n\r\nWhen a model uses {{{models.CompositePrimaryKey}}} where one of the constituent foreign keys points to a model whose own primary key is a relation (e.g. {{{OneToOneField(primary_key=True)}}}), running {{{makemigrations}}} generates an invalid migration that fails on {{{migrate}}} with {{{FieldDoesNotExist}}}.\r\n\r\n== Root Cause Analysis ==\r\n\r\n 1. '''Autodetector field classification ({{{django/db/migrations/autodetector.py}}}):'''\r\n    In {{{MigrationAutodetector.generate_created_models()}}}, fields are inspected:\r\n{{{\r\n#!python\r\nfor field_name, field in model_state.fields.items():\r\n    if field.remote_field:\r\n        if field.remote_field.model:\r\n            if field.primary_key:\r\n                primary_key_rel = field.remote_field.model\r\n            elif not field.remote_field.parent_link:\r\n                related_fields[field_name] = field\r\n}}}\r\n    For a {{{CompositePrimaryKey}}}, the constituent ForeignKey fields have {{{field.primary_key == False}}} (the primary key is the virtual {{{pk}}} field). Consequently, the autodetector classifies them as {{{related_fields}}} and excludes them from {{{CreateModel.fields}}}, deferring them into separate {{{AddField}}} operations.\r\n\r\n 2. '''Topological sorting level displacement ({{{_sort_migrations}}}):'''\r\n    * The target model ({{{CrewMember}}}) has {{{employee = OneToOneField('Employee', primary_key=True)}}}. Because of {{{primary_key_rel}}}, {{{CreateModel('CrewMember')}}} depends on {{{CreateModel('Employee')}}} (Level 1 in {{{TopologicalSorter}}}).\r\n    * Therefore, {{{AddField('crewmemberboat', 'crewmember')}}} depends on {{{CreateModel('CrewMember')}}} and is assigned to Level 2.\r\n\r\n 3. '''Optimization barrier in {{{IndexOperation}}} ({{{django/db/migrations/operations/models.py}}}):'''\r\n    * At Level 2, many {{{AddIndex}}} and {{{AddConstraint}}} operations from Level 0/1 models are emitted before {{{AddField}}}.\r\n    * Neither {{{IndexOperation}}} nor {{{AddConstraint}}} overrides {{{references_model()}}}, inheriting the default from {{{Operation}}}:\r\n{{{\r\n#!python\r\ndef references_model(self, name, app_label):\r\n    return True  # If in doubt, return True\r\n}}}\r\n    * As a result, {{{ModelOperation.can_reduce_through(operation)}}} returns {{{False}}} for ANY index or constraint belonging to other models.\r\n    * {{{MigrationOptimizer.optimize_inner()}}} cannot reduce {{{AddField}}} into {{{CreateModel}}} across these unrelated index operations.\r\n\r\n 4. '''Failure during {{{CreateModel}}} execution ({{{django/db/models/fields/composite.py}}}):'''\r\n    When the migration runs, {{{CreateModel}}} invokes {{{schema_editor.create_model()}}}, which inspects {{{model._meta.pk.columns}}} -> {{{CompositePrimaryKey.fields}}}. Since the constituent field was deferred to {{{AddField}}}, {{{meta.get_field(...)}}} raises:\r\n    {{{django.core.exceptions.FieldDoesNotExist: CrewMemberBoat has no field named 'crewmember'}}}.\r\n\r\n== Minimal Reproducible Example (MRE) ==\r\n\r\n{{{\r\n#!python\r\n# models.py\r\nfrom django.db import models\r\n\r\nclass Employee(models.Model):\r\n    name = models.CharField(max_length=64)\r\n\r\nclass CrewMember(models.Model):\r\n    employee = models.OneToOneField(Employee, on_delete=models.CASCADE, primary_key=True)\r\n\r\nclass Boat(models.Model):\r\n    name = models.CharField(max_length=64)\r\n    class Meta:\r\n        indexes = [models.Index(fields=[\"name\"], name=\"idx_boat_name\")]\r\n\r\nclass CrewMemberBoat(models.Model):\r\n    pk = models.CompositePrimaryKey(\"crewmember\", \"boat\")\r\n    crewmember = models.ForeignKey(CrewMember, on_delete=models.CASCADE)\r\n    boat = models.ForeignKey(Boat, on_delete=models.CASCADE)\r\n}}}\r\n\r\nRun {{{python manage.py makemigrations}}} followed by {{{python manage.py migrate}}}.\r\n\r\n== Traceback ==\r\n\r\n{{{\r\ndjango.core.exceptions.FieldDoesNotExist: CrewMemberBoat has no field named 'crewmember'\r\n  File \"django/db/models/options.py\", line 686, in get_field\r\n    raise FieldDoesNotExist(\"%s has no field named '%s'\" % (self.object_name, field_name))\r\n  File \"django/db/models/fields/composite.py\", line 86, in <genexpr>\r\n    return tuple(meta.get_field(field_name) for field_name in self.field_names)\r\n  File \"django/db/backends/base/schema.py\", line 472, in create_model\r\n}}}\r\n\r\n== Suggested Fixes ==\r\n\r\n 1. In {{{IndexOperation}}} ({{{django/db/migrations/operations/models.py}}}), implement {{{references_model}}}:\r\n{{{\r\n#!python\r\ndef references_model(self, name, app_label):\r\n    return self.model_name_lower == name.lower()\r\n}}}\r\n 2. In {{{MigrationAutodetector.generate_created_models()}}}, check whether a related field belongs to a {{{CompositePrimaryKey}}} before deferring it to {{{related_fields}}}."
         }
       }
     }
