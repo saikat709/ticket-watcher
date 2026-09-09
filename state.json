@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37332
+      "last_seen_id": 37333
     }
   },
   "tracked": {
@@ -309,6 +309,57 @@
           "Needs documentation": "0",
           "UI/UX": "1",
           "Description": "Per the [https://docs.djangoproject.com/en/6.1/releases/6.1/ Django 6.1 release notes]:\r\n\r\n> `list_display` now uses boolean icons for boolean fields on related models.\r\n\r\nThis does not work for instances of `GeneratedField` with `output_field=models.BooleanField()`, like so:\r\n\r\n{{{\r\nfrom django.db import models\r\n\r\nis_done = models.GeneratedField(\r\n    # Redacted for brevity\r\n    output_field=models.BooleanField(),\r\n    db_persist=True,\r\n)\r\n}}}\r\n\r\nBoth fields in admin list display and filter (`list_display` and `list_filter`, respectively) show the output of these fields as `True` or `False`.\r\n\r\nNB. The code I used for this is currently on a feature branch that's actively being pushed over: https://github.com/MHLut/django-local-test/tree/feature/todo."
+        }
+      }
+    },
+    "django:37333": {
+      "source": "django",
+      "ticket_id": 37333,
+      "watcher_issue_number": 9,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-09T12:02:11.834686+00:00",
+      "last_updated": "2026-09-09T12:02:11.834686+00:00",
+      "ticket_data": {
+        "id": 37333,
+        "source_id": "django",
+        "title": "Include language de_ch in language info",
+        "description": "The language de_CH actually exists in conf/locale, but there is no language info in conf/locale/__init__.py. \r\n\r\nBackground: The automatic detection of the language fails if there is no entry in __init__.py. Additionally, providing a translated list of languages to the user is impossible without full manual override. The problems are described as well in https://code.djangoproject.com/ticket/32737. The problem was never solved since the requested languages were not official languages. \r\nSince de_CH is an offical Django language, it should be ok to fix in the way proposed in https://github.com/django/django/pull/21100.\r\n\r\n(Sorry, if this is not a proper ticket. I'm not (yet) used to provide input.)",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Sep 9, 2026, 4:06:17 AM",
+        "updated_at": "Sep 9, 2026, 4:06:17 AM",
+        "reporter": "Reto Fahrni",
+        "owner": "",
+        "component": "Uncategorized",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37333",
+        "pr_url": "https://github.com/django/django/pull/21100",
+        "pr_status": "closed",
+        "raw_data": {
+          "id": "37333",
+          "Summary": "Include language de_ch in language info",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "Uncategorized",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 9, 2026, 4:06:17 AM",
+          "Modified": "Sep 9, 2026, 4:06:17 AM",
+          "Reporter": "Reto Fahrni",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "The language de_CH actually exists in conf/locale, but there is no language info in conf/locale/__init__.py. \r\n\r\nBackground: The automatic detection of the language fails if there is no entry in __init__.py. Additionally, providing a translated list of languages to the user is impossible without full manual override. The problems are described as well in https://code.djangoproject.com/ticket/32737. The problem was never solved since the requested languages were not official languages. \r\nSince de_CH is an offical Django language, it should be ok to fix in the way proposed in https://github.com/django/django/pull/21100.\r\n\r\n(Sorry, if this is not a proper ticket. I'm not (yet) used to provide input.)"
         }
       }
     }
