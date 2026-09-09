@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37334
+      "last_seen_id": 37336
     }
   },
   "tracked": {
@@ -411,6 +411,107 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "GEOS 3.15 and later provide built-in protection against deeply nested geometry collections. See: https://github.com/libgeos/geos/commit/8b8b3da7a3d9fb8953ff60bc49aa0320d51ae45c\r\n\r\nThe max_geom_collections security limit can be ignored for GEOS 3.15+.\r\nWe may want to deprecate max_geom_collections in future."
+        }
+      }
+    },
+    "django:37335": {
+      "source": "django",
+      "ticket_id": 37335,
+      "watcher_issue_number": 11,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-09T19:33:05.490760+00:00",
+      "last_updated": "2026-09-09T19:33:05.490760+00:00",
+      "ticket_data": {
+        "id": 37335,
+        "source_id": "django",
+        "title": "Clarify contributing tutorial and add Windows command examples",
+        "description": "The \"Writing your first contribution\" tutorial (docs/intro/contributing.txt) has some unclear wording in places, and several sections only show macOS/Linux commands (e.g. venv creation, running the test suite) without Windows equivalents. This ticket proposes clarifying the prose and adding the missing Windows commands alongside the existing ones, consistent with the pattern already used elsewhere in the doc.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Sep 9, 2026, 12:37:36 PM",
+        "updated_at": "Sep 9, 2026, 12:37:36 PM",
+        "reporter": "Vandna",
+        "owner": "",
+        "component": "Documentation",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37335",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37335",
+          "Summary": "Clarify contributing tutorial and add Windows command examples",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "Documentation",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 9, 2026, 12:37:36 PM",
+          "Modified": "Sep 9, 2026, 12:37:36 PM",
+          "Reporter": "Vandna",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "The \"Writing your first contribution\" tutorial (docs/intro/contributing.txt) has some unclear wording in places, and several sections only show macOS/Linux commands (e.g. venv creation, running the test suite) without Windows equivalents. This ticket proposes clarifying the prose and adding the missing Windows commands alongside the existing ones, consistent with the pattern already used elsewhere in the doc."
+        }
+      }
+    },
+    "django:37336": {
+      "source": "django",
+      "ticket_id": 37336,
+      "watcher_issue_number": 12,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-09T19:33:06.680411+00:00",
+      "last_updated": "2026-09-09T19:33:06.680411+00:00",
+      "ticket_data": {
+        "id": 37336,
+        "source_id": "django",
+        "title": "Clarify contributing tutorial and add Windows command examples",
+        "description": "The \"Writing your first contribution\" tutorial (docs/intro/contributing.txt) has some unclear wording in places, and several sections only show macOS/Linux commands (e.g. venv creation, running the test suite) without Windows equivalents. This ticket proposes clarifying the prose and adding the missing Windows commands alongside the existing ones, consistent with the pattern already used elsewhere in the doc.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Sep 9, 2026, 12:43:28 PM",
+        "updated_at": "Sep 9, 2026, 12:43:28 PM",
+        "reporter": "Vandna",
+        "owner": "",
+        "component": "Documentation",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37336",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37336",
+          "Summary": "Clarify contributing tutorial and add Windows command examples",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "Documentation",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 9, 2026, 12:43:28 PM",
+          "Modified": "Sep 9, 2026, 12:43:28 PM",
+          "Reporter": "Vandna",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "The \"Writing your first contribution\" tutorial (docs/intro/contributing.txt) has some unclear wording in places, and several sections only show macOS/Linux commands (e.g. venv creation, running the test suite) without Windows equivalents. This ticket proposes clarifying the prose and adding the missing Windows commands alongside the existing ones, consistent with the pattern already used elsewhere in the doc."
         }
       }
     }
