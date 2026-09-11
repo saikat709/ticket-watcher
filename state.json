@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37339
+      "last_seen_id": 37340
     }
   },
   "tracked": {
@@ -626,6 +626,57 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Assigning a value from the stdlib `ipaddress` module to a `GenericIPAddressField` fails on save:\r\n\r\n{{{#!python\r\n>>> obj.ip = ipaddress.ip_address('80.15.186.250') # Is of type IPv4Address('80.15.186.250')\r\n>>> obj.save()\r\n  File \"/home/thibaut/Desktop/.venv/lib/python3.11/site-packages/django/db/models/base.py\", line 902, in save\r\n    self.save_base(\r\n  File \"/home/thibaut/Desktop/.venv/lib/python3.11/site-packages/django/db/models/base.py\", line 1008, in save_base\r\n    updated = self._save_table(\r\n              ^^^^^^^^^^^^^^^^^\r\n  File \"/home/thibaut/Desktop/.venv/lib/python3.11/site-packages/django/db/models/base.py\", line 1138, in _save_table\r\n    updated = self._do_update(\r\n              ^^^^^^^^^^^^^^^^\r\n  File \"/home/thibaut/Desktop/.venv/lib/python3.11/site-packages/django/db/models/base.py\", line 1203, in _do_update\r\n    return filtered._update(values) > 0\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"/home/thibaut/Desktop/.venv/lib/python3.11/site-packages/django/db/models/query.py\", line 1288, in _update\r\n    return query.get_compiler(self.db).execute_sql(ROW_COUNT)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"/home/thibaut/Desktop/.venv/lib/python3.11/site-packages/django/db/models/sql/compiler.py\", line 2060, in execute_sql\r\n    row_count = super().execute_sql(result_type)\r\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"/home/thibaut/Desktop/.venv/lib/python3.11/site-packages/django/db/models/sql/compiler.py\", line 1610, in execute_sql\r\n    sql, params = self.as_sql()\r\n                  ^^^^^^^^^^^^^\r\n  File \"/home/thibaut/Desktop/.venv/lib/python3.11/site-packages/django/db/backends/mysql/compiler.py\", line 49, in as_sql\r\n    update_query, update_params = super().as_sql()\r\n                                  ^^^^^^^^^^^^^^^^\r\n  File \"/home/thibaut/Desktop/.venv/lib/python3.11/site-packages/django/db/models/sql/compiler.py\", line 2023, in as_sql\r\n    val = field.get_db_prep_save(val, connection=self.connection)\r\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"/home/thibaut/Desktop/.venv/lib/python3.11/site-packages/django/db/models/fields/__init__.py\", line 1012, in get_db_prep_save\r\n    return self.get_db_prep_value(value, connection=connection, prepared=False)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"/home/thibaut/Desktop/.venv/lib/python3.11/site-packages/django/db/models/fields/__init__.py\", line 2284, in get_db_prep_value\r\n    value = self.get_prep_value(value)\r\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"/home/thibaut/Desktop/.venv/lib/python3.11/site-packages/django/db/models/fields/__init__.py\", line 2291, in get_prep_value\r\n    if value and \":\" in value:\r\n                 ^^^^^^^^^^^^\r\nTypeError: argument of type 'IPv4Address' is not iterable\r\n}}}\r\n\r\n\r\nSince `ipaddress` is the stdlib's representation of an IP address, and since it is what `validate_ipv4_address()`/`validate_ipv6_address()` already use internally, it is a natural type to hold an address in before assigning it to a model. \r\n\r\nThis looks like an oversight rather than a deliberate restriction, since the field already accepts these values elsewhere, `to_python()` coerces non-strings, while `get_prep_value()` does not. Which means it's ok to create using this tpye, but not update\r\n\r\n{{{#!python\r\n>>> GenericIPAddressField().to_python(ipaddress.ip_address('80.15.186.250'))\r\n'80.15.186.250'\r\n>>> Bank(ip= IPv4Address('80.15.186.250')).save()                 # OK\r\n>>> Bank.objects.update(ip=IPv4Address('80.15.186.250'))  # OK\r\n>>> b = Bank.objects.last()\r\n>>> b.ip  = IPv4Address('80.15.186.250')\r\n>>> b.save()         \r\n  File \"/home/thibaut/Desktop/.venv/lib/python3.11/site-packages/django/db/models/fields/__init__.py\", line 2291, in get_prep_value\r\n    if value and \":\" in value:\r\n                 ^^^^^^^^^^^^\r\nTypeError: argument of type 'IPv4Address' is not iterable\r\n}}}\r\n\r\n{{{#!python\r\ndef get_prep_value(self, value):\r\n    value = super().get_prep_value(value)\r\n    if value is None:\r\n        return None\r\n    if value and \":\" in value:     # TypeError for any non-str value\r\n        ...\r\n    return str(value)              # unreachable for non-str values\r\n}}}\r\n\r\nThe trailing `str(value)` suggests non-string values were meant to be handled, but the membership test runs first. \r\nCoercing before the colon check (or delegating to`to_python()`, as `CharField` does) is enough. \r\n\r\nI'd be happy to submit a fix "
+        }
+      }
+    },
+    "django:37340": {
+      "source": "django",
+      "ticket_id": 37340,
+      "watcher_issue_number": 16,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-11T09:14:26.380155+00:00",
+      "last_updated": "2026-09-11T09:14:26.380155+00:00",
+      "ticket_data": {
+        "id": 37340,
+        "source_id": "django",
+        "title": "admin.add_preserved_filters() drops repeated query parameters",
+        "description": "`django.contrib.admin.templatetags.admin_urls.add_preserved_filters()` loses repeated query parameters when restoring changelist filters from an admin change form.\r\n\r\n**Reproduction**\r\n\r\nUse a changelist URL containing repeated parameters:\r\n    \r\n{{{\r\n/admin/?X__id__exact=57&X__id__exact=54\r\n}}}\r\n\r\nAfter opening an object, the change form receives:\r\n    \r\n{{{\r\n_changelist_filters=X__id__exact%3D57%26X__id__exact%3D54\r\n}}}\r\n\r\nThe admin Close/back URL is then generated as:\r\n    \r\n{{{\r\n/admin/?X__exact=54\r\n}}}\r\n\r\nThe first value has been discarded.\r\n\r\n**Cause**\r\n\r\n`add_preserved_filters()` repeatedly converts `parse_qsl()` results to a regular dictionary.\r\n\r\nI have a fix prepared that we already use in a fork and can issue a PR when this gets accepted.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Sep 11, 2026, 3:05:52 AM",
+        "updated_at": "Sep 11, 2026, 3:05:52 AM",
+        "reporter": "ollehu",
+        "owner": "ollehu",
+        "component": "Forms",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37340",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37340",
+          "Summary": "admin.add_preserved_filters() drops repeated query parameters",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Forms",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 11, 2026, 3:05:52 AM",
+          "Modified": "Sep 11, 2026, 3:05:52 AM",
+          "Reporter": "ollehu",
+          "Owner": "ollehu",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "`django.contrib.admin.templatetags.admin_urls.add_preserved_filters()` loses repeated query parameters when restoring changelist filters from an admin change form.\r\n\r\n**Reproduction**\r\n\r\nUse a changelist URL containing repeated parameters:\r\n    \r\n{{{\r\n/admin/?X__id__exact=57&X__id__exact=54\r\n}}}\r\n\r\nAfter opening an object, the change form receives:\r\n    \r\n{{{\r\n_changelist_filters=X__id__exact%3D57%26X__id__exact%3D54\r\n}}}\r\n\r\nThe admin Close/back URL is then generated as:\r\n    \r\n{{{\r\n/admin/?X__exact=54\r\n}}}\r\n\r\nThe first value has been discarded.\r\n\r\n**Cause**\r\n\r\n`add_preserved_filters()` repeatedly converts `parse_qsl()` results to a regular dictionary.\r\n\r\nI have a fix prepared that we already use in a fork and can issue a PR when this gets accepted."
         }
       }
     }
