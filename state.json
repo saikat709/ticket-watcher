@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37340
+      "last_seen_id": 37342
     }
   },
   "tracked": {
@@ -659,6 +659,57 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "`django.contrib.admin.templatetags.admin_urls.add_preserved_filters()` loses repeated query parameters when restoring changelist filters from an admin change form.\r\n\r\n**Reproduction**\r\n\r\nUse a changelist URL containing repeated parameters:\r\n    \r\n{{{\r\n/admin/?X__id__exact=57&X__id__exact=54\r\n}}}\r\n\r\nAfter opening an object, the change form receives:\r\n    \r\n{{{\r\n_changelist_filters=X__id__exact%3D57%26X__id__exact%3D54\r\n}}}\r\n\r\nThe admin Close/back URL is then generated as:\r\n    \r\n{{{\r\n/admin/?X__exact=54\r\n}}}\r\n\r\nThe first value has been discarded.\r\n\r\n**Cause**\r\n\r\n`add_preserved_filters()` repeatedly converts `parse_qsl()` results to a regular dictionary.\r\n\r\nI have a fix prepared that we already use in a fork and can issue a PR when this gets accepted."
+        }
+      }
+    },
+    "django:37342": {
+      "source": "django",
+      "ticket_id": 37342,
+      "watcher_issue_number": 17,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-12T04:46:59.691760+00:00",
+      "last_updated": "2026-09-12T04:46:59.691760+00:00",
+      "ticket_data": {
+        "id": 37342,
+        "source_id": "django",
+        "title": "set_cookie() should reject __Host- / __Secure- prefixes browsers will silently drop",
+        "description": "Browsers silently ignore a Set-Cookie response when the name uses the __Host- prefix without Secure + Path=/ and no Domain attribute, or the __Secure- prefix without Secure. Django currently accepts such cookies without complaint, so a misconfigured SESSION_COOKIE_NAME / CSRF_COOKIE_NAME (or any set_cookie call) fails open with no signal.\r\n\r\nProposed: raise ValueError from HttpResponse.set_cookie() when the name carries a __Host- / __Secure- prefix whose requirements the cookie attributes don't satisfy.\r\n\r\nReference implementation: GH PR django/django#21955 (will link this ticket there once filed).",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Sep 11, 2026, 8:17:01 PM",
+        "updated_at": "Sep 11, 2026, 8:32:10 PM",
+        "reporter": "GhostCoder6969",
+        "owner": "GhostCoder6969",
+        "component": "HTTP handling",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37342",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37342",
+          "Summary": "set_cookie() should reject __Host- / __Secure- prefixes browsers will silently drop",
+          "Type": "New feature",
+          "Status": "assigned",
+          "Component": "HTTP handling",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 11, 2026, 8:17:01 PM",
+          "Modified": "Sep 11, 2026, 8:32:10 PM",
+          "Reporter": "GhostCoder6969",
+          "Owner": "GhostCoder6969",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Browsers silently ignore a Set-Cookie response when the name uses the __Host- prefix without Secure + Path=/ and no Domain attribute, or the __Secure- prefix without Secure. Django currently accepts such cookies without complaint, so a misconfigured SESSION_COOKIE_NAME / CSRF_COOKIE_NAME (or any set_cookie call) fails open with no signal.\r\n\r\nProposed: raise ValueError from HttpResponse.set_cookie() when the name carries a __Host- / __Secure- prefix whose requirements the cookie attributes don't satisfy.\r\n\r\nReference implementation: GH PR django/django#21955 (will link this ticket there once filed)."
         }
       }
     }
