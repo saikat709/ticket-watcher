@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37342
+      "last_seen_id": 37343
     }
   },
   "tracked": {
@@ -710,6 +710,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Browsers silently ignore a Set-Cookie response when the name uses the __Host- prefix without Secure + Path=/ and no Domain attribute, or the __Secure- prefix without Secure. Django currently accepts such cookies without complaint, so a misconfigured SESSION_COOKIE_NAME / CSRF_COOKIE_NAME (or any set_cookie call) fails open with no signal.\r\n\r\nProposed: raise ValueError from HttpResponse.set_cookie() when the name carries a __Host- / __Secure- prefix whose requirements the cookie attributes don't satisfy.\r\n\r\nReference implementation: GH PR django/django#21955 (will link this ticket there once filed)."
+        }
+      }
+    },
+    "django:37343": {
+      "source": "django",
+      "ticket_id": 37343,
+      "watcher_issue_number": 18,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-12T22:24:56.009153+00:00",
+      "last_updated": "2026-09-12T22:24:56.009153+00:00",
+      "ticket_data": {
+        "id": 37343,
+        "source_id": "django",
+        "title": "Use FETCH_ASYNC as the default fetch mode for async ORM queries (replace SynchronousOnlyOperation on implicit related fetches)",
+        "description": "**Description:**\r\n\r\nDjango 6.1 added fetch modes (FETCH_ONE, FETCH_PEERS, FETCH_RAISE). I'd like to propose using them to improve the async ORM experience.\r\n\r\n**Problem**\r\n\r\nAsync Django ORM doesn't support the active-record pattern for related objects. Accessing an unloaded relation triggers an implicit synchronous fetch:\r\n\r\n\r\n{{{\r\nbook = await Book.objects.aget(pk=1)\r\nbook.author.name  # implicit FK fetch\r\n}}}\r\n\r\nWithout select_related() / prefetch_related(), this raises SynchronousOnlyOperation. That error is confusing here: it describes the mechanism (a sync DB call inside an async context) rather than the actual mistake (accessing a relation that wasn't loaded). A developer new to async Django can't easily tell from it what to do next (or it can make a silent sync call if DJANGO_ALLOW_ASYNC_UNSAFE is true).\r\n\r\n**Proposal**\r\n\r\nWhen a query runs in async mode, default its fetch mode to FETCH_ASYNC instead of relying on the implicit-sync path. Accessing an unloaded field would then raise FieldFetchBlocked with a message pointing to the fix\r\n\r\n\r\n{{{\r\nFieldFetchBlocked: 'author' isn't fetched. Load it with select_related()/prefetch_related().\r\n}}}\r\n\r\nThis turns a low-level error into an actionable ORM error, at the exact spot where the developer needs guidance.\r\n\r\n**Context**\r\n\r\nThis came up in django-async-backend. We can hardcode a custom fetch function there to raise our own error, but it would be much better to have consistent behavior inside Django itself.\r\n\r\n",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Sep 12, 2026, 4:54:36 PM",
+        "updated_at": "Sep 12, 2026, 4:54:36 PM",
+        "reporter": "Mykhailo Havelia",
+        "owner": "",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37343",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37343",
+          "Summary": "Use FETCH_ASYNC as the default fetch mode for async ORM queries (replace SynchronousOnlyOperation on implicit related fetches)",
+          "Type": "New feature",
+          "Status": "new",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 12, 2026, 4:54:36 PM",
+          "Modified": "Sep 12, 2026, 4:54:36 PM",
+          "Reporter": "Mykhailo Havelia",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "**Description:**\r\n\r\nDjango 6.1 added fetch modes (FETCH_ONE, FETCH_PEERS, FETCH_RAISE). I'd like to propose using them to improve the async ORM experience.\r\n\r\n**Problem**\r\n\r\nAsync Django ORM doesn't support the active-record pattern for related objects. Accessing an unloaded relation triggers an implicit synchronous fetch:\r\n\r\n\r\n{{{\r\nbook = await Book.objects.aget(pk=1)\r\nbook.author.name  # implicit FK fetch\r\n}}}\r\n\r\nWithout select_related() / prefetch_related(), this raises SynchronousOnlyOperation. That error is confusing here: it describes the mechanism (a sync DB call inside an async context) rather than the actual mistake (accessing a relation that wasn't loaded). A developer new to async Django can't easily tell from it what to do next (or it can make a silent sync call if DJANGO_ALLOW_ASYNC_UNSAFE is true).\r\n\r\n**Proposal**\r\n\r\nWhen a query runs in async mode, default its fetch mode to FETCH_ASYNC instead of relying on the implicit-sync path. Accessing an unloaded field would then raise FieldFetchBlocked with a message pointing to the fix\r\n\r\n\r\n{{{\r\nFieldFetchBlocked: 'author' isn't fetched. Load it with select_related()/prefetch_related().\r\n}}}\r\n\r\nThis turns a low-level error into an actionable ORM error, at the exact spot where the developer needs guidance.\r\n\r\n**Context**\r\n\r\nThis came up in django-async-backend. We can hardcode a custom fetch function there to raise our own error, but it would be much better to have consistent behavior inside Django itself.\r\n\r\n"
         }
       }
     }
