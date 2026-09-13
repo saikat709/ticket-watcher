@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37343
+      "last_seen_id": 37344
     }
   },
   "tracked": {
@@ -760,6 +760,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "**Description:**\r\n\r\nDjango 6.1 added fetch modes (FETCH_ONE, FETCH_PEERS, FETCH_RAISE). I'd like to propose using them to improve the async ORM experience.\r\n\r\n**Problem**\r\n\r\nAsync Django ORM doesn't support the active-record pattern for related objects. Accessing an unloaded relation triggers an implicit synchronous fetch:\r\n\r\n\r\n{{{\r\nbook = await Book.objects.aget(pk=1)\r\nbook.author.name  # implicit FK fetch\r\n}}}\r\n\r\nWithout select_related() / prefetch_related(), this raises SynchronousOnlyOperation. That error is confusing here: it describes the mechanism (a sync DB call inside an async context) rather than the actual mistake (accessing a relation that wasn't loaded). A developer new to async Django can't easily tell from it what to do next (or it can make a silent sync call if DJANGO_ALLOW_ASYNC_UNSAFE is true).\r\n\r\n**Proposal**\r\n\r\nWhen a query runs in async mode, default its fetch mode to FETCH_ASYNC instead of relying on the implicit-sync path. Accessing an unloaded field would then raise FieldFetchBlocked with a message pointing to the fix\r\n\r\n\r\n{{{\r\nFieldFetchBlocked: 'author' isn't fetched. Load it with select_related()/prefetch_related().\r\n}}}\r\n\r\nThis turns a low-level error into an actionable ORM error, at the exact spot where the developer needs guidance.\r\n\r\n**Context**\r\n\r\nThis came up in django-async-backend. We can hardcode a custom fetch function there to raise our own error, but it would be much better to have consistent behavior inside Django itself.\r\n\r\n"
+        }
+      }
+    },
+    "django:37344": {
+      "source": "django",
+      "ticket_id": 37344,
+      "watcher_issue_number": 19,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-13T05:02:02.789611+00:00",
+      "last_updated": "2026-09-13T05:02:02.789611+00:00",
+      "ticket_data": {
+        "id": 37344,
+        "source_id": "django",
+        "title": "Document that FETCH_PEERS does not apply to instances loaded by select_related()",
+        "description": "**Description**\r\n\r\nCombining `select_related()` with `FETCH_PEERS` silently disables peer batching one level below the join, turning an intended optimization into an N+1 and making the query count *worse* than not calling `select_related()` at all.\r\n\r\nGiven `Species -> Genus -> Family`:\r\n\r\n{{{\r\n# 3 queries: species, batch of genus, batch of family\r\nfor species in Species.objects.fetch_mode(FETCH_PEERS):\r\n    species.genus.family.name\r\n\r\n# 4 queries: the join, then ONE QUERY PER FAMILY\r\nfor species in Species.objects.select_related(\"genus\").fetch_mode(FETCH_PEERS):\r\n    species.genus.family.name\r\n}}}\r\n\r\nThe second form emits:\r\n\r\n{{{\r\nSELECT ... FROM species INNER JOIN genus ON (species.genus_id = genus.id);\r\nSELECT ... FROM family WHERE family.id = 1 LIMIT 21;\r\nSELECT ... FROM family WHERE family.id = 2 LIMIT 21;\r\nSELECT ... FROM family WHERE family.id = 3 LIMIT 21;\r\n}}}\r\n\r\nWas it intended to be this way? If so, I think it\u2019s worth mentioning in the documentation.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Sep 12, 2026, 7:12:40 PM",
+        "updated_at": "Sep 12, 2026, 7:12:56 PM",
+        "reporter": "Mykhailo Havelia",
+        "owner": "",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37344",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37344",
+          "Summary": "Document that FETCH_PEERS does not apply to instances loaded by select_related()",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 12, 2026, 7:12:40 PM",
+          "Modified": "Sep 12, 2026, 7:12:56 PM",
+          "Reporter": "Mykhailo Havelia",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "**Description**\r\n\r\nCombining `select_related()` with `FETCH_PEERS` silently disables peer batching one level below the join, turning an intended optimization into an N+1 and making the query count *worse* than not calling `select_related()` at all.\r\n\r\nGiven `Species -> Genus -> Family`:\r\n\r\n{{{\r\n# 3 queries: species, batch of genus, batch of family\r\nfor species in Species.objects.fetch_mode(FETCH_PEERS):\r\n    species.genus.family.name\r\n\r\n# 4 queries: the join, then ONE QUERY PER FAMILY\r\nfor species in Species.objects.select_related(\"genus\").fetch_mode(FETCH_PEERS):\r\n    species.genus.family.name\r\n}}}\r\n\r\nThe second form emits:\r\n\r\n{{{\r\nSELECT ... FROM species INNER JOIN genus ON (species.genus_id = genus.id);\r\nSELECT ... FROM family WHERE family.id = 1 LIMIT 21;\r\nSELECT ... FROM family WHERE family.id = 2 LIMIT 21;\r\nSELECT ... FROM family WHERE family.id = 3 LIMIT 21;\r\n}}}\r\n\r\nWas it intended to be this way? If so, I think it\u2019s worth mentioning in the documentation."
         }
       }
     }
