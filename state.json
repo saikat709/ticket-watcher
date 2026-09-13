@@ -11,7 +11,7 @@
       "watcher_issue_number": 2,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-12T03:22:11.526262+00:00",
+      "last_checked": "2026-09-13T03:27:37.001886+00:00",
       "last_updated": "2026-09-06T03:12:14.317214+00:00",
       "ticket_data": {
         "id": 37326,
@@ -61,7 +61,7 @@
       "watcher_issue_number": 3,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-12T03:22:11.526262+00:00",
+      "last_checked": "2026-09-13T03:27:37.001886+00:00",
       "last_updated": "2026-09-06T03:12:14.317214+00:00",
       "ticket_data": {
         "id": 37327,
@@ -112,7 +112,7 @@
       "watcher_issue_number": 4,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-12T03:22:11.526262+00:00",
+      "last_checked": "2026-09-13T03:27:37.001886+00:00",
       "last_updated": "2026-09-06T03:12:14.317214+00:00",
       "ticket_data": {
         "id": 37328,
@@ -163,7 +163,7 @@
       "watcher_issue_number": 5,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-12T03:22:11.526262+00:00",
+      "last_checked": "2026-09-13T03:27:37.001886+00:00",
       "last_updated": "2026-09-09T03:21:47.477014+00:00",
       "ticket_data": {
         "id": 37329,
@@ -215,7 +215,7 @@
       "watcher_issue_number": 6,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-12T03:22:11.526262+00:00",
+      "last_checked": "2026-09-13T03:27:37.001886+00:00",
       "last_updated": "2026-09-12T03:22:11.526262+00:00",
       "ticket_data": {
         "id": 37330,
@@ -266,7 +266,7 @@
       "watcher_issue_number": 8,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-12T03:22:11.526262+00:00",
+      "last_checked": "2026-09-13T03:27:37.001886+00:00",
       "last_updated": "2026-09-08T15:33:33.254698+00:00",
       "ticket_data": {
         "id": 37332,
@@ -318,7 +318,7 @@
       "watcher_issue_number": 9,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-12T03:22:11.526262+00:00",
+      "last_checked": "2026-09-13T03:27:37.001886+00:00",
       "last_updated": "2026-09-10T03:20:41.354089+00:00",
       "ticket_data": {
         "id": 37333,
@@ -369,7 +369,7 @@
       "watcher_issue_number": 10,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-12T03:22:11.526262+00:00",
+      "last_checked": "2026-09-13T03:27:37.001886+00:00",
       "last_updated": "2026-09-09T16:47:31.184624+00:00",
       "ticket_data": {
         "id": 37334,
@@ -420,7 +420,7 @@
       "watcher_issue_number": 11,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-12T03:22:11.526262+00:00",
+      "last_checked": "2026-09-13T03:27:37.001886+00:00",
       "last_updated": "2026-09-11T03:17:00.522062+00:00",
       "ticket_data": {
         "id": 37335,
@@ -430,7 +430,7 @@
         "status": "assigned",
         "resolution": "",
         "created_at": "Sep 9, 2026, 12:37:36 PM",
-        "updated_at": "Sep 11, 2026, 1:54:39 AM",
+        "updated_at": "Sep 12, 2026, 4:00:43 AM",
         "reporter": "Vandna",
         "owner": "Vandna",
         "component": "Documentation",
@@ -453,7 +453,7 @@
           "Severity": "Normal",
           "Resolution": "",
           "Created": "Sep 9, 2026, 12:37:36 PM",
-          "Modified": "Sep 11, 2026, 1:54:39 AM",
+          "Modified": "Sep 12, 2026, 4:00:43 AM",
           "Reporter": "Vandna",
           "Owner": "Vandna",
           "Triage Stage": "Accepted",
@@ -471,7 +471,7 @@
       "watcher_issue_number": 12,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-12T03:22:11.526262+00:00",
+      "last_checked": "2026-09-13T03:27:37.001886+00:00",
       "last_updated": "2026-09-10T03:20:41.354089+00:00",
       "ticket_data": {
         "id": 37336,
@@ -503,7 +503,7 @@
       "watcher_issue_number": 13,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-12T03:22:11.526262+00:00",
+      "last_checked": "2026-09-13T03:27:37.001886+00:00",
       "last_updated": "2026-09-12T03:22:11.526262+00:00",
       "ticket_data": {
         "id": 37337,
@@ -618,7 +618,7 @@
       "watcher_issue_number": 16,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-12T03:22:11.526262+00:00",
+      "last_checked": "2026-09-13T03:27:37.001886+00:00",
       "last_updated": "2026-09-12T03:22:11.526262+00:00",
       "ticket_data": {
         "id": 37340,
