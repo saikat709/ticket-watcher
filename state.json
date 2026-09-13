@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37344
+      "last_seen_id": 37345
     }
   },
   "tracked": {
@@ -810,6 +810,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "**Description**\r\n\r\nCombining `select_related()` with `FETCH_PEERS` silently disables peer batching one level below the join, turning an intended optimization into an N+1 and making the query count *worse* than not calling `select_related()` at all.\r\n\r\nGiven `Species -> Genus -> Family`:\r\n\r\n{{{\r\n# 3 queries: species, batch of genus, batch of family\r\nfor species in Species.objects.fetch_mode(FETCH_PEERS):\r\n    species.genus.family.name\r\n\r\n# 4 queries: the join, then ONE QUERY PER FAMILY\r\nfor species in Species.objects.select_related(\"genus\").fetch_mode(FETCH_PEERS):\r\n    species.genus.family.name\r\n}}}\r\n\r\nThe second form emits:\r\n\r\n{{{\r\nSELECT ... FROM species INNER JOIN genus ON (species.genus_id = genus.id);\r\nSELECT ... FROM family WHERE family.id = 1 LIMIT 21;\r\nSELECT ... FROM family WHERE family.id = 2 LIMIT 21;\r\nSELECT ... FROM family WHERE family.id = 3 LIMIT 21;\r\n}}}\r\n\r\nWas it intended to be this way? If so, I think it\u2019s worth mentioning in the documentation."
+        }
+      }
+    },
+    "django:37345": {
+      "source": "django",
+      "ticket_id": 37345,
+      "watcher_issue_number": 20,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-13T14:29:44.972918+00:00",
+      "last_updated": "2026-09-13T14:29:44.972918+00:00",
+      "ticket_data": {
+        "id": 37345,
+        "source_id": "django",
+        "title": "Add mailer shorthand for mailers[DEFAULT_MAILER_ALIAS]",
+        "description": "Howdy,\r\n\r\nThe new mailers interfaces is lacking a `django.db.connection` equivalent.\r\nA `django.mail.mailer` shorthand for `mailers[DEFAULT_MAILER_ALIAS]` would simplify the transition away from `get_connection`.\r\n\r\nI would have complained earlier during development, but I simply missed it. Only that I am migrating a project now, I realize it's inconsistent with `django.db` or `django.cache`.\r\n\r\nCheerio\r\n-Joe",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Sep 13, 2026, 7:54:32 AM",
+        "updated_at": "Sep 13, 2026, 7:54:32 AM",
+        "reporter": "Johannes Maron",
+        "owner": "",
+        "component": "Core (Mail)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37345",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37345",
+          "Summary": "Add mailer shorthand for mailers[DEFAULT_MAILER_ALIAS]",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "Core (Mail)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 13, 2026, 7:54:32 AM",
+          "Modified": "Sep 13, 2026, 7:54:32 AM",
+          "Reporter": "Johannes Maron",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Howdy,\r\n\r\nThe new mailers interfaces is lacking a `django.db.connection` equivalent.\r\nA `django.mail.mailer` shorthand for `mailers[DEFAULT_MAILER_ALIAS]` would simplify the transition away from `get_connection`.\r\n\r\nI would have complained earlier during development, but I simply missed it. Only that I am migrating a project now, I realize it's inconsistent with `django.db` or `django.cache`.\r\n\r\nCheerio\r\n-Joe"
         }
       }
     }
