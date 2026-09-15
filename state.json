@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37345
+      "last_seen_id": 37346
     }
   },
   "tracked": {
@@ -824,6 +824,56 @@
         "pr_status": null,
         "raw_data": {
           "id": "37345"
+        }
+      }
+    },
+    "django:37346": {
+      "source": "django",
+      "ticket_id": 37346,
+      "watcher_issue_number": 21,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-15T07:54:13.106499+00:00",
+      "last_updated": "2026-09-15T07:54:13.106499+00:00",
+      "ticket_data": {
+        "id": 37346,
+        "source_id": "django",
+        "title": "PR quality checks do not recognize asterisk task list markers",
+        "description": "The PR quality checker does not recognize checked task list items that use an asterisk (*) instead of a hyphen (-), even though GitHub renders both formats as checked checkboxes.\r\n\r\nI encountered this while updating the description of my documentation PR:\r\nhttps://github.com/django/django/pull/21935\r\n\r\nThe description used \"* [x]\" for checked items. GitHub displayed them as checked, but the quality checker reported missing AI disclosure and an incomplete checklist. Replacing the asterisk list markers with hyphens resolved these errors.\r\n\r\nSteps to reproduce:\r\n\r\n1. Start with a PR description that passes the AI disclosure and checklist checks, including exactly one selected AI disclosure option, the required AI usage explanation where applicable, and the first five checklist items checked.\r\n2. Replace the leading hyphen list markers in the AI disclosure and Checklist sections with asterisks, preserving the checkbox states and all other content.\r\n3. Run the AI disclosure and checklist checks against the modified description.\r\n\r\nExpected behavior:\r\n\r\nThe checks should recognize asterisk task list markers and produce the same results as for equivalent hyphen task list markers.\r\n\r\nActual behavior:\r\n\r\nThe checks report missing AI disclosure and an incomplete checklist.\r\n\r\nThe checkbox matching in check_ai_disclosure() and check_checklist() in scripts/pr_quality/check_pr.py currently expects hyphen markers. The filtering of checkbox lines from the AI usage explanation also assumes hyphen markers.\r\n\r\nForum discussion:\r\nhttps://forum.djangoproject.com/t/pr-quality-checks-reject-checked-items-using-asterisk-list-markers/45990\r\n\r\nIn that discussion, CodenameTim recommended opening a Trac ticket.\r\n\r\nI would be interested in working on a fix with regression tests.\r\n",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Sep 15, 2026, 12:55:33 AM",
+        "updated_at": "Sep 15, 2026, 12:55:33 AM",
+        "reporter": "Prince Verma",
+        "owner": "",
+        "component": "Core (Other)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37346",
+        "pr_url": "https://github.com/django/django/pull/21935",
+        "pr_status": "open",
+        "raw_data": {
+          "id": "37346",
+          "Summary": "PR quality checks do not recognize asterisk task list markers",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Core (Other)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 15, 2026, 12:55:33 AM",
+          "Modified": "Sep 15, 2026, 12:55:33 AM",
+          "Reporter": "Prince Verma",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "The PR quality checker does not recognize checked task list items that use an asterisk (*) instead of a hyphen (-), even though GitHub renders both formats as checked checkboxes.\r\n\r\nI encountered this while updating the description of my documentation PR:\r\nhttps://github.com/django/django/pull/21935\r\n\r\nThe description used \"* [x]\" for checked items. GitHub displayed them as checked, but the quality checker reported missing AI disclosure and an incomplete checklist. Replacing the asterisk list markers with hyphens resolved these errors.\r\n\r\nSteps to reproduce:\r\n\r\n1. Start with a PR description that passes the AI disclosure and checklist checks, including exactly one selected AI disclosure option, the required AI usage explanation where applicable, and the first five checklist items checked.\r\n2. Replace the leading hyphen list markers in the AI disclosure and Checklist sections with asterisks, preserving the checkbox states and all other content.\r\n3. Run the AI disclosure and checklist checks against the modified description.\r\n\r\nExpected behavior:\r\n\r\nThe checks should recognize asterisk task list markers and produce the same results as for equivalent hyphen task list markers.\r\n\r\nActual behavior:\r\n\r\nThe checks report missing AI disclosure and an incomplete checklist.\r\n\r\nThe checkbox matching in check_ai_disclosure() and check_checklist() in scripts/pr_quality/check_pr.py currently expects hyphen markers. The filtering of checkbox lines from the AI usage explanation also assumes hyphen markers.\r\n\r\nForum discussion:\r\nhttps://forum.djangoproject.com/t/pr-quality-checks-reject-checked-items-using-asterisk-list-markers/45990\r\n\r\nIn that discussion, CodenameTim recommended opening a Trac ticket.\r\n\r\nI would be interested in working on a fix with regression tests.\r\n"
         }
       }
     }
