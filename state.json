@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37348
+      "last_seen_id": 37349
     }
   },
   "tracked": {
@@ -974,6 +974,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "As of Django 6.1, having a GeneratedField declared with an explicit `null=True` causes the warning `(fields.W225) null has no effect on GeneratedField`.\r\n\r\nConsider the following minimal example:\r\n\r\n{{{\r\nclass NumericPrefix(models.Func):\r\n    function = \"substring\"\r\n    template = r\"%(function)s(%(expressions)s from '^\\d+')\"\r\n\r\nclass Foo(models.Model):\r\n    code = models.CharField(max_length=50)\r\n    code_num_prefix = models.GeneratedField(\r\n        expression=NumericPrefix(\"code\"),\r\n        output_field=models.CharField(max_length=50),\r\n        db_persist=True,\r\n        null=True,\r\n    )\r\n}}}\r\n\r\nWhen I try to resolve the warning by removing `null=True`, the following happens:\r\n\r\n* the `makemigrations` command prompts the dialog\r\n\r\n{{{\r\nIt is impossible to change a nullable field 'code_num_prefix' on foo to non-nullable without providing a default. This is because the database needs something to populate existing rows.\r\nPlease select a fix:\r\n 1) Provide a one-off default now (will be set on all existing rows with a null value for this column)\r\n 2) Ignore for now. Existing rows that contain NULL values will have to be handled manually, for example with a RunPython or RunSQL operation.\r\n 3) Quit and manually define a default value in models.py.\r\n}}}\r\n\r\nI select 2 because my table contains NULL values that I don\u2019t want to change.\r\n\r\n* `sqlmigrate` of the new migration outputs the following SQL:\r\n\r\n{{{\r\nBEGIN;\r\n--\r\n-- Alter field code_num_prefix on foo\r\n--\r\nALTER TABLE \"foo_foo\" ALTER COLUMN \"code_num_prefix\" SET NOT NULL;\r\nCOMMIT;\r\n}}}\r\n\r\n* attempting to run `migrate` fails with\r\n\r\n{{{\r\ndjango.db.utils.IntegrityError: column \"code_num_prefix\" of relation \"foo_foo\" contains null values\r\n}}}\r\n\r\n(as mentioned above \u2014 my table contains NULL values)\r\n\r\nThese are all familiar steps when altering a normal column from nullable to non-nullable. But in this case it's unexpected and inconsistent with the warning's message.\r\n\r\n[https://dryorm.xterm.info/generatedfield-vs-nulltrue This example] can be used to demonstrate that the DDL for the generated field is the same regardless of whether `null=True` is passed or not. Therefore I believe that this might be a bug and that removing `null=True` from GeneratedField should be a no-op at the database level.\r\n"
+        }
+      }
+    },
+    "django:37349": {
+      "source": "django",
+      "ticket_id": 37349,
+      "watcher_issue_number": 24,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-16T06:14:23.571285+00:00",
+      "last_updated": "2026-09-16T06:14:23.571285+00:00",
+      "ticket_data": {
+        "id": 37349,
+        "source_id": "django",
+        "title": "Add note about object key order in JSONField docs",
+        "description": "Using JSONField with PostgreSQL, storing a `dict` in the field and then later retrieving it, will not preserve the key order,\r\n\r\nbecause PostgreSQL `jsonb` type \"does not preserve the order of object keys\" (https://www.postgresql.org/docs/current/datatype-json.html).\r\n\r\nThis behavior can be surprising, because python `dict` does preserve key order, and storing/retrieving `dict`s with  `json.dumps`/`json.loads` will preserve key order.\r\n\r\nSo, I am proposing to add a note to the `JSONField` docs explaining that key order may not be preserved. This could go in either the current \"PostgreSQL users\" note, or a new note. This probably depends on if the other DB backends preserve key order. I haven't checked if any of the others do.\r\n\r\n",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Sep 15, 2026, 9:51:08 PM",
+        "updated_at": "Sep 15, 2026, 11:06:18 PM",
+        "reporter": "Lincoln",
+        "owner": "",
+        "component": "Documentation",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37349",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37349",
+          "Summary": "Add note about object key order in JSONField docs",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "Documentation",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 15, 2026, 9:51:08 PM",
+          "Modified": "Sep 15, 2026, 11:06:18 PM",
+          "Reporter": "Lincoln",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Using JSONField with PostgreSQL, storing a `dict` in the field and then later retrieving it, will not preserve the key order,\r\n\r\nbecause PostgreSQL `jsonb` type \"does not preserve the order of object keys\" (https://www.postgresql.org/docs/current/datatype-json.html).\r\n\r\nThis behavior can be surprising, because python `dict` does preserve key order, and storing/retrieving `dict`s with  `json.dumps`/`json.loads` will preserve key order.\r\n\r\nSo, I am proposing to add a note to the `JSONField` docs explaining that key order may not be preserved. This could go in either the current \"PostgreSQL users\" note, or a new note. This probably depends on if the other DB backends preserve key order. I haven't checked if any of the others do.\r\n\r\n"
         }
       }
     }
