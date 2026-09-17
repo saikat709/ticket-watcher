@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37351
+      "last_seen_id": 37352
     }
   },
   "tracked": {
@@ -1089,6 +1089,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "The migration layer attempts to detect if a `GeneratedField` has been altered in a SQL-affecting way so that it can throw an exception:\r\n\r\n{{{#!py\r\n        if modifying_generated_field:\r\n            raise ValueError(\r\n                f\"Modifying GeneratedFields is not supported - the field {new_field} \"\r\n                \"must be removed and re-added with the new definition.\"\r\n            )\r\n}}}\r\n\r\nHowever, altering the `null` kwarg, e.g. from `False` to `True` is not detected by the above check, but ''does'' have an incidence on the DDL that gets emitted, so a migration gets emitted that can do wacky things in the database, see ticket:37348#comment:6.\r\n\r\nI propose to fix the `modifying_generated_field` logic so that it fathoms changes in the `null` attribute and raises.\r\n\r\nThis will be a breaking change but most likely a welcome one (removing dangerous operations from your migrations).\r\n\r\nRough test:\r\n{{{#!diff\r\ndiff --git a/tests/migrations/test_operations.py b/tests/migrations/test_operations.py\r\nindex 9bbf1249e9..907c255e22 100644\r\n--- a/tests/migrations/test_operations.py\r\n+++ b/tests/migrations/test_operations.py\r\n@@ -6646,6 +6646,13 @@ class OperationTests(OperationTestBase):\r\n             tests.append(\r\n                 (\"test_igfc_4\", generated_1, generated_3),\r\n             )\r\n+        generated_4 = models.GeneratedField(\r\n+            expression=F(\"pink\") + F(\"pink\") + F(\"pink\"),\r\n+            output_field=models.IntegerField(),\r\n+            db_persist=db_persist,\r\n+            null=True,\r\n+        )\r\n+        tests.append((\"test_igfc_5\", generated_2, generated_4))\r\n         for app_label, add_field, alter_field in tests:\r\n             project_state = self.set_up_test_model(app_label)\r\n             operations = [\r\n}}}\r\n{{{#!py\r\nAssertionError: ValueError not raised\r\n}}}"
+        }
+      }
+    },
+    "django:37352": {
+      "source": "django",
+      "ticket_id": 37352,
+      "watcher_issue_number": 27,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-17T22:17:29.081226+00:00",
+      "last_updated": "2026-09-17T22:17:29.081226+00:00",
+      "ticket_data": {
+        "id": 37352,
+        "source_id": "django",
+        "title": "ServerFormatter changed incompatibly in Django 2.1",
+        "description": "While developing djangoproject.com, a failing request spewed a large stacktrace to my terminal, as described [https://github.com/django/djangoproject.com/issues/1673 here]. Root cause was: that project's logging config extends Django's, and it never caught up with a backward incompatible change in Django 2.1 (#28810) that meant the injection of the `server_time` variable would only happen for f-string format strings, no longer for %-style format strings.\r\n\r\nThis breaking change was mentioned during triage but didn't get a response during review.\r\n\r\nOf course, I could fix this in djangoproject.com, but it's just as easy to fix it in Django where other projects could benefit.\r\n\r\nProposal: this util:\r\n\r\n{{{#!py\r\n    def uses_server_time(self):\r\n        return self._fmt.find(\"{server_time}\") >= 0\r\n}}}\r\n\r\nShould not assume f-string style formatting.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Sep 17, 2026, 2:35:49 PM",
+        "updated_at": "Sep 17, 2026, 2:36:00 PM",
+        "reporter": "Jacob Walls",
+        "owner": "",
+        "component": "Utilities",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37352",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37352",
+          "Summary": "ServerFormatter changed incompatibly in Django 2.1",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Utilities",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 17, 2026, 2:35:49 PM",
+          "Modified": "Sep 17, 2026, 2:36:00 PM",
+          "Reporter": "Jacob Walls",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "While developing djangoproject.com, a failing request spewed a large stacktrace to my terminal, as described [https://github.com/django/djangoproject.com/issues/1673 here]. Root cause was: that project's logging config extends Django's, and it never caught up with a backward incompatible change in Django 2.1 (#28810) that meant the injection of the `server_time` variable would only happen for f-string format strings, no longer for %-style format strings.\r\n\r\nThis breaking change was mentioned during triage but didn't get a response during review.\r\n\r\nOf course, I could fix this in djangoproject.com, but it's just as easy to fix it in Django where other projects could benefit.\r\n\r\nProposal: this util:\r\n\r\n{{{#!py\r\n    def uses_server_time(self):\r\n        return self._fmt.find(\"{server_time}\") >= 0\r\n}}}\r\n\r\nShould not assume f-string style formatting."
         }
       }
     }
