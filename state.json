@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37356
+      "last_seen_id": 37358
     }
   },
   "tracked": {
@@ -1220,6 +1220,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "{{{\r\nclass Tenant(models.Model):\r\n    pass\r\n\r\nclass Token(models.Model):\r\n    pk = models.CompositePrimaryKey(\"tenant_id\", \"id\")\r\n    tenant = models.ForeignKey(Tenant, models.CASCADE)\r\n    id = models.SmallIntegerField()\r\n    secret = models.CharField(max_length=10)\r\n\r\nqs = Token.objects.annotate(\r\n    rn=Window(RowNumber(), partition_by=F(\"tenant_id\"), order_by=\"id\")\r\n).filter(rn=1)\r\n\r\nqs.values(\"pk\", \"secret\")\r\n# IndexError: list index out of range        (PostgreSQL)\r\n\r\nqs.values_list(\"pk\", \"secret\")\r\n# [((1,), ''), ((3,), '')]                   (SQLite: pk silently missing a component)\r\n# expected [((1, 1), ''), ((2, 3), '')]\r\n}}}\r\n\r\nReproduces on 5.2, 6.0, and main.\r\n\r\nCause: `get_select(with_col_aliases=True)` assigns one `colN` alias per selection, but a `CompositePrimaryKey` compiles to N columns, so the alias lands on only the last one. `get_qualify_sql()` then masks the outer query to the aliases, which is one column short of the physical row:\r\n\r\n{{{\r\nSELECT \"col1\", \"secret\" FROM (\r\n  SELECT \"token\".\"tenant_id\", \"token\".\"id\" AS \"col1\", \"token\".\"secret\" AS \"secret\", ...\r\n}}}\r\n\r\nUnlike #37353, #37354, and #37355 there's no minimal fix for this one: a selection would need to carry N aliases, which changes the `(expr, (sql, params), alias)` contract shared by `get_select()`, `as_sql()`, and `get_qualify_sql()`. Per Jacob Walls' suggestion on the #37222 PR thread, the practical option is probably to raise `NotSupportedError` for a composite primary key selected under a window filter, consistent with how other single-expression contexts (`Max(\"pk\")`) reject composite keys.\r\n\r\nFound while verifying the fix for #37222: https://github.com/django/django/pull/21659#discussion_r3899304732\r\n\r\nDetails: https://github.com/davegaeddert/django/issues/7\r\n\r\n(AI assistance: Claude Code was used to find and reproduce this; I verified the reproducer.)"
+        }
+      }
+    },
+    "django:37358": {
+      "source": "django",
+      "ticket_id": 37358,
+      "watcher_issue_number": 32,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-19T16:36:13.763459+00:00",
+      "last_updated": "2026-09-19T16:36:13.763459+00:00",
+      "ticket_data": {
+        "id": 37358,
+        "source_id": "django",
+        "title": "Drop support for GDAL 3.3 and 3.4",
+        "description": "GDAL 3.3 and 3.4 will be more than 5 years old when Django 6.2 is released in April 2027, and support for it can be dropped.\r\n- https://github.com/OSGeo/gdal/releases/tag/v3.3.0\r\n- https://github.com/OSGeo/gdal/releases/tag/v3.4.0\r\n\r\nPrevious ticket: #36756",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Sep 19, 2026, 9:48:33 AM",
+        "updated_at": "Sep 19, 2026, 9:48:33 AM",
+        "reporter": "Jacob Walls",
+        "owner": "Jacob Walls",
+        "component": "GIS",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37358",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37358",
+          "Summary": "Drop support for GDAL 3.3 and 3.4",
+          "Type": "Cleanup/optimization",
+          "Status": "assigned",
+          "Component": "GIS",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 19, 2026, 9:48:33 AM",
+          "Modified": "Sep 19, 2026, 9:48:33 AM",
+          "Reporter": "Jacob Walls",
+          "Owner": "Jacob Walls",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "GDAL 3.3 and 3.4 will be more than 5 years old when Django 6.2 is released in April 2027, and support for it can be dropped.\r\n- https://github.com/OSGeo/gdal/releases/tag/v3.3.0\r\n- https://github.com/OSGeo/gdal/releases/tag/v3.4.0\r\n\r\nPrevious ticket: #36756"
         }
       }
     }
