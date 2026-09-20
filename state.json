@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37362
+      "last_seen_id": 37363
     }
   },
   "tracked": {
@@ -1271,6 +1271,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Django version: 6.2.dev (main, commit 446d9cf602a5c42862da118b714a5679bb61cf27)\r\nPython version: 3.13.12\r\n\r\n= Summary =\r\n\r\n`get_hasher(algorithm=\"default\")` treats the literal string `\"default\"` as\r\na sentinel meaning \"no algorithm was specified, use the first configured\r\nhasher\":\r\n\r\n{{{#!python\r\ndef get_hasher(algorithm=\"default\"):\r\n    if hasattr(algorithm, \"algorithm\"):\r\n        return algorithm\r\n    elif algorithm == \"default\":\r\n        return get_hashers()[0]\r\n    else:\r\n        hashers = get_hashers_by_algorithm()\r\n        try:\r\n            return hashers[algorithm]\r\n        except KeyError:\r\n            raise ValueError(...)\r\n}}}\r\n\r\n`identify_hasher(encoded)` derives the algorithm name purely by splitting\r\nthe encoded hash string on its first `$`:\r\n\r\n{{{#!python\r\ndef identify_hasher(encoded):\r\n    if (len(encoded) == 32 and \"$\" not in encoded) or (...):\r\n        algorithm = \"unsalted_md5\"\r\n    elif len(encoded) == 46 and encoded.startswith(\"sha1$$\"):\r\n        algorithm = \"unsalted_sha1\"\r\n    else:\r\n        algorithm = encoded.split(\"$\", 1)[0]\r\n    return get_hasher(algorithm)\r\n}}}\r\n\r\nIf an encoded hash string's own algorithm segment (the text before the\r\nfirst `$`) happens to literally be the string `\"default\"`,\r\n`identify_hasher()` passes `\"default\"` straight into `get_hasher()`, which\r\nmatches the sentinel case and returns the **first configured hasher** --\r\nregardless of whether that hasher's own `.algorithm` actually matches the\r\nstring. That mismatched hasher's `.decode(encoded)` then hits:\r\n\r\n{{{#!python\r\nalgorithm, iterations, salt, hash = encoded.split(\"$\", 3)\r\nassert algorithm == self.algorithm\r\n}}}\r\n\r\n`algorithm` here is `\"default\"`, parsed straight from the string, which\r\nnever equals the real hasher's `.algorithm` (e.g. `\"pbkdf2_sha256\"`), so\r\nthe assertion fails with a bare, unhandled `AssertionError` -- not the\r\n`ValueError` that `identify_hasher()`'s own docstring promises (\"Raise\r\nValueError if algorithm cannot be identified\").\r\n\r\nThis is reachable through `check_password()` -- the exact function\r\n`User.check_password()` / `ModelBackend.authenticate()` call on every\r\nlogin attempt, given the user's *stored* password hash as `encoded`.\r\n\r\n= Reproduction =\r\n\r\n{{{#!python\r\nimport django\r\nfrom django.conf import settings\r\nsettings.configure(\r\n    SECRET_KEY=\"x\",\r\n    PASSWORD_HASHERS=[\"django.contrib.auth.hashers.PBKDF2PasswordHasher\"],\r\n)\r\ndjango.setup()\r\n\r\nfrom django.contrib.auth.hashers import check_password\r\ncheck_password(\"some guess\", \"default$$$$\")\r\n}}}\r\n\r\nTraceback:\r\n{{{\r\n  File \"django/contrib/auth/hashers.py\", line 83, in check_password\r\n    is_correct, must_update = verify_password(password, encoded, preferred=preferred)\r\n  File \"django/contrib/auth/hashers.py\", line 62, in verify_password\r\n    must_update = hasher_changed or preferred.must_update(encoded)\r\n  File \"django/contrib/auth/hashers.py\", line 362, in must_update\r\n    decoded = self.decode(encoded)\r\n  File \"django/contrib/auth/hashers.py\", line 339, in decode\r\n    assert algorithm == self.algorithm\r\nAssertionError\r\n}}}\r\n\r\nIndependently reproduced twice via a clean `pip install` of Django\r\nstraight from GitHub main into a fresh virtualenv (most recently commit\r\n446d9cf6), confirming this is not an artifact of a locally modified\r\ncheckout:\r\n\r\n{{{\r\n$ pip install --upgrade \"django @ git+https://github.com/django/django.git@main\"\r\nResolved https://github.com/django/django.git to commit 446d9cf602a5c42862da118b714a5679bb61cf27\r\n$ python3 -c \"\r\nimport django\r\nfrom django.conf import settings\r\nsettings.configure(SECRET_KEY='x', PASSWORD_HASHERS=['django.contrib.auth.hashers.PBKDF2PasswordHasher'])\r\ndjango.setup()\r\nfrom django.contrib.auth.hashers import check_password\r\ncheck_password('some guess', 'default\\$\\$\\$\\$')\"\r\nTraceback (most recent call last):\r\n  ...\r\n  File \".../site-packages/django/contrib/auth/hashers.py\", line 339, in decode\r\n    assert algorithm == self.algorithm\r\nAssertionError\r\n}}}\r\n\r\n= Reachability =\r\n\r\nThis requires a `User.password` value that literally starts with\r\n`\"default$\"`. Under fully standard Django usage this cannot occur\r\norganically -- `set_password()`/`make_password()` always produce a hash\r\nprefixed with the real hasher's algorithm name (`pbkdf2_sha256$...`,\r\n`argon2$...`, `bcrypt$...`), never the literal word `\"default\"`.\r\n\r\nRealistic ways this string could still end up in `password`:\r\n\r\n* Constructing a user object without going through\r\n  `set_password()`/`create_user()` (e.g.\r\n  `User.objects.create(username=..., password=\"default$whatever\")`) --\r\n  a well-known footgun in data-import scripts, test fixtures, and\r\n  migrations from other systems.\r\n* Any bulk-import / legacy-system-migration path that copies a `password`\r\n  column verbatim without passing it through `make_password()`.\r\n\r\nImpact if triggered: every subsequent login attempt for that account\r\ncrashes with an unhandled `AssertionError` instead of failing cleanly\r\nwith \"invalid credentials\" -- denial of service against that account's\r\nability to authenticate, plus noisy 500s on every attempt against it\r\n(including from routine automated credential-stuffing traffic).\r\n\r\n= Not a duplicate of #18144 =\r\n\r\nTrac search for \"check_password AssertionError\" returns one result,\r\n#18144 (closed 2012) -- a different assertion in\r\n`MD5PasswordHasher.encode()`'s empty-salt backward-compatibility handling,\r\nunrelated to this `\"default\"` sentinel collision. Confirmed via Trac's\r\nown search before filing.\r\n\r\n= Suggested fix =\r\n\r\n`identify_hasher()` should reject the literal strings `\"default\"`,\r\n`\"unsalted_md5\"`, and `\"unsalted_sha1\"` explicitly before calling\r\n`get_hasher()` (these are internal sentinels, not real encoded-hash\r\nprefixes), or `get_hasher()`'s `\"default\"` special-case should only apply\r\nwhen the argument truly wasn't supplied by the caller (e.g. a dedicated\r\nsentinel object instead of overloading the string `\"default\"`, which is\r\nalso a syntactically-possible-if-never-real encoded-hash prefix).\r\n\r\n= AI disclosure =\r\n\r\nThis report was found and drafted with assistance from Claude Code\r\n(Anthropic). Specifically: coverage-guided fuzzing (Google's atheris/\r\nlibFuzzer bindings) was used to fuzz `identify_hasher()` and each\r\nhasher's `.decode()`, restricted to the realistic call pattern (only\r\never decoding with the hasher `identify_hasher()` itself selected, matching\r\nhow `verify_password()` calls it internally) -- this surfaced the crash.\r\nIt was then manually reduced to the minimal repro above, independently\r\nre-verified from scratch against a fresh `pip install` of Django from\r\nGitHub main (twice, on two separate commits), and checked against Trac's\r\nown search for duplicates before filing."
+        }
+      }
+    },
+    "django:37363": {
+      "source": "django",
+      "ticket_id": 37363,
+      "watcher_issue_number": 37,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-20T21:40:43.174856+00:00",
+      "last_updated": "2026-09-20T21:40:43.174856+00:00",
+      "ticket_data": {
+        "id": 37363,
+        "source_id": "django",
+        "title": "Restore PyPy testing now that PyPy supports Python 3.12",
+        "description": "PyPy 8.0.0 has just been released, including Python 3.12 support for the first time:\r\n\r\nhttps://pypy.org/posts/2026/09/pypy-v800-release.html\r\n\r\nDjango previously tested PyPy 3.10 in the scheduled test workflow, with both SQLite and PostgreSQL. These jobs were removed in f5772de69679efb54129ac1cbca3579b512778af when Django dropped support for Python 3.10 and 3.11 and raised its minimum supported version to Python 3.12.\r\n\r\nNow that PyPy provides a Python 3.12 interpreter again, I propose restoring PyPy testing in Django's scheduled CI.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Sep 20, 2026, 3:06:56 PM",
+        "updated_at": "Sep 20, 2026, 3:19:36 PM",
+        "reporter": "Paolo Melchiorre",
+        "owner": "",
+        "component": "Packaging",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37363",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37363",
+          "Summary": "Restore PyPy testing now that PyPy supports Python 3.12",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "Packaging",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 20, 2026, 3:06:56 PM",
+          "Modified": "Sep 20, 2026, 3:19:36 PM",
+          "Reporter": "Paolo Melchiorre",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "PyPy 8.0.0 has just been released, including Python 3.12 support for the first time:\r\n\r\nhttps://pypy.org/posts/2026/09/pypy-v800-release.html\r\n\r\nDjango previously tested PyPy 3.10 in the scheduled test workflow, with both SQLite and PostgreSQL. These jobs were removed in f5772de69679efb54129ac1cbca3579b512778af when Django dropped support for Python 3.10 and 3.11 and raised its minimum supported version to Python 3.12.\r\n\r\nNow that PyPy provides a Python 3.12 interpreter again, I propose restoring PyPy testing in Django's scheduled CI."
         }
       }
     }
