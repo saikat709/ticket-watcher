@@ -1,5 +1,6 @@
 from typing import List, Optional
 from ..models import Ticket
+from .issues import redact_pull_request_urls
 
 
 def format_initial_notification_comment(user: str) -> str:
@@ -10,7 +11,7 @@ def format_initial_notification_comment(user: str) -> str:
 def format_update_comment(ticket: Ticket, changes: List[str]) -> str:
     lines = ["**Ticket update detected:**", ""]
     for c in changes:
-        lines.append(f"- {c}")
+        lines.append(f"- {redact_pull_request_urls(c)}")
     return "\n".join(lines)
 
 
@@ -19,7 +20,7 @@ def format_completion_comment(ticket: Ticket, details: Optional[str] = None) -> 
     if details:
         lines.append(details)
     elif ticket.pr_url and ticket.pr_status == "merged":
-        lines.append(f"Pull Request {ticket.pr_url} was merged.")
+        lines.append("The tracked pull request was merged.")
     elif ticket.resolution:
         lines.append(f"Ticket #{ticket.id} was resolved as `{ticket.resolution}`.")
     else:

@@ -137,6 +137,9 @@ sources:
         comment_body = mock_gh.create_comment.call_args[1]["body"]
         self.assertIn("Status: new → assigned", comment_body)
         self.assertIn("Pull Request linked", comment_body)
+        self.assertNotIn("https://github.com/django/django/pull/21890", comment_body)
+        issue_body = mock_gh.update_issue.call_args[1]["body"]
+        self.assertNotIn("https://github.com/django/django/pull/21890", issue_body)
 
 
 if __name__ == "__main__":

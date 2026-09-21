@@ -82,6 +82,7 @@ sources:
         comment_body = mock_gh.create_comment.call_args[1]["body"]
         self.assertIn("✅ **Completed**", comment_body)
         self.assertIn("no longer actively tracked", comment_body)
+        self.assertNotIn("https://github.com/django/django/pull/21890", comment_body)
 
         # Check state: ticket removed from tracked, but last_seen_id remains intact!
         sm = StateManager(str(self.state_path))

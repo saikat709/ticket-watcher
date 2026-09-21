@@ -1,5 +1,10 @@
+import re
 from typing import List, Optional
 from ..models import Ticket
+
+
+def redact_pull_request_urls(text: str) -> str:
+    return re.sub(r"https?://github\.com/[^\s)]+/pull/\d+(?:[^\s)]*)?", "[PR link omitted]", text)
 
 
 def format_source_display_name(source_id: str) -> str:
@@ -19,12 +24,9 @@ def format_issue_title(ticket: Ticket) -> str:
 def format_issue_body(ticket: Ticket, last_checked_iso: str) -> str:
     source_display = format_source_display_name(ticket.source_id)
     labels_str = ", ".join(ticket.labels) if ticket.labels else "None"
-    pr_str = "None"
-    if ticket.pr_url:
-        status_suffix = f" ({ticket.pr_status})" if ticket.pr_status else ""
-        pr_str = f"{ticket.pr_url}{status_suffix}"
+    pr_str = ticket.pr_status or "None"
 
-    desc = ticket.description.strip() if ticket.description else "No description provided."
+    desc = redact_pull_request_urls(ticket.description.strip()) if ticket.description else "No description provided."
 
     lines = [
         f"**Source:** {source_display}",
@@ -65,7 +67,7 @@ def format_updated_issue_body(
     lines = [base_body, "", "### Tracking Activity History"]
     if recent_changes:
         for c in recent_changes:
-            lines.append(f"- [{last_checked_iso[:10]}] {c}")
+            lines.append(f"- [{last_checked_iso[:10]}] {redact_pull_request_urls(c)}")
     if completed:
         lines.append(f"- [{last_checked_iso[:10]}] ✅ **Completed** (Work finished / PR merged / Ticket resolved)")
 
