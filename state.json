@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37363
+      "last_seen_id": 37364
     }
   },
   "tracked": {
@@ -1304,6 +1304,57 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "PyPy 8.0.0 has just been released, including Python 3.12 support for the first time:\r\n\r\nhttps://pypy.org/posts/2026/09/pypy-v800-release.html\r\n\r\nDjango previously tested PyPy 3.10 in the scheduled test workflow, with both SQLite and PostgreSQL. These jobs were removed in f5772de69679efb54129ac1cbca3579b512778af when Django dropped support for Python 3.10 and 3.11 and raised its minimum supported version to Python 3.12.\r\n\r\nNow that PyPy provides a Python 3.12 interpreter again, I propose restoring PyPy testing in Django's scheduled CI."
+        }
+      }
+    },
+    "django:37364": {
+      "source": "django",
+      "ticket_id": 37364,
+      "watcher_issue_number": 38,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-21T08:03:48.641795+00:00",
+      "last_updated": "2026-09-21T08:03:48.641795+00:00",
+      "ticket_data": {
+        "id": 37364,
+        "source_id": "django",
+        "title": "Make NullBooleanSelect.format_value() return a list, consistent with ChoiceWidget",
+        "description": "`ChoiceWidget.format_value()` is documented (in its docstring) to \"Return selected values as a list\", and every `ChoiceWidget` subclass honors that, except `NullBooleanSelect`, which returns a bare string: `\"unknown\"`, `\"true\"`, or `\"false\"`.\r\n\r\n`NullBooleanSelect` does not override `get_context()` or `optgroups()`. It relies on the inherited `ChoiceWidget.optgroups()`, which marks an option as selected with `str(subvalue) in value`. When `value` is a list that is list membership. When `value` is the bare string it becomes a substring test, which only produces correct results because none of `\"unknown\"`, `\"true\"`, or `\"false\"` happens to be a substring of another. The parent's contract is satisfied by accident rather than by design, and it may be confusing for anyone who later customizes the choices or the parent implementation.\r\n\r\n----\r\n\r\nHistory: #27866 (1.11) changed `ChoiceWidget.format_value()` from returning a set to returning a list but did not touch `NullBooleanSelect`. #17210 (2.2) changed the `NullBooleanSelect` mapping from `1/2/3` to `unknown/true/false` and kept returning a bare string.\r\n\r\n----\r\n\r\nProposed change: wrap the result in a one-element list, i.e. `[\"unknown\"]`, `[\"true\"]`, or `[\"false\"]`. The rendered HTML should be identical. The only impact would be for third-party code that calls `widget.format_value()` directly and uses the result as a value representation.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Sep 21, 2026, 1:24:02 AM",
+        "updated_at": "Sep 21, 2026, 1:31:08 AM",
+        "reporter": "Brian Helba",
+        "owner": "Brian Helba",
+        "component": "Forms",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37364",
+        "pr_url": "https://github.com/django/django/pull/22009",
+        "pr_status": "closed",
+        "raw_data": {
+          "id": "37364",
+          "Summary": "Make NullBooleanSelect.format_value() return a list, consistent with ChoiceWidget",
+          "Type": "Cleanup/optimization",
+          "Status": "assigned",
+          "Component": "Forms",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 21, 2026, 1:24:02 AM",
+          "Modified": "Sep 21, 2026, 1:31:08 AM",
+          "Reporter": "Brian Helba",
+          "Owner": "Brian Helba",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "`ChoiceWidget.format_value()` is documented (in its docstring) to \"Return selected values as a list\", and every `ChoiceWidget` subclass honors that, except `NullBooleanSelect`, which returns a bare string: `\"unknown\"`, `\"true\"`, or `\"false\"`.\r\n\r\n`NullBooleanSelect` does not override `get_context()` or `optgroups()`. It relies on the inherited `ChoiceWidget.optgroups()`, which marks an option as selected with `str(subvalue) in value`. When `value` is a list that is list membership. When `value` is the bare string it becomes a substring test, which only produces correct results because none of `\"unknown\"`, `\"true\"`, or `\"false\"` happens to be a substring of another. The parent's contract is satisfied by accident rather than by design, and it may be confusing for anyone who later customizes the choices or the parent implementation.\r\n\r\n----\r\n\r\nHistory: #27866 (1.11) changed `ChoiceWidget.format_value()` from returning a set to returning a list but did not touch `NullBooleanSelect`. #17210 (2.2) changed the `NullBooleanSelect` mapping from `1/2/3` to `unknown/true/false` and kept returning a bare string.\r\n\r\n----\r\n\r\nProposed change: wrap the result in a one-element list, i.e. `[\"unknown\"]`, `[\"true\"]`, or `[\"false\"]`. The rendered HTML should be identical. The only impact would be for third-party code that calls `widget.format_value()` directly and uses the result as a value representation."
         }
       }
     }
