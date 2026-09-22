@@ -11,7 +11,7 @@
       "watcher_issue_number": 2,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-22T03:34:22.593949+00:00",
       "last_updated": "2026-09-06T03:12:14.317214+00:00",
       "ticket_data": {
         "id": 37326,
@@ -61,7 +61,7 @@
       "watcher_issue_number": 3,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-22T03:34:22.593949+00:00",
       "last_updated": "2026-09-21T03:35:42.784530+00:00",
       "ticket_data": {
         "id": 37327,
@@ -113,7 +113,7 @@
       "watcher_issue_number": 4,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-22T03:34:22.593949+00:00",
       "last_updated": "2026-09-06T03:12:14.317214+00:00",
       "ticket_data": {
         "id": 37328,
@@ -164,7 +164,7 @@
       "watcher_issue_number": 5,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-22T03:34:22.593949+00:00",
       "last_updated": "2026-09-09T03:21:47.477014+00:00",
       "ticket_data": {
         "id": 37329,
@@ -216,7 +216,7 @@
       "watcher_issue_number": 6,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-22T03:34:22.593949+00:00",
       "last_updated": "2026-09-12T03:22:11.526262+00:00",
       "ticket_data": {
         "id": 37330,
@@ -267,7 +267,7 @@
       "watcher_issue_number": 8,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-22T03:34:22.593949+00:00",
       "last_updated": "2026-09-08T15:33:33.254698+00:00",
       "ticket_data": {
         "id": 37332,
@@ -319,7 +319,7 @@
       "watcher_issue_number": 9,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-22T03:34:22.593949+00:00",
       "last_updated": "2026-09-18T03:27:08.576198+00:00",
       "ticket_data": {
         "id": 37333,
@@ -351,7 +351,7 @@
       "watcher_issue_number": 10,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-22T03:34:22.593949+00:00",
       "last_updated": "2026-09-09T16:47:31.184624+00:00",
       "ticket_data": {
         "id": 37334,
@@ -402,7 +402,7 @@
       "watcher_issue_number": 11,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-22T03:34:22.593949+00:00",
       "last_updated": "2026-09-11T03:17:00.522062+00:00",
       "ticket_data": {
         "id": 37335,
@@ -453,7 +453,7 @@
       "watcher_issue_number": 12,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-22T03:34:22.593949+00:00",
       "last_updated": "2026-09-10T03:20:41.354089+00:00",
       "ticket_data": {
         "id": 37336,
@@ -485,7 +485,7 @@
       "watcher_issue_number": 13,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-22T03:34:22.593949+00:00",
       "last_updated": "2026-09-12T03:22:11.526262+00:00",
       "ticket_data": {
         "id": 37337,
@@ -517,7 +517,7 @@
       "watcher_issue_number": 14,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-22T03:34:22.593949+00:00",
       "last_updated": "2026-09-11T03:17:00.522062+00:00",
       "ticket_data": {
         "id": 37338,
@@ -581,7 +581,7 @@
       "watcher_issue_number": 16,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-22T03:34:22.593949+00:00",
       "last_updated": "2026-09-12T03:22:11.526262+00:00",
       "ticket_data": {
         "id": 37340,
@@ -663,7 +663,7 @@
       "watcher_issue_number": 18,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-22T03:34:22.593949+00:00",
       "last_updated": "2026-09-15T03:39:13.000729+00:00",
       "ticket_data": {
         "id": 37343,
@@ -714,7 +714,7 @@
       "watcher_issue_number": 19,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-22T03:34:22.593949+00:00",
       "last_updated": "2026-09-19T03:23:35.576632+00:00",
       "ticket_data": {
         "id": 37344,
@@ -746,7 +746,7 @@
       "watcher_issue_number": 20,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-22T03:34:22.593949+00:00",
       "last_updated": "2026-09-15T03:39:13.000729+00:00",
       "ticket_data": {
         "id": 37345,
@@ -810,7 +810,7 @@
       "watcher_issue_number": 22,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-22T03:34:22.593949+00:00",
       "last_updated": "2026-09-17T03:40:54.179611+00:00",
       "ticket_data": {
         "id": 37347,
@@ -874,7 +874,7 @@
       "watcher_issue_number": 24,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-22T03:34:22.593949+00:00",
       "last_updated": "2026-09-18T03:27:08.576198+00:00",
       "ticket_data": {
         "id": 37349,
@@ -1029,7 +1029,7 @@
       "watcher_issue_number": 32,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-22T03:34:22.593949+00:00",
       "last_updated": "2026-09-21T03:35:42.784530+00:00",
       "ticket_data": {
         "id": 37358,
@@ -1080,7 +1080,7 @@
       "watcher_issue_number": 33,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-22T03:34:22.593949+00:00",
       "last_updated": "2026-09-19T21:32:22.820365+00:00",
       "ticket_data": {
         "id": 37359,
@@ -1131,7 +1131,7 @@
       "watcher_issue_number": 34,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-22T03:34:22.593949+00:00",
       "last_updated": "2026-09-21T03:35:42.784530+00:00",
       "ticket_data": {
         "id": 37360,
@@ -1163,7 +1163,7 @@
       "watcher_issue_number": 35,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-22T03:34:22.593949+00:00",
       "last_updated": "2026-09-21T03:35:42.784530+00:00",
       "ticket_data": {
         "id": 37361,
@@ -1257,63 +1257,13 @@
         }
       }
     },
-    "django:37363": {
-      "source": "django",
-      "ticket_id": 37363,
-      "watcher_issue_number": 37,
-      "status": "new",
-      "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
-      "last_updated": "2026-09-20T21:40:43.174856+00:00",
-      "ticket_data": {
-        "id": 37363,
-        "source_id": "django",
-        "title": "Restore PyPy testing now that PyPy supports Python 3.12",
-        "description": "PyPy 8.0.0 has just been released, including Python 3.12 support for the first time:\r\n\r\nhttps://pypy.org/posts/2026/09/pypy-v800-release.html\r\n\r\nDjango previously tested PyPy 3.10 in the scheduled test workflow, with both SQLite and PostgreSQL. These jobs were removed in f5772de69679efb54129ac1cbca3579b512778af when Django dropped support for Python 3.10 and 3.11 and raised its minimum supported version to Python 3.12.\r\n\r\nNow that PyPy provides a Python 3.12 interpreter again, I propose restoring PyPy testing in Django's scheduled CI.",
-        "status": "new",
-        "resolution": "",
-        "created_at": "Sep 20, 2026, 3:06:56 PM",
-        "updated_at": "Sep 20, 2026, 5:23:25 PM",
-        "reporter": "Paolo Melchiorre",
-        "owner": "",
-        "component": "Packaging",
-        "priority": "Normal",
-        "severity": "Normal",
-        "triage_stage": "Unreviewed",
-        "labels": [
-          "Unreviewed"
-        ],
-        "url": "https://code.djangoproject.com/ticket/37363",
-        "pr_url": null,
-        "pr_status": null,
-        "raw_data": {
-          "id": "37363",
-          "Summary": "Restore PyPy testing now that PyPy supports Python 3.12",
-          "Type": "Cleanup/optimization",
-          "Status": "new",
-          "Component": "Packaging",
-          "Severity": "Normal",
-          "Resolution": "",
-          "Created": "Sep 20, 2026, 3:06:56 PM",
-          "Modified": "Sep 20, 2026, 5:23:25 PM",
-          "Reporter": "Paolo Melchiorre",
-          "Owner": "",
-          "Triage Stage": "Unreviewed",
-          "Has patch": "0",
-          "Needs tests": "0",
-          "Needs documentation": "0",
-          "UI/UX": "0",
-          "Description": "PyPy 8.0.0 has just been released, including Python 3.12 support for the first time:\r\n\r\nhttps://pypy.org/posts/2026/09/pypy-v800-release.html\r\n\r\nDjango previously tested PyPy 3.10 in the scheduled test workflow, with both SQLite and PostgreSQL. These jobs were removed in f5772de69679efb54129ac1cbca3579b512778af when Django dropped support for Python 3.10 and 3.11 and raised its minimum supported version to Python 3.12.\r\n\r\nNow that PyPy provides a Python 3.12 interpreter again, I propose restoring PyPy testing in Django's scheduled CI."
-        }
-      }
-    },
     "django:37364": {
       "source": "django",
       "ticket_id": 37364,
       "watcher_issue_number": 38,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T08:03:48.641795+00:00",
+      "last_checked": "2026-09-22T03:34:22.593949+00:00",
       "last_updated": "2026-09-21T08:03:48.641795+00:00",
       "ticket_data": {
         "id": 37364,
