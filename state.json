@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37365
+      "last_seen_id": 37366
     }
   },
   "tracked": {
@@ -1358,6 +1358,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "The models.E007 system check can miss duplicate database columns when one db_column is explicitly quoted and another is not. The strings differ, but the configured backend can render them as the same SQL identifier.\r\n\r\nThis issue appears to be mostly the same across different backends.\r\n\r\n== Reproduction ==\r\n\r\nThis test uses the configured backend's own identifier quoting. It does not query the database.\r\n\r\n{{{#!python\r\nfrom django.db import connection, models\r\nfrom django.test import SimpleTestCase\r\nfrom django.test.utils import isolate_apps\r\n\r\n\r\nclass QuotedColumnTests(SimpleTestCase):\r\n    @isolate_apps()\r\n    def test_quoted_column_collision(self) -> None:\r\n        quoted_name = connection.ops.quote_name(\"id\")\r\n\r\n        class Example(models.Model):\r\n            key = models.IntegerField(primary_key=True, db_column=quoted_name)\r\n            score = models.IntegerField(db_column=\"id\")\r\n\r\n            class Meta:\r\n                app_label = \"example\"\r\n\r\n        self.assertIn(\"models.E007\", {error.id for error in Example.check()})\r\n}}}\r\n\r\nActual result: Example.check() returns [], so the assertion fails.\r\n\r\nExpected result: models.E007, because both fields map to the same physical column. Using the unquoted string \"id\" for both fields correctly produces that error.\r\n\r\n== Backend examples ==\r\n\r\nThe equivalent spellings depend on the backend:\r\n\r\n* SQLite: {{{id}}} and {{{\"id\"}}} both render as {{{\"id\"}}}. [https://github.com/django/django/blob/6.1.1/django/db/backends/sqlite3/operations.py Source]\r\n* MySQL: {{{id}}} and {{{`id`}}} both render as {{{`id`}}}. The quoted spelling must use backticks; double quotes would represent a different identifier. [https://github.com/django/django/blob/6.1.1/django/db/backends/mysql/operations.py Source]\r\n* Oracle: {{{id}}} and {{{\"id\"}}} both render as {{{\"ID\"}}}, because Django's Oracle quote_name() uppercases its result. [https://github.com/django/django/blob/6.1.1/django/db/backends/oracle/operations.py Source]\r\n* PostgreSQL: {{{id}}} and {{{\"id\"}}} both render as {{{\"id\"}}}. [https://github.com/django/django/blob/6.1.1/django/db/backends/postgresql/operations.py Source]\r\n\r\n== Cause ==\r\n\r\n[https://github.com/django/django/blob/6.1.1/django/db/models/base.py Model._check_column_name_clashes()] compares the original field.column strings without accounting for backend identifier handling. It accepts declarations that would generate duplicate column names.\r\n\r\nThe desired behaviour is to recognise equivalent identifiers and report the collision, rather than permit duplicate columns. Any fix should account for backend-specific rules rather than simply stripping double quotes.\r\n\r\n== Versions checked ==\r\n\r\nRuntime reproduction: Django 5.2.17, Python 3.11.6, with SQLite and PostgreSQL backend configurations. The checks do not query a database.\r\n\r\n6.1.1 appears to have the same issue based on inspection of its released source. The shared check and the four backends' quote_name() implementations are unchanged from 5.2.17. MySQL and Oracle findings are source verification only; no integration tests were run against those databases.\r\n"
+        }
+      }
+    },
+    "django:37366": {
+      "source": "django",
+      "ticket_id": 37366,
+      "watcher_issue_number": 40,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-23T12:23:36.204826+00:00",
+      "last_updated": "2026-09-23T12:23:36.204826+00:00",
+      "ticket_data": {
+        "id": 37366,
+        "source_id": "django",
+        "title": "Update MySQL driver docs about gevent compat",
+        "description": "mysqlclient is the \"recommended choice\", in bold in the docs, but it turns out that it is not compatible with gevent, since gevent cannot monkey-patch the networking code inside the native binary. I want to update the docs to point that out and also add the pure-Python `PyMySQL` library as an additional driver that is compatible with gevent.\r\n\r\nI discovered this after several years using mysqlclient and gunicorn together (with gevent workers), due to concurrency problems. The root cause was difficult to diagnose and these proposed docs would have helped.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Sep 23, 2026, 5:28:44 AM",
+        "updated_at": "Sep 23, 2026, 5:38:44 AM",
+        "reporter": "Caleb Hattingh",
+        "owner": "",
+        "component": "Documentation",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37366",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37366",
+          "Summary": "Update MySQL driver docs about gevent compat",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "Documentation",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 23, 2026, 5:28:44 AM",
+          "Modified": "Sep 23, 2026, 5:38:44 AM",
+          "Reporter": "Caleb Hattingh",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "mysqlclient is the \"recommended choice\", in bold in the docs, but it turns out that it is not compatible with gevent, since gevent cannot monkey-patch the networking code inside the native binary. I want to update the docs to point that out and also add the pure-Python `PyMySQL` library as an additional driver that is compatible with gevent.\r\n\r\nI discovered this after several years using mysqlclient and gunicorn together (with gevent workers), due to concurrency problems. The root cause was difficult to diagnose and these proposed docs would have helped."
         }
       }
     }
