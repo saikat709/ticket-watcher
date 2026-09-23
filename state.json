@@ -11,7 +11,7 @@
       "watcher_issue_number": 2,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-22T03:34:22.593949+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-06T03:12:14.317214+00:00",
       "ticket_data": {
         "id": 37326,
@@ -61,7 +61,7 @@
       "watcher_issue_number": 3,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-22T03:34:22.593949+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-21T03:35:42.784530+00:00",
       "ticket_data": {
         "id": 37327,
@@ -113,7 +113,7 @@
       "watcher_issue_number": 4,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-22T03:34:22.593949+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-06T03:12:14.317214+00:00",
       "ticket_data": {
         "id": 37328,
@@ -164,7 +164,7 @@
       "watcher_issue_number": 5,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-22T03:34:22.593949+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-09T03:21:47.477014+00:00",
       "ticket_data": {
         "id": 37329,
@@ -216,7 +216,7 @@
       "watcher_issue_number": 6,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-22T03:34:22.593949+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-12T03:22:11.526262+00:00",
       "ticket_data": {
         "id": 37330,
@@ -267,7 +267,7 @@
       "watcher_issue_number": 8,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-22T03:34:22.593949+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-08T15:33:33.254698+00:00",
       "ticket_data": {
         "id": 37332,
@@ -319,7 +319,7 @@
       "watcher_issue_number": 9,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-22T03:34:22.593949+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-18T03:27:08.576198+00:00",
       "ticket_data": {
         "id": 37333,
@@ -351,7 +351,7 @@
       "watcher_issue_number": 10,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-22T03:34:22.593949+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-09T16:47:31.184624+00:00",
       "ticket_data": {
         "id": 37334,
@@ -402,7 +402,7 @@
       "watcher_issue_number": 11,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-22T03:34:22.593949+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-11T03:17:00.522062+00:00",
       "ticket_data": {
         "id": 37335,
@@ -453,7 +453,7 @@
       "watcher_issue_number": 12,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-22T03:34:22.593949+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-10T03:20:41.354089+00:00",
       "ticket_data": {
         "id": 37336,
@@ -485,7 +485,7 @@
       "watcher_issue_number": 13,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-22T03:34:22.593949+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-12T03:22:11.526262+00:00",
       "ticket_data": {
         "id": 37337,
@@ -517,7 +517,7 @@
       "watcher_issue_number": 14,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-22T03:34:22.593949+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-11T03:17:00.522062+00:00",
       "ticket_data": {
         "id": 37338,
@@ -549,7 +549,7 @@
       "watcher_issue_number": 15,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-19T03:23:35.576632+00:00",
       "ticket_data": {
         "id": 37339,
@@ -581,7 +581,7 @@
       "watcher_issue_number": 16,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-22T03:34:22.593949+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-12T03:22:11.526262+00:00",
       "ticket_data": {
         "id": 37340,
@@ -631,7 +631,7 @@
       "watcher_issue_number": 17,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-15T03:39:13.000729+00:00",
       "ticket_data": {
         "id": 37342,
@@ -663,7 +663,7 @@
       "watcher_issue_number": 18,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-22T03:34:22.593949+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-15T03:39:13.000729+00:00",
       "ticket_data": {
         "id": 37343,
@@ -778,8 +778,8 @@
       "watcher_issue_number": 21,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
-      "last_updated": "2026-09-17T03:40:54.179611+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
+      "last_updated": "2026-09-23T03:34:31.376133+00:00",
       "ticket_data": {
         "id": 37346,
         "source_id": "django",
@@ -797,8 +797,8 @@
         "triage_stage": "",
         "labels": [],
         "url": "https://code.djangoproject.com/ticket/37346",
-        "pr_url": "https://github.com/django/django/pull/21935",
-        "pr_status": "open",
+        "pr_url": null,
+        "pr_status": null,
         "raw_data": {
           "id": "37346"
         }
@@ -810,7 +810,7 @@
       "watcher_issue_number": 22,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-22T03:34:22.593949+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-17T03:40:54.179611+00:00",
       "ticket_data": {
         "id": 37347,
@@ -842,7 +842,7 @@
       "watcher_issue_number": 23,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-18T03:27:08.576198+00:00",
       "ticket_data": {
         "id": 37348,
@@ -874,7 +874,7 @@
       "watcher_issue_number": 24,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-22T03:34:22.593949+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-18T03:27:08.576198+00:00",
       "ticket_data": {
         "id": 37349,
@@ -925,7 +925,7 @@
       "watcher_issue_number": 26,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-19T03:23:35.576632+00:00",
       "ticket_data": {
         "id": 37351,
@@ -977,7 +977,7 @@
       "watcher_issue_number": 27,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-18T03:27:08.576198+00:00",
       "ticket_data": {
         "id": 37352,
@@ -1029,7 +1029,7 @@
       "watcher_issue_number": 32,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-22T03:34:22.593949+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-21T03:35:42.784530+00:00",
       "ticket_data": {
         "id": 37358,
@@ -1080,7 +1080,7 @@
       "watcher_issue_number": 33,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-09-22T03:34:22.593949+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-19T21:32:22.820365+00:00",
       "ticket_data": {
         "id": 37359,
@@ -1131,7 +1131,7 @@
       "watcher_issue_number": 34,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-22T03:34:22.593949+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-21T03:35:42.784530+00:00",
       "ticket_data": {
         "id": 37360,
@@ -1163,8 +1163,8 @@
       "watcher_issue_number": 35,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-22T03:34:22.593949+00:00",
-      "last_updated": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
+      "last_updated": "2026-09-23T03:34:31.376133+00:00",
       "ticket_data": {
         "id": 37361,
         "source_id": "django",
@@ -1173,19 +1173,21 @@
         "status": "assigned",
         "resolution": "",
         "created_at": "Sep 19, 2026, 4:15:28 PM",
-        "updated_at": "Sep 20, 2026, 1:14:31 AM",
+        "updated_at": "Sep 22, 2026, 12:40:50 PM",
         "reporter": "Jacob Walls",
         "owner": "Md. Saikat Islam",
         "component": "contrib.auth",
         "priority": "Release blocker",
         "severity": "Release blocker",
-        "triage_stage": "Unreviewed",
+        "triage_stage": "Accepted",
         "labels": [
-          "Unreviewed"
+          "Accepted",
+          "has-patch",
+          "needs-tests"
         ],
         "url": "https://code.djangoproject.com/ticket/37361",
-        "pr_url": null,
-        "pr_status": null,
+        "pr_url": "https://github.com/django/django/pull/22018",
+        "pr_status": "open",
         "raw_data": {
           "id": "37361",
           "Summary": "Permission renames do not apply to a chain of RenameModel operations",
@@ -1195,12 +1197,12 @@
           "Severity": "Release blocker",
           "Resolution": "",
           "Created": "Sep 19, 2026, 4:15:28 PM",
-          "Modified": "Sep 20, 2026, 1:14:31 AM",
+          "Modified": "Sep 22, 2026, 12:40:50 PM",
           "Reporter": "Jacob Walls",
           "Owner": "Md. Saikat Islam",
-          "Triage Stage": "Unreviewed",
-          "Has patch": "0",
-          "Needs tests": "0",
+          "Triage Stage": "Accepted",
+          "Has patch": "1",
+          "Needs tests": "1",
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "#27489 implemented renaming permissions as part of `RenameModel` migration operations, but did not support a chain of multiple operations.\r\n\r\nFor a chain of renames A -> B -> C, the database is queried for permissions on A, and then for permissions on B, but because all planned renames are applied to the database in a second loop, the query for permissions on B in the first loop finds nothing, so no second permission rename is done in the second loop.\r\n\r\nTo reproduce:\r\n\r\n1. Define Class A\r\n2. `makemigrations`\r\n3. `migrate` (this creates permissions)\r\n4. Rename A -> B\r\n5. `makemigrations` (answer \"Y\" to the rename prompt)\r\n6. Rename B -> C\r\n7. `makemigrations` (answer \"Y\" to the rename prompt)\r\n8. `migrate -v2` (this renames permissions)\r\n\r\nExpected: permissions in database end with \"C\"\r\nActual:\r\n{{{\r\nRenamed permission(s): myapp.add_a \u2192 add_b\r\nRenamed permission(s): myapp.change_a \u2192 change_b\r\nRenamed permission(s): myapp.delete_a \u2192 delete_b\r\nRenamed permission(s): myapp.view_a \u2192 view_b\r\nAdding permission 'Permission object (49)'\r\nAdding permission 'Permission object (50)'\r\nAdding permission 'Permission object (51)'\r\nAdding permission 'Permission object (52)'\r\n}}}\r\n\r\n9. `migrate myapp zero`\r\n\r\n{{{#!py\r\nRuntimeError: 4 permission rename conflict(s) detected.\r\n}}}\r\n\r\nBug in a040f555069971192220122555f187530d679d53."
@@ -1213,7 +1215,7 @@
       "watcher_issue_number": 36,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-09-21T03:35:42.784530+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-20T12:43:11.119280+00:00",
       "ticket_data": {
         "id": 37362,
@@ -1263,7 +1265,7 @@
       "watcher_issue_number": 38,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-22T03:34:22.593949+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
       "last_updated": "2026-09-21T08:03:48.641795+00:00",
       "ticket_data": {
         "id": 37364,
@@ -1314,8 +1316,8 @@
       "watcher_issue_number": 39,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-22T12:23:05.256161+00:00",
-      "last_updated": "2026-09-22T12:23:05.256161+00:00",
+      "last_checked": "2026-09-23T03:34:31.376133+00:00",
+      "last_updated": "2026-09-23T03:34:31.376133+00:00",
       "ticket_data": {
         "id": 37365,
         "source_id": "django",
@@ -1324,7 +1326,7 @@
         "status": "assigned",
         "resolution": "",
         "created_at": "Sep 22, 2026, 5:40:59 AM",
-        "updated_at": "Sep 22, 2026, 7:22:05 AM",
+        "updated_at": "Sep 22, 2026, 8:28:46 AM",
         "reporter": "Matthew Schinckel",
         "owner": "Md. Saikat Islam",
         "component": "Core (System checks)",
@@ -1332,11 +1334,12 @@
         "severity": "Normal",
         "triage_stage": "Accepted",
         "labels": [
-          "Accepted"
+          "Accepted",
+          "has-patch"
         ],
         "url": "https://code.djangoproject.com/ticket/37365",
-        "pr_url": null,
-        "pr_status": null,
+        "pr_url": "https://github.com/django/django/pull/22015",
+        "pr_status": "open",
         "raw_data": {
           "id": "37365",
           "Summary": "models.E007 misses duplicate columns when one db_column is explicitly quoted",
@@ -1346,11 +1349,11 @@
           "Severity": "Normal",
           "Resolution": "",
           "Created": "Sep 22, 2026, 5:40:59 AM",
-          "Modified": "Sep 22, 2026, 7:22:05 AM",
+          "Modified": "Sep 22, 2026, 8:28:46 AM",
           "Reporter": "Matthew Schinckel",
           "Owner": "Md. Saikat Islam",
           "Triage Stage": "Accepted",
-          "Has patch": "0",
+          "Has patch": "1",
           "Needs tests": "0",
           "Needs documentation": "0",
           "UI/UX": "0",
