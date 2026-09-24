@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37366
+      "last_seen_id": 37367
     }
   },
   "tracked": {
@@ -1408,6 +1408,57 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "mysqlclient is the \"recommended choice\", in bold in the docs, but it turns out that it is not compatible with gevent, since gevent cannot monkey-patch the networking code inside the native binary. I want to update the docs to point that out and also add the pure-Python `PyMySQL` library as an additional driver that is compatible with gevent.\r\n\r\nI discovered this after several years using mysqlclient and gunicorn together (with gevent workers), due to concurrency problems. The root cause was difficult to diagnose and these proposed docs would have helped."
+        }
+      }
+    },
+    "django:37367": {
+      "source": "django",
+      "ticket_id": 37367,
+      "watcher_issue_number": 41,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-24T06:53:10.361013+00:00",
+      "last_updated": "2026-09-24T06:53:10.361013+00:00",
+      "ticket_data": {
+        "id": 37367,
+        "source_id": "django",
+        "title": "Missing password validation criteria description in admin registration password reset view",
+        "description": "In the registration template, `django/contrib/admin/templates/registration/password_reset_confirm.html` password validation criteria are missing. \r\nA better behaviour is to match admin password change form.\r\n",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Sep 24, 2026, 1:52:51 AM",
+        "updated_at": "Sep 24, 2026, 1:52:51 AM",
+        "reporter": "Moreno Mazzocchetti",
+        "owner": "",
+        "component": "contrib.admin",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "ui/ux"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37367",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37367",
+          "Summary": "Missing password validation criteria description in admin registration password reset view",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "contrib.admin",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 24, 2026, 1:52:51 AM",
+          "Modified": "Sep 24, 2026, 1:52:51 AM",
+          "Reporter": "Moreno Mazzocchetti",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "1",
+          "Description": "In the registration template, `django/contrib/admin/templates/registration/password_reset_confirm.html` password validation criteria are missing. \r\nA better behaviour is to match admin password change form.\r\n"
         }
       }
     }
