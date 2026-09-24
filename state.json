@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37367
+      "last_seen_id": 37369
     }
   },
   "tracked": {
@@ -1459,6 +1459,107 @@
           "Needs documentation": "0",
           "UI/UX": "1",
           "Description": "In the registration template, `django/contrib/admin/templates/registration/password_reset_confirm.html` password validation criteria are missing. \r\nA better behaviour is to match admin password change form.\r\n"
+        }
+      }
+    },
+    "django:37368": {
+      "source": "django",
+      "ticket_id": 37368,
+      "watcher_issue_number": 42,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-24T12:23:17.278258+00:00",
+      "last_updated": "2026-09-24T12:23:17.278258+00:00",
+      "ticket_data": {
+        "id": 37368,
+        "source_id": "django",
+        "title": "`check_constraints` changes constraint deferral for immediate constraints in for PostgreSQL and Oracle",
+        "description": "The `check_constraints` methods on the PostgresSQL and Oracle database wrappers check constraints by setting ''all'' deferrable constraints to `IMMEDIATE` and then ''all'' deferrable constraints to `DEFERRED`. If a deferrable constraint started as immediate, the constraint will be deferred after `check_constraints` runs.\r\n\r\nThis is demonstrated with a test, e.g. for PostgreSQL:\r\n\r\n{{{#!python\r\nimport unittest\r\n\r\nfrom psycopg import sql\r\n\r\nfrom backends import models\r\nfrom django.db import IntegrityError, connection, transaction\r\nfrom django.test import TransactionTestCase\r\n\r\n\r\n@unittest.skipUnless(connection.vendor == \"postgresql\", \"PostgreSQL tests\")\r\nclass CheckConstraintTests(TransactionTestCase):\r\n    available_apps = [\"backends\"]\r\n\r\n    def test_immediate_constraint_remains_immediate(self):\r\n        with transaction.atomic():\r\n            # There is currently no way to create a model with an immediate\r\n            # constraint throuigh the ORM\r\n            # (see https://github.com/django/new-features/issues/212).\r\n            # Therefore, we must manually set the constraint to immediate.\r\n            with connection.cursor() as cursor:\r\n                cursor.execute(\"\"\"\r\n                    SELECT conname FROM pg_constraint\r\n                    WHERE\r\n                        contype = 'f'\r\n                        AND conrelid::regclass::text = 'backends_book';\r\n                    \"\"\")\r\n                (constraint_name,) = cursor.fetchone()\r\n                cursor.execute(\r\n                    sql.SQL(\"SET CONSTRAINTS {} IMMEDIATE\").format(\r\n                        sql.Identifier(constraint_name)\r\n                    )\r\n                )\r\n\r\n            connection.check_constraints()\r\n\r\n            # Creating an object with an invalid foreign key immediately raises an\r\n            # exception.\r\n            with self.assertRaisesRegex(\r\n                IntegrityError,\r\n                expected_regex='insert or update on table \"backends_book\" violates foreign key constraint',\r\n            ):\r\n                models.Book.objects.create(author_id=-1)\r\n}}}\r\n\r\nThis test fails:\r\n\r\n{{{#!console\r\n$ ./runtests.py --settings test_postgresql backends.postgresql.test_check_constraints\r\nTesting against Django installed in '/Users/sam.searles-bryant/.local/share/samueljsb/django/django' with up to 12 processes\r\nFound 1 test(s).\r\nCreating test database for alias 'default'...\r\nSystem check identified no issues (0 silenced).\r\nF\r\n======================================================================\r\nFAIL: test_immediate_constraint_remains_immediate (backends.postgresql.test_check_constraints.CheckConstraintTests.test_immediate_constraint_remains_immediate)\r\n----------------------------------------------------------------------\r\nTraceback (most recent call last):\r\n  File \"/Users/sam.searles-bryant/.local/share/samueljsb/django/tests/backends/postgresql/test_check_constraints.py\", line 45, in test_immediate_constraint_remains_immediate\r\n    with self.assertRaisesRegex(\r\n         ~~~~~~~~~~~~~~~~~~~~~~^\r\n        IntegrityError,\r\n        ^^^^^^^^^^^^^^^\r\n        expected_regex='insert or update on table \"backends_book\" violates foreign key constraint',\r\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n    ):\r\n    ^\r\nAssertionError: IntegrityError not raised\r\n\r\n----------------------------------------------------------------------\r\nRan 1 test in 0.015s\r\n\r\nFAILED (failures=1)\r\nDestroying test database for alias 'default'...\r\n}}}",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Sep 24, 2026, 5:38:26 AM",
+        "updated_at": "Sep 24, 2026, 6:57:25 AM",
+        "reporter": "Samuel Searles-Bryant",
+        "owner": "Samuel Searles-Bryant",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37368",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37368",
+          "Summary": "`check_constraints` changes constraint deferral for immediate constraints in for PostgreSQL and Oracle",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 24, 2026, 5:38:26 AM",
+          "Modified": "Sep 24, 2026, 6:57:25 AM",
+          "Reporter": "Samuel Searles-Bryant",
+          "Owner": "Samuel Searles-Bryant",
+          "Triage Stage": "Accepted",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "The `check_constraints` methods on the PostgresSQL and Oracle database wrappers check constraints by setting ''all'' deferrable constraints to `IMMEDIATE` and then ''all'' deferrable constraints to `DEFERRED`. If a deferrable constraint started as immediate, the constraint will be deferred after `check_constraints` runs.\r\n\r\nThis is demonstrated with a test, e.g. for PostgreSQL:\r\n\r\n{{{#!python\r\nimport unittest\r\n\r\nfrom psycopg import sql\r\n\r\nfrom backends import models\r\nfrom django.db import IntegrityError, connection, transaction\r\nfrom django.test import TransactionTestCase\r\n\r\n\r\n@unittest.skipUnless(connection.vendor == \"postgresql\", \"PostgreSQL tests\")\r\nclass CheckConstraintTests(TransactionTestCase):\r\n    available_apps = [\"backends\"]\r\n\r\n    def test_immediate_constraint_remains_immediate(self):\r\n        with transaction.atomic():\r\n            # There is currently no way to create a model with an immediate\r\n            # constraint throuigh the ORM\r\n            # (see https://github.com/django/new-features/issues/212).\r\n            # Therefore, we must manually set the constraint to immediate.\r\n            with connection.cursor() as cursor:\r\n                cursor.execute(\"\"\"\r\n                    SELECT conname FROM pg_constraint\r\n                    WHERE\r\n                        contype = 'f'\r\n                        AND conrelid::regclass::text = 'backends_book';\r\n                    \"\"\")\r\n                (constraint_name,) = cursor.fetchone()\r\n                cursor.execute(\r\n                    sql.SQL(\"SET CONSTRAINTS {} IMMEDIATE\").format(\r\n                        sql.Identifier(constraint_name)\r\n                    )\r\n                )\r\n\r\n            connection.check_constraints()\r\n\r\n            # Creating an object with an invalid foreign key immediately raises an\r\n            # exception.\r\n            with self.assertRaisesRegex(\r\n                IntegrityError,\r\n                expected_regex='insert or update on table \"backends_book\" violates foreign key constraint',\r\n            ):\r\n                models.Book.objects.create(author_id=-1)\r\n}}}\r\n\r\nThis test fails:\r\n\r\n{{{#!console\r\n$ ./runtests.py --settings test_postgresql backends.postgresql.test_check_constraints\r\nTesting against Django installed in '/Users/sam.searles-bryant/.local/share/samueljsb/django/django' with up to 12 processes\r\nFound 1 test(s).\r\nCreating test database for alias 'default'...\r\nSystem check identified no issues (0 silenced).\r\nF\r\n======================================================================\r\nFAIL: test_immediate_constraint_remains_immediate (backends.postgresql.test_check_constraints.CheckConstraintTests.test_immediate_constraint_remains_immediate)\r\n----------------------------------------------------------------------\r\nTraceback (most recent call last):\r\n  File \"/Users/sam.searles-bryant/.local/share/samueljsb/django/tests/backends/postgresql/test_check_constraints.py\", line 45, in test_immediate_constraint_remains_immediate\r\n    with self.assertRaisesRegex(\r\n         ~~~~~~~~~~~~~~~~~~~~~~^\r\n        IntegrityError,\r\n        ^^^^^^^^^^^^^^^\r\n        expected_regex='insert or update on table \"backends_book\" violates foreign key constraint',\r\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n    ):\r\n    ^\r\nAssertionError: IntegrityError not raised\r\n\r\n----------------------------------------------------------------------\r\nRan 1 test in 0.015s\r\n\r\nFAILED (failures=1)\r\nDestroying test database for alias 'default'...\r\n}}}"
+        }
+      }
+    },
+    "django:37369": {
+      "source": "django",
+      "ticket_id": 37369,
+      "watcher_issue_number": 43,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-24T12:23:18.762540+00:00",
+      "last_updated": "2026-09-24T12:23:18.762540+00:00",
+      "ticket_data": {
+        "id": 37369,
+        "source_id": "django",
+        "title": "on_commit should raise an error when no transaction is open",
+        "description": "When calling `on_commit` outside of a transaction, Django will execute the callback immediately. This is a documented feature. See https://docs.djangoproject.com/en/6.1/topics/db/transactions/#performing-actions-after-commit\r\n\r\nThis leads to misleading code which looks as though it will defer work when it will not. For example, it masks issues where `on_commit` is called with a different `using=` argument to the transaction which is currently open. (Either the transaction was opened on the wrong DB, or the callback is waiting on the wrong database.)\r\n\r\nInstead, it would make sense to adopt the behaviour of Django Subatomic's `run_after_commit`, which raises an error when `on_commit` is called outside of a transaction. After all, there will be no `COMMIT` when there is no open transaction.\r\n\r\nThis idea was suggested when `on_commit` was introduced, but was seemingly not addressed. See:\r\n\r\n- https://github.com/django/django/pull/4593#issuecomment-98496218\r\n- https://github.com/django/django/pull/4593#issuecomment-98762940\r\n\r\nThis has been discussed at Django on the Med 2026. The approach that was suggested to me was:\r\n\r\nStep 1:\r\n\r\n- Change `on_commit` to raise an error when it is called without an open transaction.\r\n- Add a temporary setting to opt out of the new behaviour (and emit a warning when `on_commit` is called with no transaction).\r\n\r\nStep 2:\r\n- Remove the opt-out setting.\r\n\r\nTo prevent a situation where code passes in tests but fails in production, we should explicitly ignore the transaction created by the test suite when checking if a transaction is open. Django Subatomic does this check using a utility function: `in_transaction`. I believe that function would be a useful addition to Django's API. See https://kraken-tech.github.io/django-subatomic/v2.0.0/reference/django_subatomic/db/#django_subatomic.db.in_transaction and https://github.com/django/new-features/issues/147.\r\n\r\nThe `in_transaction` API will enable developers who want to run the callback immediately if there is no transaction:\r\n\r\n{{{#!python\r\nif in_transaction():\r\n    on_commit(my_callback)\r\nelse:\r\n    my_callback()\r\n}}}\r\n",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Sep 24, 2026, 5:59:02 AM",
+        "updated_at": "Sep 24, 2026, 6:09:57 AM",
+        "reporter": "Charlie Denton",
+        "owner": "",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37369",
+        "pr_url": "https://github.com/django/django/pull/4593",
+        "pr_status": "closed",
+        "raw_data": {
+          "id": "37369",
+          "Summary": "on_commit should raise an error when no transaction is open",
+          "Type": "New feature",
+          "Status": "new",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 24, 2026, 5:59:02 AM",
+          "Modified": "Sep 24, 2026, 6:09:57 AM",
+          "Reporter": "Charlie Denton",
+          "Owner": "",
+          "Triage Stage": "Accepted",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "When calling `on_commit` outside of a transaction, Django will execute the callback immediately. This is a documented feature. See https://docs.djangoproject.com/en/6.1/topics/db/transactions/#performing-actions-after-commit\r\n\r\nThis leads to misleading code which looks as though it will defer work when it will not. For example, it masks issues where `on_commit` is called with a different `using=` argument to the transaction which is currently open. (Either the transaction was opened on the wrong DB, or the callback is waiting on the wrong database.)\r\n\r\nInstead, it would make sense to adopt the behaviour of Django Subatomic's `run_after_commit`, which raises an error when `on_commit` is called outside of a transaction. After all, there will be no `COMMIT` when there is no open transaction.\r\n\r\nThis idea was suggested when `on_commit` was introduced, but was seemingly not addressed. See:\r\n\r\n- https://github.com/django/django/pull/4593#issuecomment-98496218\r\n- https://github.com/django/django/pull/4593#issuecomment-98762940\r\n\r\nThis has been discussed at Django on the Med 2026. The approach that was suggested to me was:\r\n\r\nStep 1:\r\n\r\n- Change `on_commit` to raise an error when it is called without an open transaction.\r\n- Add a temporary setting to opt out of the new behaviour (and emit a warning when `on_commit` is called with no transaction).\r\n\r\nStep 2:\r\n- Remove the opt-out setting.\r\n\r\nTo prevent a situation where code passes in tests but fails in production, we should explicitly ignore the transaction created by the test suite when checking if a transaction is open. Django Subatomic does this check using a utility function: `in_transaction`. I believe that function would be a useful addition to Django's API. See https://kraken-tech.github.io/django-subatomic/v2.0.0/reference/django_subatomic/db/#django_subatomic.db.in_transaction and https://github.com/django/new-features/issues/147.\r\n\r\nThe `in_transaction` API will enable developers who want to run the callback immediately if there is no transaction:\r\n\r\n{{{#!python\r\nif in_transaction():\r\n    on_commit(my_callback)\r\nelse:\r\n    my_callback()\r\n}}}\r\n"
         }
       }
     }
