@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37369
+      "last_seen_id": 37370
     }
   },
   "tracked": {
@@ -1560,6 +1560,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "When calling `on_commit` outside of a transaction, Django will execute the callback immediately. This is a documented feature. See https://docs.djangoproject.com/en/6.1/topics/db/transactions/#performing-actions-after-commit\r\n\r\nThis leads to misleading code which looks as though it will defer work when it will not. For example, it masks issues where `on_commit` is called with a different `using=` argument to the transaction which is currently open. (Either the transaction was opened on the wrong DB, or the callback is waiting on the wrong database.)\r\n\r\nInstead, it would make sense to adopt the behaviour of Django Subatomic's `run_after_commit`, which raises an error when `on_commit` is called outside of a transaction. After all, there will be no `COMMIT` when there is no open transaction.\r\n\r\nThis idea was suggested when `on_commit` was introduced, but was seemingly not addressed. See:\r\n\r\n- https://github.com/django/django/pull/4593#issuecomment-98496218\r\n- https://github.com/django/django/pull/4593#issuecomment-98762940\r\n\r\nThis has been discussed at Django on the Med 2026. The approach that was suggested to me was:\r\n\r\nStep 1:\r\n\r\n- Change `on_commit` to raise an error when it is called without an open transaction.\r\n- Add a temporary setting to opt out of the new behaviour (and emit a warning when `on_commit` is called with no transaction).\r\n\r\nStep 2:\r\n- Remove the opt-out setting.\r\n\r\nTo prevent a situation where code passes in tests but fails in production, we should explicitly ignore the transaction created by the test suite when checking if a transaction is open. Django Subatomic does this check using a utility function: `in_transaction`. I believe that function would be a useful addition to Django's API. See https://kraken-tech.github.io/django-subatomic/v2.0.0/reference/django_subatomic/db/#django_subatomic.db.in_transaction and https://github.com/django/new-features/issues/147.\r\n\r\nThe `in_transaction` API will enable developers who want to run the callback immediately if there is no transaction:\r\n\r\n{{{#!python\r\nif in_transaction():\r\n    on_commit(my_callback)\r\nelse:\r\n    my_callback()\r\n}}}\r\n"
+        }
+      }
+    },
+    "django:37370": {
+      "source": "django",
+      "ticket_id": 37370,
+      "watcher_issue_number": 44,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-24T17:23:24.087012+00:00",
+      "last_updated": "2026-09-24T17:23:24.087012+00:00",
+      "ticket_data": {
+        "id": 37370,
+        "source_id": "django",
+        "title": "Reorganize Django's security policy page",
+        "description": "Django's security policy has grown organically over time. The page would probably benefit being restructured to make it easier to navigate/read/digest.\r\n\r\nThe current structure is roughly:\r\n\r\n{{{\r\nDjango's security policy\r\n\u251c\u2500\u2500 Reporting security issues\r\n\u2502   \u251c\u2500\u2500 Respecting maintainer time\r\n\u2502   \u2514\u2500\u2500 Reporting guidelines\r\n\u251c\u2500\u2500 How does Django evaluate a report\r\n\u251c\u2500\u2500 Supported versions\r\n\u251c\u2500\u2500 Security issue severity levels\r\n\u251c\u2500\u2500 How Django discloses security issues\r\n\u251c\u2500\u2500 Who receives advance notification\r\n\u2514\u2500\u2500 Requesting notifications\r\n}}}\r\n\r\n* Some of the reporting guidelines describe what a reporter should include, while others describe the scope of issues Django will consider.\r\n* Supported versions and severity are also closely related to the assessment process but currently sit separately.\r\n* There are two notification sections which could be grouped\r\n\r\nOne possible reorganization would be:\r\n\r\n{{{\r\nDjango's security policy\r\n\u251c\u2500\u2500 Reporting security vulnerabilities\r\n\u2502   \u251c\u2500\u2500 How to report\r\n\u2502   \u251c\u2500\u2500 What to include\r\n\u2502   \u251c\u2500\u2500 Scope and reporting requirements\r\n\u2502   \u251c\u2500\u2500 Respecting maintainer time\r\n\u2502   \u2514\u2500\u2500 AI-assisted reports\r\n\u251c\u2500\u2500 Assessing security vulnerabilities\r\n\u2502   \u251c\u2500\u2500 How Django evaluates a report\r\n\u2502   \u251c\u2500\u2500 Supported versions\r\n\u2502   \u251c\u2500\u2500 Security severity levels\r\n\u2502   \u2514\u2500\u2500 Issues outside Django\r\n\u251c\u2500\u2500 Disclosing security vulnerabilities\r\n\u2502   \u251c\u2500\u2500 Coordinated disclosure\r\n\u2502   \u251c\u2500\u2500 Advance disclosure\r\n\u2502   \u251c\u2500\u2500 Public disclosure\r\n\u2502   \u2514\u2500\u2500 Exceptional circumstances\r\n\u2514\u2500\u2500 Security notifications\r\n    \u251c\u2500\u2500 Who receives advance notification\r\n    \u251c\u2500\u2500 Who does not receive advance notification\r\n    \u2514\u2500\u2500 Requesting notifications\r\n}}}\r\n\r\nI am open to other grouping/structure suggestions and would welcome us looking at other open source security policies to guide us on what would be best here.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Sep 24, 2026, 8:34:31 AM",
+        "updated_at": "Sep 24, 2026, 8:46:40 AM",
+        "reporter": "Sarah Boyce",
+        "owner": "",
+        "component": "Documentation",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37370",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37370",
+          "Summary": "Reorganize Django's security policy page",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "Documentation",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 24, 2026, 8:34:31 AM",
+          "Modified": "Sep 24, 2026, 8:46:40 AM",
+          "Reporter": "Sarah Boyce",
+          "Owner": "",
+          "Triage Stage": "Accepted",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Django's security policy has grown organically over time. The page would probably benefit being restructured to make it easier to navigate/read/digest.\r\n\r\nThe current structure is roughly:\r\n\r\n{{{\r\nDjango's security policy\r\n\u251c\u2500\u2500 Reporting security issues\r\n\u2502   \u251c\u2500\u2500 Respecting maintainer time\r\n\u2502   \u2514\u2500\u2500 Reporting guidelines\r\n\u251c\u2500\u2500 How does Django evaluate a report\r\n\u251c\u2500\u2500 Supported versions\r\n\u251c\u2500\u2500 Security issue severity levels\r\n\u251c\u2500\u2500 How Django discloses security issues\r\n\u251c\u2500\u2500 Who receives advance notification\r\n\u2514\u2500\u2500 Requesting notifications\r\n}}}\r\n\r\n* Some of the reporting guidelines describe what a reporter should include, while others describe the scope of issues Django will consider.\r\n* Supported versions and severity are also closely related to the assessment process but currently sit separately.\r\n* There are two notification sections which could be grouped\r\n\r\nOne possible reorganization would be:\r\n\r\n{{{\r\nDjango's security policy\r\n\u251c\u2500\u2500 Reporting security vulnerabilities\r\n\u2502   \u251c\u2500\u2500 How to report\r\n\u2502   \u251c\u2500\u2500 What to include\r\n\u2502   \u251c\u2500\u2500 Scope and reporting requirements\r\n\u2502   \u251c\u2500\u2500 Respecting maintainer time\r\n\u2502   \u2514\u2500\u2500 AI-assisted reports\r\n\u251c\u2500\u2500 Assessing security vulnerabilities\r\n\u2502   \u251c\u2500\u2500 How Django evaluates a report\r\n\u2502   \u251c\u2500\u2500 Supported versions\r\n\u2502   \u251c\u2500\u2500 Security severity levels\r\n\u2502   \u2514\u2500\u2500 Issues outside Django\r\n\u251c\u2500\u2500 Disclosing security vulnerabilities\r\n\u2502   \u251c\u2500\u2500 Coordinated disclosure\r\n\u2502   \u251c\u2500\u2500 Advance disclosure\r\n\u2502   \u251c\u2500\u2500 Public disclosure\r\n\u2502   \u2514\u2500\u2500 Exceptional circumstances\r\n\u2514\u2500\u2500 Security notifications\r\n    \u251c\u2500\u2500 Who receives advance notification\r\n    \u251c\u2500\u2500 Who does not receive advance notification\r\n    \u2514\u2500\u2500 Requesting notifications\r\n}}}\r\n\r\nI am open to other grouping/structure suggestions and would welcome us looking at other open source security policies to guide us on what would be best here."
         }
       }
     }
