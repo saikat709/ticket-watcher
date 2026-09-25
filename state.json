@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37371
+      "last_seen_id": 37372
     }
   },
   "tracked": {
@@ -1610,6 +1610,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "`--keepdb` is expected to preserve a database between test runs. For sqlite backends, there are 2 issues:\r\n\r\n**1. Misleading logs and unexpected behaviour using --keepdb with default TEST settings**\r\n\r\nBy default, `--keepdb` only has an effect if there is a `TEST` database name defined. If the `TEST` name is the default (None) , the sqlite backend ALWAYS uses an in-memory database, irrespective of the `--keepdb` flag.\r\n\r\nThis is documented here:\r\nhttps://docs.djangoproject.com/en/6.1/ref/settings/#std-setting-TEST_NAME\r\n\r\nHowever: it's not easy to find (it's not mentioned in the testing docs or the sqlite notes), and it's not documented anywhere that when the `TEST` name is None, using --keepdb will not make it change behaviour - it will [https://github.com/django/django/blob/6.1/django/db/backends/sqlite3/creation.py#L20 always use an in-memory db]\r\n\r\nDocs on [https://docs.djangoproject.com/en/6.1/topics/testing/overview/#the-test-database/ the test database] and [https://docs.djangoproject.com/en/6.1/topics/testing/overview/#preserving-the-test-database/ preserving the db] don't mention that for sqlite, --keepdb does not preserve the test db unless you have an explicit TEST setting.\r\n\r\nIn addition, when the tests run, they print misleading logs.\r\nFor example, take these settings:\r\n{{{\r\nDATABASES = {\r\n   'default': {\r\n       'ENGINE': 'django.db.backends.sqlite3',\r\n       'NAME': BASE_DIR / 'db.sqlite3',\r\n   }\r\n}\r\n}}}\r\n\r\nRunning `python manage.py test --keepdb` prints:\r\n{{{\r\nFound 2 test(s).\r\nUsing existing test database for alias 'default'...\r\nSystem check identified no issues (0 silenced).\r\n..\r\n----------------------------------------------------------------------\r\nRan 2 tests in 0.669s\r\n\r\nOK\r\nPreserving test database for alias 'default'...\r\n}}}\r\n\r\nBut no test database was preserved. (Running with `-v 2` will show the migrations being appplied on repeated test runs, despite the logs that say it's reusing an existing db).\r\n\r\nIn contrast, with these settings:\r\n{{{\r\nDATABASES = {\r\n   'default': {\r\n       'ENGINE': 'django.db.backends.sqlite3',\r\n       'NAME': BASE_DIR / 'db.sqlite3',\r\n       \"TEST\": {\"NAME\": BASE_DIR / \"test_db.sqlite3\"},\r\n   }\r\n}\r\n}}}\r\n\r\nRunning `python manage.py test --keepdb` prints the exact same message as before, but this time a file called `test_db.sqlite3` **is** preserved.\r\n\r\nI think there are a few options to improve this:\r\n1) Raise an error when --keepdb is used with no TEST db configured, with an informative error message\r\n2) Raise a warning when --keepdb is used with no TEST db configured, and/or fix the misleading logs\r\n3) Make --keepdb work when there is no TEST db configured\r\n\r\n(3) makes sqlite behave similarly to other DBs, rather than have a --keepdb flag that's silently ignored in some scenarios.\r\n(1) or (2) keep the current behaviour but make it more obvious to the user what's going on. I'd lean towards (3) as the best option.\r\n\r\n**2. Inconsistent behaviour when using --keepdb with default TEST settings and running tests in parallel**\r\nWhen running tests in parallel with default TEST settings (i.e. TEST db name None), the testrunner's database setup creates a clone of the (in-memory) test database, one per worker. This is fine when the start method is fork, but the forksever/spawn start methods require migrating the in-memory db to disk.  This means that when the TEST db name is None, and tests are run in parallel, they actually DON'T use an in-memory db. This isn't noticeable unless also run with the --keepdb flag, which prevents cleanup of the cloned test dbs.\r\n\r\ni.e. with these settings (no TEST db configured):\r\n{{{\r\nDATABASES = {\r\n   'default': {\r\n       'ENGINE': 'django.db.backends.sqlite3',\r\n       'NAME': BASE_DIR / 'db.sqlite3',\r\n   }\r\n}\r\n}}}\r\n\r\nRunning `python manage.py test --keepdb --parallel=auto` (with at least 2 tests so there's something to parallise) leaves behind databases called `default_1.sqlite3`, `default_2.sqlite3` etc if the multiprocessing start method is spawn or forkserver, but not if it's fork. As of python 3.14, [https://docs.python.org/3/library/multiprocessing.html#contexts-and-start-methods/ fork isn't the default behaviour on any system], so users are likely to see the preserved dbs in parallel mode. The parallel case should behave consistently with serial test runs.\r\n\r\nThe fix for this will depend on how --keepdb is handled in the serial case. If we update the docs and logs to be more explicit about the fact that --keepdb will have no effect when there's no TEST db configured, then the parallel case should behave consistently and clean up its cloned dbs when there's no TEST db configured. If we modify the behaviour so that --keepdb uses an on-disk file that can be preserved, then I think the existing code will work as expected, although it would be worth documenting that running in parallel will use on-disk files, even if the TEST settings specify an in-memory file."
+        }
+      }
+    },
+    "django:37372": {
+      "source": "django",
+      "ticket_id": 37372,
+      "watcher_issue_number": 46,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-25T13:21:00.702094+00:00",
+      "last_updated": "2026-09-25T13:21:00.702094+00:00",
+      "ticket_data": {
+        "id": 37372,
+        "source_id": "django",
+        "title": "Handling of null values in __in lookups is inconsistent",
+        "description": "When the right-hand side of an `__in` lookup contains None, several problems are surfaced. \r\n1. The resulting querysets differ from the same query being constructed with `Q` queries combined with OR.\r\n2. `.filter()` and `.exclude()` produce non-complementary querysets.\r\n3. Objects with null None values are discarded.\r\n\r\nThis happens when testing against a single table as well when spanning relationships.\r\nThe problems are related to the interference between two tickets:\r\n#20024 was created 14 years ago. The suggested change made sense back then, but conflicts with the fix for #31667 implemented in the meantime. This led to the fix for #20024 being ineffective, and the targeting of null values in `__in` lookups being made impossible.\r\n\r\nA bit more context for 2.: It was decided to discard None from the rhs for `__in` lookups with `.filter()`, since NULL is never equal to anything. That means that the None values have to be included in the `.exclude()` queryset in order for `.filter()` and `.exclude()` to produce complementary querysets.\r\n\r\nDryORM fiddle: https://dryorm.xterm.info/in-lookups-with-none ",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Sep 25, 2026, 5:54:35 AM",
+        "updated_at": "Sep 25, 2026, 6:01:52 AM",
+        "reporter": "Annabelle Wiegart",
+        "owner": "Annabelle Wiegart",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37372",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37372",
+          "Summary": "Handling of null values in __in lookups is inconsistent",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 25, 2026, 5:54:35 AM",
+          "Modified": "Sep 25, 2026, 6:01:52 AM",
+          "Reporter": "Annabelle Wiegart",
+          "Owner": "Annabelle Wiegart",
+          "Triage Stage": "Accepted",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "When the right-hand side of an `__in` lookup contains None, several problems are surfaced. \r\n1. The resulting querysets differ from the same query being constructed with `Q` queries combined with OR.\r\n2. `.filter()` and `.exclude()` produce non-complementary querysets.\r\n3. Objects with null None values are discarded.\r\n\r\nThis happens when testing against a single table as well when spanning relationships.\r\nThe problems are related to the interference between two tickets:\r\n#20024 was created 14 years ago. The suggested change made sense back then, but conflicts with the fix for #31667 implemented in the meantime. This led to the fix for #20024 being ineffective, and the targeting of null values in `__in` lookups being made impossible.\r\n\r\nA bit more context for 2.: It was decided to discard None from the rhs for `__in` lookups with `.filter()`, since NULL is never equal to anything. That means that the None values have to be included in the `.exclude()` queryset in order for `.filter()` and `.exclude()` to produce complementary querysets.\r\n\r\nDryORM fiddle: https://dryorm.xterm.info/in-lookups-with-none "
         }
       }
     }
