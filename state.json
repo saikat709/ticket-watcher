@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37372
+      "last_seen_id": 37373
     }
   },
   "tracked": {
@@ -1660,6 +1660,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "When the right-hand side of an `__in` lookup contains None, several problems are surfaced. \r\n1. The resulting querysets differ from the same query being constructed with `Q` queries combined with OR.\r\n2. `.filter()` and `.exclude()` produce non-complementary querysets.\r\n3. Objects with null None values are discarded.\r\n\r\nThis happens when testing against a single table as well when spanning relationships.\r\nThe problems are related to the interference between two tickets:\r\n#20024 was created 14 years ago. The suggested change made sense back then, but conflicts with the fix for #31667 implemented in the meantime. This led to the fix for #20024 being ineffective, and the targeting of null values in `__in` lookups being made impossible.\r\n\r\nA bit more context for 2.: It was decided to discard None from the rhs for `__in` lookups with `.filter()`, since NULL is never equal to anything. That means that the None values have to be included in the `.exclude()` queryset in order for `.filter()` and `.exclude()` to produce complementary querysets.\r\n\r\nDryORM fiddle: https://dryorm.xterm.info/in-lookups-with-none "
+        }
+      }
+    },
+    "django:37373": {
+      "source": "django",
+      "ticket_id": 37373,
+      "watcher_issue_number": 47,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-26T22:24:14.603322+00:00",
+      "last_updated": "2026-09-26T22:24:14.603322+00:00",
+      "ticket_data": {
+        "id": 37373,
+        "source_id": "django",
+        "title": "Deprecate QuerySet.extra(select, where, order_by)",
+        "description": "When the Expressions API was introduced to the ORM more than decade ago it paved the way for the safer injection of developer controlled SQL.\r\n\r\nIn the weeks that followed the feature landing in `main` the future of `extra()` [https://groups.google.com/g/django-developers/c/FojuU0syO8Y was discussed on the mailing list] and reached a consensus that [https://github.com/django/django/commit/e8cd65f8297928d3fa7ad3d338953a4423028713 the documentation should discourage its usage] #25213, direct users to file a ticket with the `extra` keyword if they encounter a use case they believe would still require its usage, and state that we would no longer be improving or fixing bugs for it.\r\n\r\nOver the past decade all the tickets [https://code.djangoproject.com/query?component=Database+layer+(models%2C+ORM)&description=~extra&keywords=~extra&status=closed&order=id&desc=1&col=id&col=summary&col=component&col=owner&col=type tagged accordingly] have been triaged as achievable using the Expression API, early limitations such as [https://groups.google.com/g/django-developers/c/FojuU0syO8Y/m/5NOKchNyDgAJ not being able to filter by `RawSQL` expressions] have [https://github.com/django/django/commit/4137fc2efce2dde48340728b8006fc6d66b9e3a5 been addressed] #25367, and implicit behaviour such as the way `extra(select)` affects the order of `SELECT` members [https://github.com/django/django/commit/65ad4ade74dc9208b9d686a451cd6045df0c9c3a have had] proper alternatives implemented #28900.\r\n\r\nAs the obsolescence of `extra(select, where, order_by)` was confirmed over the years new features were added without taking it into consideration and it slowly slipped into abandon as it became [https://github.com/django/django/commit/65ad4ade74dc9208b9d686a451cd6045df0c9c3a a torn in the way of refactors] and [https://github.com/django/django/commit/65ad4ade74dc9208b9d686a451cd6045df0c9c3a functionally defunct] I think the time has come to consider fully deprecating it except for the `tables` option which cannot be emulated with the Expressions API yet #5929.\r\n\r\nSince `extra(select, where, order_by)` has been around for almost as long as the project itself I suggest keeping shims meant to also be removed over the few internal `extra` methods and attributes of `sql.Query` during the deprecation period to allow third-party applications to gracefully stop relying on them.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Sep 26, 2026, 3:34:35 PM",
+        "updated_at": "Sep 26, 2026, 3:34:35 PM",
+        "reporter": "Simon Charette",
+        "owner": "Simon Charette",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37373",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37373",
+          "Summary": "Deprecate QuerySet.extra(select, where, order_by)",
+          "Type": "Cleanup/optimization",
+          "Status": "assigned",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 26, 2026, 3:34:35 PM",
+          "Modified": "Sep 26, 2026, 3:34:35 PM",
+          "Reporter": "Simon Charette",
+          "Owner": "Simon Charette",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "When the Expressions API was introduced to the ORM more than decade ago it paved the way for the safer injection of developer controlled SQL.\r\n\r\nIn the weeks that followed the feature landing in `main` the future of `extra()` [https://groups.google.com/g/django-developers/c/FojuU0syO8Y was discussed on the mailing list] and reached a consensus that [https://github.com/django/django/commit/e8cd65f8297928d3fa7ad3d338953a4423028713 the documentation should discourage its usage] #25213, direct users to file a ticket with the `extra` keyword if they encounter a use case they believe would still require its usage, and state that we would no longer be improving or fixing bugs for it.\r\n\r\nOver the past decade all the tickets [https://code.djangoproject.com/query?component=Database+layer+(models%2C+ORM)&description=~extra&keywords=~extra&status=closed&order=id&desc=1&col=id&col=summary&col=component&col=owner&col=type tagged accordingly] have been triaged as achievable using the Expression API, early limitations such as [https://groups.google.com/g/django-developers/c/FojuU0syO8Y/m/5NOKchNyDgAJ not being able to filter by `RawSQL` expressions] have [https://github.com/django/django/commit/4137fc2efce2dde48340728b8006fc6d66b9e3a5 been addressed] #25367, and implicit behaviour such as the way `extra(select)` affects the order of `SELECT` members [https://github.com/django/django/commit/65ad4ade74dc9208b9d686a451cd6045df0c9c3a have had] proper alternatives implemented #28900.\r\n\r\nAs the obsolescence of `extra(select, where, order_by)` was confirmed over the years new features were added without taking it into consideration and it slowly slipped into abandon as it became [https://github.com/django/django/commit/65ad4ade74dc9208b9d686a451cd6045df0c9c3a a torn in the way of refactors] and [https://github.com/django/django/commit/65ad4ade74dc9208b9d686a451cd6045df0c9c3a functionally defunct] I think the time has come to consider fully deprecating it except for the `tables` option which cannot be emulated with the Expressions API yet #5929.\r\n\r\nSince `extra(select, where, order_by)` has been around for almost as long as the project itself I suggest keeping shims meant to also be removed over the few internal `extra` methods and attributes of `sql.Query` during the deprecation period to allow third-party applications to gracefully stop relying on them."
         }
       }
     }
