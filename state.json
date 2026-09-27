@@ -11,7 +11,7 @@
       "watcher_issue_number": 2,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-06T03:12:14.317214+00:00",
       "ticket_data": {
         "id": 37326,
@@ -61,7 +61,7 @@
       "watcher_issue_number": 3,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-21T03:35:42.784530+00:00",
       "ticket_data": {
         "id": 37327,
@@ -113,7 +113,7 @@
       "watcher_issue_number": 4,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-06T03:12:14.317214+00:00",
       "ticket_data": {
         "id": 37328,
@@ -164,7 +164,7 @@
       "watcher_issue_number": 5,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-09T03:21:47.477014+00:00",
       "ticket_data": {
         "id": 37329,
@@ -216,7 +216,7 @@
       "watcher_issue_number": 6,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-12T03:22:11.526262+00:00",
       "ticket_data": {
         "id": 37330,
@@ -267,7 +267,7 @@
       "watcher_issue_number": 8,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-08T15:33:33.254698+00:00",
       "ticket_data": {
         "id": 37332,
@@ -319,7 +319,7 @@
       "watcher_issue_number": 9,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-18T03:27:08.576198+00:00",
       "ticket_data": {
         "id": 37333,
@@ -351,7 +351,7 @@
       "watcher_issue_number": 10,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-09T16:47:31.184624+00:00",
       "ticket_data": {
         "id": 37334,
@@ -402,7 +402,7 @@
       "watcher_issue_number": 11,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-11T03:17:00.522062+00:00",
       "ticket_data": {
         "id": 37335,
@@ -453,7 +453,7 @@
       "watcher_issue_number": 12,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-10T03:20:41.354089+00:00",
       "ticket_data": {
         "id": 37336,
@@ -485,7 +485,7 @@
       "watcher_issue_number": 13,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-12T03:22:11.526262+00:00",
       "ticket_data": {
         "id": 37337,
@@ -517,7 +517,7 @@
       "watcher_issue_number": 14,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-11T03:17:00.522062+00:00",
       "ticket_data": {
         "id": 37338,
@@ -549,7 +549,7 @@
       "watcher_issue_number": 15,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-19T03:23:35.576632+00:00",
       "ticket_data": {
         "id": 37339,
@@ -581,7 +581,7 @@
       "watcher_issue_number": 16,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-12T03:22:11.526262+00:00",
       "ticket_data": {
         "id": 37340,
@@ -631,7 +631,7 @@
       "watcher_issue_number": 17,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-24T03:24:42.158151+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-15T03:39:13.000729+00:00",
       "ticket_data": {
         "id": 37342,
@@ -663,7 +663,7 @@
       "watcher_issue_number": 18,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-15T03:39:13.000729+00:00",
       "ticket_data": {
         "id": 37343,
@@ -714,7 +714,7 @@
       "watcher_issue_number": 19,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-19T03:23:35.576632+00:00",
       "ticket_data": {
         "id": 37344,
@@ -746,7 +746,7 @@
       "watcher_issue_number": 20,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-25T03:42:01.987134+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-15T03:39:13.000729+00:00",
       "ticket_data": {
         "id": 37345,
@@ -778,8 +778,8 @@
       "watcher_issue_number": 21,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
-      "last_updated": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
+      "last_updated": "2026-09-27T03:57:25.777724+00:00",
       "ticket_data": {
         "id": 37346,
         "source_id": "django",
@@ -797,8 +797,8 @@
         "triage_stage": "",
         "labels": [],
         "url": "https://code.djangoproject.com/ticket/37346",
-        "pr_url": null,
-        "pr_status": null,
+        "pr_url": "https://github.com/django/django/pull/21935",
+        "pr_status": "open",
         "raw_data": {
           "id": "37346"
         }
@@ -810,7 +810,7 @@
       "watcher_issue_number": 22,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-17T03:40:54.179611+00:00",
       "ticket_data": {
         "id": 37347,
@@ -842,7 +842,7 @@
       "watcher_issue_number": 23,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-26T03:48:05.396110+00:00",
       "ticket_data": {
         "id": 37348,
@@ -874,7 +874,7 @@
       "watcher_issue_number": 24,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-18T03:27:08.576198+00:00",
       "ticket_data": {
         "id": 37349,
@@ -925,7 +925,7 @@
       "watcher_issue_number": 26,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-19T03:23:35.576632+00:00",
       "ticket_data": {
         "id": 37351,
@@ -977,7 +977,7 @@
       "watcher_issue_number": 27,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-18T03:27:08.576198+00:00",
       "ticket_data": {
         "id": 37352,
@@ -1029,7 +1029,7 @@
       "watcher_issue_number": 33,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-26T03:48:05.396110+00:00",
       "ticket_data": {
         "id": 37359,
@@ -1080,7 +1080,7 @@
       "watcher_issue_number": 34,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-21T03:35:42.784530+00:00",
       "ticket_data": {
         "id": 37360,
@@ -1112,7 +1112,7 @@
       "watcher_issue_number": 35,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-23T03:34:31.376133+00:00",
       "ticket_data": {
         "id": 37361,
@@ -1164,7 +1164,7 @@
       "watcher_issue_number": 36,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-20T12:43:11.119280+00:00",
       "ticket_data": {
         "id": 37362,
@@ -1212,50 +1212,31 @@
       "source": "django",
       "ticket_id": 37364,
       "watcher_issue_number": 38,
-      "status": "assigned",
+      "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
-      "last_updated": "2026-09-21T08:03:48.641795+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
+      "last_updated": "2026-09-27T03:57:25.777724+00:00",
       "ticket_data": {
         "id": 37364,
         "source_id": "django",
-        "title": "Make NullBooleanSelect.format_value() return a list, consistent with ChoiceWidget",
-        "description": "`ChoiceWidget.format_value()` is documented (in its docstring) to \"Return selected values as a list\", and every `ChoiceWidget` subclass honors that, except `NullBooleanSelect`, which returns a bare string: `\"unknown\"`, `\"true\"`, or `\"false\"`.\r\n\r\n`NullBooleanSelect` does not override `get_context()` or `optgroups()`. It relies on the inherited `ChoiceWidget.optgroups()`, which marks an option as selected with `str(subvalue) in value`. When `value` is a list that is list membership. When `value` is the bare string it becomes a substring test, which only produces correct results because none of `\"unknown\"`, `\"true\"`, or `\"false\"` happens to be a substring of another. The parent's contract is satisfied by accident rather than by design, and it may be confusing for anyone who later customizes the choices or the parent implementation.\r\n\r\n----\r\n\r\nHistory: #27866 (1.11) changed `ChoiceWidget.format_value()` from returning a set to returning a list but did not touch `NullBooleanSelect`. #17210 (2.2) changed the `NullBooleanSelect` mapping from `1/2/3` to `unknown/true/false` and kept returning a bare string.\r\n\r\n----\r\n\r\nProposed change: wrap the result in a one-element list, i.e. `[\"unknown\"]`, `[\"true\"]`, or `[\"false\"]`. The rendered HTML should be identical. The only impact would be for third-party code that calls `widget.format_value()` directly and uses the result as a value representation.",
-        "status": "assigned",
+        "title": "Ticket #37364",
+        "description": "",
+        "status": "unknown",
         "resolution": "",
-        "created_at": "Sep 21, 2026, 1:24:02 AM",
-        "updated_at": "Sep 21, 2026, 1:31:08 AM",
-        "reporter": "Brian Helba",
-        "owner": "Brian Helba",
-        "component": "Forms",
-        "priority": "Normal",
-        "severity": "Normal",
-        "triage_stage": "Unreviewed",
-        "labels": [
-          "Unreviewed",
-          "has-patch"
-        ],
+        "created_at": "",
+        "updated_at": "",
+        "reporter": "",
+        "owner": "",
+        "component": "",
+        "priority": "",
+        "severity": "",
+        "triage_stage": "",
+        "labels": [],
         "url": "https://code.djangoproject.com/ticket/37364",
         "pr_url": "https://github.com/django/django/pull/22009",
         "pr_status": "closed",
         "raw_data": {
-          "id": "37364",
-          "Summary": "Make NullBooleanSelect.format_value() return a list, consistent with ChoiceWidget",
-          "Type": "Cleanup/optimization",
-          "Status": "assigned",
-          "Component": "Forms",
-          "Severity": "Normal",
-          "Resolution": "",
-          "Created": "Sep 21, 2026, 1:24:02 AM",
-          "Modified": "Sep 21, 2026, 1:31:08 AM",
-          "Reporter": "Brian Helba",
-          "Owner": "Brian Helba",
-          "Triage Stage": "Unreviewed",
-          "Has patch": "1",
-          "Needs tests": "0",
-          "Needs documentation": "0",
-          "UI/UX": "0",
-          "Description": "`ChoiceWidget.format_value()` is documented (in its docstring) to \"Return selected values as a list\", and every `ChoiceWidget` subclass honors that, except `NullBooleanSelect`, which returns a bare string: `\"unknown\"`, `\"true\"`, or `\"false\"`.\r\n\r\n`NullBooleanSelect` does not override `get_context()` or `optgroups()`. It relies on the inherited `ChoiceWidget.optgroups()`, which marks an option as selected with `str(subvalue) in value`. When `value` is a list that is list membership. When `value` is the bare string it becomes a substring test, which only produces correct results because none of `\"unknown\"`, `\"true\"`, or `\"false\"` happens to be a substring of another. The parent's contract is satisfied by accident rather than by design, and it may be confusing for anyone who later customizes the choices or the parent implementation.\r\n\r\n----\r\n\r\nHistory: #27866 (1.11) changed `ChoiceWidget.format_value()` from returning a set to returning a list but did not touch `NullBooleanSelect`. #17210 (2.2) changed the `NullBooleanSelect` mapping from `1/2/3` to `unknown/true/false` and kept returning a bare string.\r\n\r\n----\r\n\r\nProposed change: wrap the result in a one-element list, i.e. `[\"unknown\"]`, `[\"true\"]`, or `[\"false\"]`. The rendered HTML should be identical. The only impact would be for third-party code that calls `widget.format_value()` directly and uses the result as a value representation."
+          "id": "37364"
         }
       }
     },
@@ -1265,7 +1246,7 @@
       "watcher_issue_number": 39,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-23T03:34:31.376133+00:00",
       "ticket_data": {
         "id": 37365,
@@ -1316,7 +1297,7 @@
       "watcher_issue_number": 40,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-26T03:48:05.396110+00:00",
       "ticket_data": {
         "id": 37366,
@@ -1366,7 +1347,7 @@
       "watcher_issue_number": 41,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-25T03:42:01.987134+00:00",
       "ticket_data": {
         "id": 37367,
@@ -1418,7 +1399,7 @@
       "watcher_issue_number": 42,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-24T12:23:17.278258+00:00",
       "ticket_data": {
         "id": 37368,
@@ -1428,7 +1409,7 @@
         "status": "assigned",
         "resolution": "",
         "created_at": "Sep 24, 2026, 5:38:26 AM",
-        "updated_at": "Sep 24, 2026, 6:57:25 AM",
+        "updated_at": "Sep 26, 2026, 2:09:11 PM",
         "reporter": "Samuel Searles-Bryant",
         "owner": "Samuel Searles-Bryant",
         "component": "Database layer (models, ORM)",
@@ -1451,7 +1432,7 @@
           "Severity": "Normal",
           "Resolution": "",
           "Created": "Sep 24, 2026, 5:38:26 AM",
-          "Modified": "Sep 24, 2026, 6:57:25 AM",
+          "Modified": "Sep 26, 2026, 2:09:11 PM",
           "Reporter": "Samuel Searles-Bryant",
           "Owner": "Samuel Searles-Bryant",
           "Triage Stage": "Accepted",
@@ -1469,7 +1450,7 @@
       "watcher_issue_number": 43,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-25T03:42:01.987134+00:00",
       "ticket_data": {
         "id": 37369,
@@ -1479,7 +1460,7 @@
         "status": "assigned",
         "resolution": "",
         "created_at": "Sep 24, 2026, 5:59:02 AM",
-        "updated_at": "Sep 24, 2026, 11:14:11 AM",
+        "updated_at": "Sep 26, 2026, 5:11:23 PM",
         "reporter": "Charlie Denton",
         "owner": "Vishy",
         "component": "Database layer (models, ORM)",
@@ -1501,7 +1482,7 @@
           "Severity": "Normal",
           "Resolution": "",
           "Created": "Sep 24, 2026, 5:59:02 AM",
-          "Modified": "Sep 24, 2026, 11:14:11 AM",
+          "Modified": "Sep 26, 2026, 5:11:23 PM",
           "Reporter": "Charlie Denton",
           "Owner": "Vishy",
           "Triage Stage": "Accepted",
@@ -1519,7 +1500,7 @@
       "watcher_issue_number": 44,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-24T17:23:24.087012+00:00",
       "ticket_data": {
         "id": 37370,
@@ -1569,7 +1550,7 @@
       "watcher_issue_number": 45,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
       "last_updated": "2026-09-26T03:48:05.396110+00:00",
       "ticket_data": {
         "id": 37371,
@@ -1619,17 +1600,17 @@
       "watcher_issue_number": 46,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T03:48:05.396110+00:00",
-      "last_updated": "2026-09-25T13:21:00.702094+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
+      "last_updated": "2026-09-27T03:57:25.777724+00:00",
       "ticket_data": {
         "id": 37372,
         "source_id": "django",
         "title": "Handling of null values in __in lookups is inconsistent",
-        "description": "When the right-hand side of an `__in` lookup contains None, several problems are surfaced. \r\n1. The resulting querysets differ from the same query being constructed with `Q` queries combined with OR.\r\n2. `.filter()` and `.exclude()` produce non-complementary querysets.\r\n3. Objects with null None values are discarded.\r\n\r\nThis happens when testing against a single table as well when spanning relationships.\r\nThe problems are related to the interference between two tickets:\r\n#20024 was created 14 years ago. The suggested change made sense back then, but conflicts with the fix for #31667 implemented in the meantime. This led to the fix for #20024 being ineffective, and the targeting of null values in `__in` lookups being made impossible.\r\n\r\nA bit more context for 2.: It was decided to discard None from the rhs for `__in` lookups with `.filter()`, since NULL is never equal to anything. That means that the None values have to be included in the `.exclude()` queryset in order for `.filter()` and `.exclude()` to produce complementary querysets.\r\n\r\nDryORM fiddle: https://dryorm.xterm.info/in-lookups-with-none ",
+        "description": "When the right-hand side of an `__in` lookup contains None, several problems are surfaced. \r\n1. The resulting querysets differ from the same query being constructed with `Q` queries combined with OR.\r\n2. `.filter()` and `.exclude()` produce non-complementary querysets.\r\n3. Objects with None values are discarded.\r\n\r\nThis happens when testing against a single table as well when spanning relationships.\r\nThe problems are related to the interference between two tickets:\r\n#20024 was created 14 years ago. The suggested change made sense back then, but conflicts with the fix for #31667 implemented in the meantime. This led to the fix for #20024 being ineffective, and the targeting of null values in `__in` lookups being made impossible.\r\n\r\nA bit more context for 2.: It was decided to discard None from the rhs for `__in` lookups with `.filter()`, since NULL is never equal to anything. That means that the None values have to be included in the `.exclude()` queryset in order for `.filter()` and `.exclude()` to produce complementary querysets.\r\n\r\nDryORM fiddle: https://dryorm.xterm.info/in-lookups-with-none ",
         "status": "assigned",
         "resolution": "",
         "created_at": "Sep 25, 2026, 5:54:35 AM",
-        "updated_at": "Sep 25, 2026, 6:01:52 AM",
+        "updated_at": "Sep 26, 2026, 8:23:34 AM",
         "reporter": "Annabelle Wiegart",
         "owner": "Annabelle Wiegart",
         "component": "Database layer (models, ORM)",
@@ -1637,7 +1618,8 @@
         "severity": "Normal",
         "triage_stage": "Accepted",
         "labels": [
-          "Accepted"
+          "Accepted",
+          "has-patch"
         ],
         "url": "https://code.djangoproject.com/ticket/37372",
         "pr_url": null,
@@ -1651,15 +1633,15 @@
           "Severity": "Normal",
           "Resolution": "",
           "Created": "Sep 25, 2026, 5:54:35 AM",
-          "Modified": "Sep 25, 2026, 6:01:52 AM",
+          "Modified": "Sep 26, 2026, 8:23:34 AM",
           "Reporter": "Annabelle Wiegart",
           "Owner": "Annabelle Wiegart",
           "Triage Stage": "Accepted",
-          "Has patch": "0",
+          "Has patch": "1",
           "Needs tests": "0",
           "Needs documentation": "0",
           "UI/UX": "0",
-          "Description": "When the right-hand side of an `__in` lookup contains None, several problems are surfaced. \r\n1. The resulting querysets differ from the same query being constructed with `Q` queries combined with OR.\r\n2. `.filter()` and `.exclude()` produce non-complementary querysets.\r\n3. Objects with null None values are discarded.\r\n\r\nThis happens when testing against a single table as well when spanning relationships.\r\nThe problems are related to the interference between two tickets:\r\n#20024 was created 14 years ago. The suggested change made sense back then, but conflicts with the fix for #31667 implemented in the meantime. This led to the fix for #20024 being ineffective, and the targeting of null values in `__in` lookups being made impossible.\r\n\r\nA bit more context for 2.: It was decided to discard None from the rhs for `__in` lookups with `.filter()`, since NULL is never equal to anything. That means that the None values have to be included in the `.exclude()` queryset in order for `.filter()` and `.exclude()` to produce complementary querysets.\r\n\r\nDryORM fiddle: https://dryorm.xterm.info/in-lookups-with-none "
+          "Description": "When the right-hand side of an `__in` lookup contains None, several problems are surfaced. \r\n1. The resulting querysets differ from the same query being constructed with `Q` queries combined with OR.\r\n2. `.filter()` and `.exclude()` produce non-complementary querysets.\r\n3. Objects with None values are discarded.\r\n\r\nThis happens when testing against a single table as well when spanning relationships.\r\nThe problems are related to the interference between two tickets:\r\n#20024 was created 14 years ago. The suggested change made sense back then, but conflicts with the fix for #31667 implemented in the meantime. This led to the fix for #20024 being ineffective, and the targeting of null values in `__in` lookups being made impossible.\r\n\r\nA bit more context for 2.: It was decided to discard None from the rhs for `__in` lookups with `.filter()`, since NULL is never equal to anything. That means that the None values have to be included in the `.exclude()` queryset in order for `.filter()` and `.exclude()` to produce complementary querysets.\r\n\r\nDryORM fiddle: https://dryorm.xterm.info/in-lookups-with-none "
         }
       }
     },
@@ -1669,8 +1651,8 @@
       "watcher_issue_number": 47,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-09-26T22:24:14.603322+00:00",
-      "last_updated": "2026-09-26T22:24:14.603322+00:00",
+      "last_checked": "2026-09-27T03:57:25.777724+00:00",
+      "last_updated": "2026-09-27T03:57:25.777724+00:00",
       "ticket_data": {
         "id": 37373,
         "source_id": "django",
@@ -1679,7 +1661,7 @@
         "status": "assigned",
         "resolution": "",
         "created_at": "Sep 26, 2026, 3:34:35 PM",
-        "updated_at": "Sep 26, 2026, 3:34:35 PM",
+        "updated_at": "Sep 26, 2026, 5:50:46 PM",
         "reporter": "Simon Charette",
         "owner": "Simon Charette",
         "component": "Database layer (models, ORM)",
@@ -1687,7 +1669,8 @@
         "severity": "Normal",
         "triage_stage": "Unreviewed",
         "labels": [
-          "Unreviewed"
+          "Unreviewed",
+          "has-patch"
         ],
         "url": "https://code.djangoproject.com/ticket/37373",
         "pr_url": null,
@@ -1701,11 +1684,11 @@
           "Severity": "Normal",
           "Resolution": "",
           "Created": "Sep 26, 2026, 3:34:35 PM",
-          "Modified": "Sep 26, 2026, 3:34:35 PM",
+          "Modified": "Sep 26, 2026, 5:50:46 PM",
           "Reporter": "Simon Charette",
           "Owner": "Simon Charette",
           "Triage Stage": "Unreviewed",
-          "Has patch": "0",
+          "Has patch": "1",
           "Needs tests": "0",
           "Needs documentation": "0",
           "UI/UX": "0",
