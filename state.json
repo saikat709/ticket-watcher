@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37373
+      "last_seen_id": 37374
     }
   },
   "tracked": {
@@ -1693,6 +1693,57 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "When the Expressions API was introduced to the ORM more than decade ago it paved the way for the safer injection of developer controlled SQL.\r\n\r\nIn the weeks that followed the feature landing in `main` the future of `extra()` [https://groups.google.com/g/django-developers/c/FojuU0syO8Y was discussed on the mailing list] and reached a consensus that [https://github.com/django/django/commit/e8cd65f8297928d3fa7ad3d338953a4423028713 the documentation should discourage its usage] #25213, direct users to file a ticket with the `extra` keyword if they encounter a use case they believe would still require its usage, and state that we would no longer be improving or fixing bugs for it.\r\n\r\nOver the past decade all the tickets [https://code.djangoproject.com/query?component=Database+layer+(models%2C+ORM)&description=~extra&keywords=~extra&status=closed&order=id&desc=1&col=id&col=summary&col=component&col=owner&col=type tagged accordingly] have been triaged as achievable using the Expression API, early limitations such as [https://groups.google.com/g/django-developers/c/FojuU0syO8Y/m/5NOKchNyDgAJ not being able to filter by `RawSQL` expressions] have [https://github.com/django/django/commit/4137fc2efce2dde48340728b8006fc6d66b9e3a5 been addressed] #25367, and implicit behaviour such as the way `extra(select)` affects the order of `SELECT` members [https://github.com/django/django/commit/65ad4ade74dc9208b9d686a451cd6045df0c9c3a have had] proper alternatives implemented #28900.\r\n\r\nAs the obsolescence of `extra(select, where, order_by)` was confirmed over the years new features were added without taking it into consideration and it slowly slipped into abandon as it became [https://github.com/django/django/commit/65ad4ade74dc9208b9d686a451cd6045df0c9c3a a torn in the way of refactors] and [https://github.com/django/django/commit/65ad4ade74dc9208b9d686a451cd6045df0c9c3a functionally defunct] I think the time has come to consider fully deprecating it except for the `tables` option which cannot be emulated with the Expressions API yet #5929.\r\n\r\nSince `extra(select, where, order_by)` has been around for almost as long as the project itself I suggest keeping shims meant to also be removed over the few internal `extra` methods and attributes of `sql.Query` during the deprecation period to allow third-party applications to gracefully stop relying on them."
+        }
+      }
+    },
+    "django:37374": {
+      "source": "django",
+      "ticket_id": 37374,
+      "watcher_issue_number": 48,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-27T15:42:22.635287+00:00",
+      "last_updated": "2026-09-27T15:42:22.635287+00:00",
+      "ticket_data": {
+        "id": 37374,
+        "source_id": "django",
+        "title": "Unused hyperlink targets in the docs point to nonexistent pages",
+        "description": "Nine named hyperlink targets in the docs are never referenced, and each one points at a URL that doesn't exist on docs.djangoproject.com. They are leftovers from an older docs layout, e.g. `.. _forms documentation: ../forms/` in `docs/howto/custom-model-fields.txt` resolves to https://docs.djangoproject.com/en/dev/howto/forms/, which is a 404.\r\n\r\nThe targets, on main at 4fab678:\r\n\r\n * `docs/howto/custom-model-fields.txt`: `helper functions` (`../forms/#generating-forms-for-models`) and `forms documentation` (`../forms/`)\r\n * `docs/ref/contrib/sitemaps.txt`: `URLconf` (`../url_dispatch/`)\r\n * `docs/ref/templates/language.txt`: `The Django template language: For Python programmers` (`../templates_python/`)\r\n * `docs/topics/i18n/translation.txt`: `settings file` (`../settings/`), `middleware documentation` (`../middleware/`), `session` (`../sessions/`) and `request object` (`../request_response/#httprequest-objects`)\r\n * `docs/topics/settings.txt`: `django-admin` (`../django-admin/`)\r\n\r\nNone of them is used as `name_` or {{{`name`_}}} anywhere in its file, and docutils only resolves named references within the same document, so removing them changes no rendered output. Each URL above, resolved against its page's published address, returns 404.\r\n\r\nSuggested fix: delete the nine targets (13 lines including adjacent blank lines).",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Sep 27, 2026, 7:05:39 AM",
+        "updated_at": "Sep 27, 2026, 7:05:39 AM",
+        "reporter": "Max Azatian",
+        "owner": "Max Azatian",
+        "component": "Documentation",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37374",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37374",
+          "Summary": "Unused hyperlink targets in the docs point to nonexistent pages",
+          "Type": "Cleanup/optimization",
+          "Status": "assigned",
+          "Component": "Documentation",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 27, 2026, 7:05:39 AM",
+          "Modified": "Sep 27, 2026, 7:05:39 AM",
+          "Reporter": "Max Azatian",
+          "Owner": "Max Azatian",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Nine named hyperlink targets in the docs are never referenced, and each one points at a URL that doesn't exist on docs.djangoproject.com. They are leftovers from an older docs layout, e.g. `.. _forms documentation: ../forms/` in `docs/howto/custom-model-fields.txt` resolves to https://docs.djangoproject.com/en/dev/howto/forms/, which is a 404.\r\n\r\nThe targets, on main at 4fab678:\r\n\r\n * `docs/howto/custom-model-fields.txt`: `helper functions` (`../forms/#generating-forms-for-models`) and `forms documentation` (`../forms/`)\r\n * `docs/ref/contrib/sitemaps.txt`: `URLconf` (`../url_dispatch/`)\r\n * `docs/ref/templates/language.txt`: `The Django template language: For Python programmers` (`../templates_python/`)\r\n * `docs/topics/i18n/translation.txt`: `settings file` (`../settings/`), `middleware documentation` (`../middleware/`), `session` (`../sessions/`) and `request object` (`../request_response/#httprequest-objects`)\r\n * `docs/topics/settings.txt`: `django-admin` (`../django-admin/`)\r\n\r\nNone of them is used as `name_` or {{{`name`_}}} anywhere in its file, and docutils only resolves named references within the same document, so removing them changes no rendered output. Each URL above, resolved against its page's published address, returns 404.\r\n\r\nSuggested fix: delete the nine targets (13 lines including adjacent blank lines)."
         }
       }
     }
