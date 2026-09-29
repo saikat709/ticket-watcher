@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37378
+      "last_seen_id": 37379
     }
   },
   "tracked": {
@@ -1947,6 +1947,56 @@
           "Needs documentation": "0",
           "UI/UX": "1",
           "Description": "This HTML typo creates an extra `<li>` and very likely an extra breadcrumb. Visual regression in bc03f1064e10fa247a46d4e8a98ba9b26aa4790d.\r\n\r\n{{{#!diff\r\ndiff --git a/django/contrib/admindocs/templates/admin_doc/model_index.html b/django/contrib/admindocs/templates/admin_doc/model_index.html\r\nindex 590cb34b95..82f0a9cb8a 100644\r\n--- a/django/contrib/admindocs/templates/admin_doc/model_index.html\r\n+++ b/django/contrib/admindocs/templates/admin_doc/model_index.html\r\n@@ -6,7 +6,7 @@\r\n {% block breadcrumbs %}\r\n <ol class=\"breadcrumbs\">\r\n <li><a href=\"{% url 'admin:index' %}\">{% translate 'Home' %}</a></li>\r\n-<li><a href=\"{% url 'django-admindocs-docroot' %}\">{% translate 'Documentation' %}</a><li>\r\n+<li><a href=\"{% url 'django-admindocs-docroot' %}\">{% translate 'Documentation' %}</a></li>\r\n <li aria-current=\"page\">{% translate 'Models' %}</li>\r\n </ol>\r\n {% endblock %}\r\n}}}"
+        }
+      }
+    },
+    "django:37379": {
+      "source": "django",
+      "ticket_id": 37379,
+      "watcher_issue_number": 53,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-29T13:10:03.588408+00:00",
+      "last_updated": "2026-09-29T13:10:03.588408+00:00",
+      "ticket_data": {
+        "id": 37379,
+        "source_id": "django",
+        "title": "MigrationRecorder.has_table() lists every table in the database, 3 times per migrate",
+        "description": "`MigrationRecorder.has_table()` checks whether `django_migrations` exists by calling\r\n`connection.introspection.table_names()`, i.e. by listing every table the connection can see:\r\n\r\n{{{#!python\r\nwith self.connection.cursor() as cursor:\r\n    tables = self.connection.introspection.table_names(cursor)\r\nself._has_table = self.Migration._meta.db_table in tables\r\n}}}\r\n\r\nOn PostgreSQL that is `get_table_list()`: a sequential scan of all of `pg_class` with\r\n`pg_table_is_visible()` evaluated on every table. The cost grows with the size of the whole\r\ncatalog, not the project, and it is paid even when there is nothing to migrate.\r\n\r\nA single `migrate` pays it 3 times. `_has_table` is cached per recorder instance, but each of these\r\ncreates its own `MigrationRecorder`:\r\n\r\n * `MigrationLoader.build_graph()` (`loader.py`, `applied_migrations()`)\r\n * `MigrationLoader.check_consistent_history()` (`loader.py`, `applied_migrations()`)\r\n * `MigrationExecutor` (`executor.py`, `ensure_schema()` in `migrate()`)\r\n\r\n'''Why it matters.''' Large PostgreSQL catalogs are common: heavy table partitioning, or many\r\nschemas (schema-per-tenant setups run `migrate` once per schema). On a database with 5.2M `pg_class`\r\nrows (705k tables), measured:\r\n\r\n * one `get_table_list()` call: 1.3\u20133.5 s, about 3M shared buffer hits\r\n * `pg_table_is_visible()` loads every `pg_class` row into the backend's catalog cache: after one\r\n   call the backend's \"Catalog tuple context\" was 352 MB\r\n * it was the top statement on the database during a deployment's migrate run, above every DDL\r\n   statement, and the per-backend memory growth across parallel migrate processes exhausted the\r\n   server's memory\r\n\r\n'''Suggestion.''' Check for the one table directly. For example, add an introspection method\r\nthat backends can override:\r\n\r\n{{{#!python\r\n# django/db/backends/base/introspection.py\r\ndef table_exists(self, cursor, table_name):\r\n    return table_name in self.table_names(cursor)\r\n\r\n# django/db/backends/postgresql/introspection.py\r\ndef table_exists(self, cursor, table_name):\r\n    cursor.execute(\r\n        \"SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_class c \"\r\n        \"WHERE c.oid = to_regclass(%s) AND c.relkind IN ('f', 'm', 'p', 'r', 'v'))\",\r\n        [self.connection.ops.quote_name(table_name)],\r\n    )\r\n    return cursor.fetchone()[0]\r\n}}}\r\n\r\nand have `MigrationRecorder.has_table()` call `introspection.table_exists(cursor, db_table)`.\r\n`to_regclass()` resolves the name through `search_path` exactly like `pg_table_is_visible()` does\r\ntoday, so results are unchanged. It is an index lookup: about 0.1 ms on the catalog above.\r\n\r\nSeparately, `migrate` could reuse one recorder (or share the result on the connection), so the\r\ncheck runs once per command instead of 3 times.\r\n\r\nHappy to work on a patch if this direction is acceptable.\r\n",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Sep 29, 2026, 5:05:04 AM",
+        "updated_at": "Sep 29, 2026, 7:08:22 AM",
+        "reporter": "Amirshokh",
+        "owner": "",
+        "component": "Migrations",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37379",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37379",
+          "Summary": "MigrationRecorder.has_table() lists every table in the database, 3 times per migrate",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "Migrations",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 29, 2026, 5:05:04 AM",
+          "Modified": "Sep 29, 2026, 7:08:22 AM",
+          "Reporter": "Amirshokh",
+          "Owner": "",
+          "Triage Stage": "Accepted",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "`MigrationRecorder.has_table()` checks whether `django_migrations` exists by calling\r\n`connection.introspection.table_names()`, i.e. by listing every table the connection can see:\r\n\r\n{{{#!python\r\nwith self.connection.cursor() as cursor:\r\n    tables = self.connection.introspection.table_names(cursor)\r\nself._has_table = self.Migration._meta.db_table in tables\r\n}}}\r\n\r\nOn PostgreSQL that is `get_table_list()`: a sequential scan of all of `pg_class` with\r\n`pg_table_is_visible()` evaluated on every table. The cost grows with the size of the whole\r\ncatalog, not the project, and it is paid even when there is nothing to migrate.\r\n\r\nA single `migrate` pays it 3 times. `_has_table` is cached per recorder instance, but each of these\r\ncreates its own `MigrationRecorder`:\r\n\r\n * `MigrationLoader.build_graph()` (`loader.py`, `applied_migrations()`)\r\n * `MigrationLoader.check_consistent_history()` (`loader.py`, `applied_migrations()`)\r\n * `MigrationExecutor` (`executor.py`, `ensure_schema()` in `migrate()`)\r\n\r\n'''Why it matters.''' Large PostgreSQL catalogs are common: heavy table partitioning, or many\r\nschemas (schema-per-tenant setups run `migrate` once per schema). On a database with 5.2M `pg_class`\r\nrows (705k tables), measured:\r\n\r\n * one `get_table_list()` call: 1.3\u20133.5 s, about 3M shared buffer hits\r\n * `pg_table_is_visible()` loads every `pg_class` row into the backend's catalog cache: after one\r\n   call the backend's \"Catalog tuple context\" was 352 MB\r\n * it was the top statement on the database during a deployment's migrate run, above every DDL\r\n   statement, and the per-backend memory growth across parallel migrate processes exhausted the\r\n   server's memory\r\n\r\n'''Suggestion.''' Check for the one table directly. For example, add an introspection method\r\nthat backends can override:\r\n\r\n{{{#!python\r\n# django/db/backends/base/introspection.py\r\ndef table_exists(self, cursor, table_name):\r\n    return table_name in self.table_names(cursor)\r\n\r\n# django/db/backends/postgresql/introspection.py\r\ndef table_exists(self, cursor, table_name):\r\n    cursor.execute(\r\n        \"SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_class c \"\r\n        \"WHERE c.oid = to_regclass(%s) AND c.relkind IN ('f', 'm', 'p', 'r', 'v'))\",\r\n        [self.connection.ops.quote_name(table_name)],\r\n    )\r\n    return cursor.fetchone()[0]\r\n}}}\r\n\r\nand have `MigrationRecorder.has_table()` call `introspection.table_exists(cursor, db_table)`.\r\n`to_regclass()` resolves the name through `search_path` exactly like `pg_table_is_visible()` does\r\ntoday, so results are unchanged. It is an index lookup: about 0.1 ms on the catalog above.\r\n\r\nSeparately, `migrate` could reuse one recorder (or share the result on the connection), so the\r\ncheck runs once per command instead of 3 times.\r\n\r\nHappy to work on a patch if this direction is acceptable.\r\n"
         }
       }
     }
