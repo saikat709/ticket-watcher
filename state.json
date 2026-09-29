@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37377
+      "last_seen_id": 37378
     }
   },
   "tracked": {
@@ -1894,6 +1894,57 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "On databases besides Postgres (which has a native `JSONField`), a [https://github.com/django/django/blob/9332b163a67eabe5bdbf8066b1c5da394be9aa9c/django/db/models/fields/json.py#L412-L414 branch] is taken that does not check the `output_field` for a `Value` expression. (Primitive strings, ints, bools, etc., might have other output_fields than `JSONField`.)\r\n\r\n{{{#!py\r\nclass Person(models.Model):\r\n    data = models.JSONField(null=True)\r\n\r\ndef run():\r\n    instance = Person.objects.create(data=\"primitive\")\r\n    qs = Person.objects.filter(data__in=[models.Value(\"primitive\")])\r\n    print(qs)\r\n}}}\r\n\r\nThis query worked(*) on 6.0, but on 6.1 it returns the wrong result (MariaDB) or crashes (SQLite). Notice for SQLite here, the string \"primitive\" should not be provided to `JSON_EXTRACT()`:\r\n\r\n{{{#!sql\r\nSELECT \"app_person\".\"id\", \"app_person\".\"data\" FROM \"app_person\" WHERE (CASE WHEN JSON_TYPE(\"app_person\".\"data\", $) IN ('null','false','true') THEN JSON_TYPE(\"app_person\".\"data\", $) ELSE JSON_EXTRACT(\"app_person\".\"data\", $) END) IN (JSON_EXTRACT(primitive, '$'))\r\n}}}\r\n{{{#!py\r\ndjango.db.utils.OperationalError: malformed JSON\r\n}}}\r\n\r\n\r\n(*) -- On SQLite, you'd have to adjust the second query to use extra quotes, because of some quote weirdness, possibly similar to #32491?"
+        }
+      }
+    },
+    "django:37378": {
+      "source": "django",
+      "ticket_id": 37378,
+      "watcher_issue_number": 52,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-29T00:43:00.170711+00:00",
+      "last_updated": "2026-09-29T00:43:00.170711+00:00",
+      "ticket_data": {
+        "id": 37378,
+        "source_id": "django",
+        "title": "Extra empty breadcrumb in admindocs model_index.html",
+        "description": "This HTML typo creates an extra `<li>` and very likely an extra breadcrumb. Visual regression in bc03f1064e10fa247a46d4e8a98ba9b26aa4790d.\r\n\r\n{{{#!diff\r\ndiff --git a/django/contrib/admindocs/templates/admin_doc/model_index.html b/django/contrib/admindocs/templates/admin_doc/model_index.html\r\nindex 590cb34b95..82f0a9cb8a 100644\r\n--- a/django/contrib/admindocs/templates/admin_doc/model_index.html\r\n+++ b/django/contrib/admindocs/templates/admin_doc/model_index.html\r\n@@ -6,7 +6,7 @@\r\n {% block breadcrumbs %}\r\n <ol class=\"breadcrumbs\">\r\n <li><a href=\"{% url 'admin:index' %}\">{% translate 'Home' %}</a></li>\r\n-<li><a href=\"{% url 'django-admindocs-docroot' %}\">{% translate 'Documentation' %}</a><li>\r\n+<li><a href=\"{% url 'django-admindocs-docroot' %}\">{% translate 'Documentation' %}</a></li>\r\n <li aria-current=\"page\">{% translate 'Models' %}</li>\r\n </ol>\r\n {% endblock %}\r\n}}}",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Sep 28, 2026, 5:44:32 PM",
+        "updated_at": "Sep 28, 2026, 5:55:41 PM",
+        "reporter": "Jacob Walls",
+        "owner": "Django Sprints",
+        "component": "contrib.admindocs",
+        "priority": "Release blocker",
+        "severity": "Release blocker",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "ui/ux"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37378",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37378",
+          "Summary": "Extra empty breadcrumb in admindocs model_index.html",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "contrib.admindocs",
+          "Severity": "Release blocker",
+          "Resolution": "",
+          "Created": "Sep 28, 2026, 5:44:32 PM",
+          "Modified": "Sep 28, 2026, 5:55:41 PM",
+          "Reporter": "Jacob Walls",
+          "Owner": "Django Sprints",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "1",
+          "Description": "This HTML typo creates an extra `<li>` and very likely an extra breadcrumb. Visual regression in bc03f1064e10fa247a46d4e8a98ba9b26aa4790d.\r\n\r\n{{{#!diff\r\ndiff --git a/django/contrib/admindocs/templates/admin_doc/model_index.html b/django/contrib/admindocs/templates/admin_doc/model_index.html\r\nindex 590cb34b95..82f0a9cb8a 100644\r\n--- a/django/contrib/admindocs/templates/admin_doc/model_index.html\r\n+++ b/django/contrib/admindocs/templates/admin_doc/model_index.html\r\n@@ -6,7 +6,7 @@\r\n {% block breadcrumbs %}\r\n <ol class=\"breadcrumbs\">\r\n <li><a href=\"{% url 'admin:index' %}\">{% translate 'Home' %}</a></li>\r\n-<li><a href=\"{% url 'django-admindocs-docroot' %}\">{% translate 'Documentation' %}</a><li>\r\n+<li><a href=\"{% url 'django-admindocs-docroot' %}\">{% translate 'Documentation' %}</a></li>\r\n <li aria-current=\"page\">{% translate 'Models' %}</li>\r\n </ol>\r\n {% endblock %}\r\n}}}"
         }
       }
     }
