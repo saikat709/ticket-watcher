@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37380
+      "last_seen_id": 37381
     }
   },
   "tracked": {
@@ -2048,6 +2048,57 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "The source for `FromWKB()` and `FromWKT()` [https://github.com/django/django/pull/17963#discussion_r1519179280 says] that the `srid` param will be ignored on Oracle, but it [https://docs.oracle.com/en/database/oracle/oracle-database/26/spatl/sdo_util-from_wkbgeometry.html#description exists] on both since Oracle19c, so we should just add support."
+        }
+      }
+    },
+    "django:37381": {
+      "source": "django",
+      "ticket_id": 37381,
+      "watcher_issue_number": 55,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-09-30T01:43:28.140010+00:00",
+      "last_updated": "2026-09-30T01:43:28.140010+00:00",
+      "ticket_data": {
+        "id": 37381,
+        "source_id": "django",
+        "title": "Invalid module references in the documentation",
+        "description": "This ticket is for David Smith's [https://github.com/django/django/pull/16294 PR] which covers a few cases where the module references are incorrect in the documentation. I created the ticket to help signal to others that this can be picked up.\r\n\r\nI used Claude to determine the following errors still need to be fixed. The rest from David's work were merged in other changes.\r\n\r\nFile: docs/internals/deprecation.txt:945\r\nCurrent (wrong): `django.template.backends.base.Template.render()`\r\nShould be: `django.template.base.Template.render()`\r\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \r\nFile: docs/ref/templates/api.txt:37\r\nCurrent (wrong): `django.template.backends.base.Template.render`\r\nShould be: `django.template.base.Template.render`\r\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \r\nFile: docs/releases/1.10.txt:1320\r\nCurrent (wrong): `django.template.backends.base.Template.render`\r\nShould be: `django.template.base.Template.render`\r\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \r\nFile: docs/topics/templates.txt:369\r\nCurrent (wrong): `django.template.backends.base`\r\nShould be: `django.template.base`\r\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \r\nFile: docs/releases/2.0.txt:283\r\nCurrent (wrong): `django.db.backends.base.DatabaseWrapper.execute_wrapper`\r\nShould be: `django.db.backends.base.base.BaseDatabaseWrapper.execute_wrapper`\r\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \r\nFile: docs/topics/db/instrumentation.txt:99\r\nCurrent (wrong): `django.db.backends.base.DatabaseWrapper`\r\nShould be: `django.db.backends.base.base.BaseDatabaseWrapper`",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Sep 29, 2026, 7:44:26 PM",
+        "updated_at": "Sep 29, 2026, 7:47:14 PM",
+        "reporter": "Tim Schilling",
+        "owner": "Django Sprints",
+        "component": "Documentation",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37381",
+        "pr_url": "https://github.com/django/django/pull/16294",
+        "pr_status": "open",
+        "raw_data": {
+          "id": "37381",
+          "Summary": "Invalid module references in the documentation",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Documentation",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Sep 29, 2026, 7:44:26 PM",
+          "Modified": "Sep 29, 2026, 7:47:14 PM",
+          "Reporter": "Tim Schilling",
+          "Owner": "Django Sprints",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "This ticket is for David Smith's [https://github.com/django/django/pull/16294 PR] which covers a few cases where the module references are incorrect in the documentation. I created the ticket to help signal to others that this can be picked up.\r\n\r\nI used Claude to determine the following errors still need to be fixed. The rest from David's work were merged in other changes.\r\n\r\nFile: docs/internals/deprecation.txt:945\r\nCurrent (wrong): `django.template.backends.base.Template.render()`\r\nShould be: `django.template.base.Template.render()`\r\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \r\nFile: docs/ref/templates/api.txt:37\r\nCurrent (wrong): `django.template.backends.base.Template.render`\r\nShould be: `django.template.base.Template.render`\r\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \r\nFile: docs/releases/1.10.txt:1320\r\nCurrent (wrong): `django.template.backends.base.Template.render`\r\nShould be: `django.template.base.Template.render`\r\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \r\nFile: docs/topics/templates.txt:369\r\nCurrent (wrong): `django.template.backends.base`\r\nShould be: `django.template.base`\r\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \r\nFile: docs/releases/2.0.txt:283\r\nCurrent (wrong): `django.db.backends.base.DatabaseWrapper.execute_wrapper`\r\nShould be: `django.db.backends.base.base.BaseDatabaseWrapper.execute_wrapper`\r\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \r\nFile: docs/topics/db/instrumentation.txt:99\r\nCurrent (wrong): `django.db.backends.base.DatabaseWrapper`\r\nShould be: `django.db.backends.base.base.BaseDatabaseWrapper`"
         }
       }
     }
