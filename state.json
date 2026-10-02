@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37388
+      "last_seen_id": 37389
     }
   },
   "tracked": {
@@ -2365,6 +2365,57 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "The ''User input must be sanitized'' section of [https://docs.djangoproject.com/en/dev/internals/security/#user-input-must-be-sanitized Django's security policies] presents a \"not considered valid\" vulnerability report using a raw query param as the `from_email` in a `send_mail()` call. It then shows the code below as the \"correct approach.\" \r\n\r\nBut this code still uses user-supplied content as the `from_email`; it just verifies it looks like an email address first. Sending email ''from'' an arbitrary address is at best a poor practice, and often a real vulnerability (in the user's code, not Django). See #37162 where we fixed similar problems in contact form examples throughout the docs.\r\n\r\n{{{#!python\r\nfrom django import forms\r\nfrom django.core.mail import send_mail\r\nfrom django.http import JsonResponse\r\n\r\n\r\nclass EmailForm(forms.Form):\r\n    email = forms.EmailField()\r\n\r\n\r\ndef my_proof_of_concept(request):\r\n    form = EmailForm(request.GET)\r\n    if form.is_valid():\r\n        send_mail(\r\n            \"Email subject\",\r\n            \"Email body\",\r\n            form.cleaned_data[\"email\"],\r\n            [\"admin@example.com\"],\r\n        )\r\n        return JsonResponse(status=200)\r\n    return JsonResponse(form.errors, status=400)\r\n}}}\r\n\r\nWe could try to rework this code as in the earlier ticket, but I'm not sure sending email is an effective example for this particular security reporting topic. (Django has long prevented email header injection, so the original \"not considered valid\" code isn't really any more ''insecure'' than the \"correct approach.\" It's just more likely to generate an uncaught error on bad input.)\r\n\r\nI'm not really sure about a replacement. Maybe something where raw user input is interpolated directly into an html response, rather than being escaped or rendered through a template?"
+        }
+      }
+    },
+    "django:37389": {
+      "source": "django",
+      "ticket_id": 37389,
+      "watcher_issue_number": 63,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-02T01:01:08.123364+00:00",
+      "last_updated": "2026-10-02T01:01:08.123364+00:00",
+      "ticket_data": {
+        "id": 37389,
+        "source_id": "django",
+        "title": "AlterField on parent PK can generate SQL for unmanaged child model",
+        "description": "The main issue was applying old migrations of models that inherit but are unmanaged. A prime example is a database view that extends a real model, both in terms of python functions and with database columns.\r\n\r\nThe `model.py` is as follows:\r\n{{{\r\nfrom django.db import models\r\n\r\nclass Parent(models.Model):\r\n    name = models.CharField()\r\n\r\nclass Child(Parent):\r\n    class Meta:\r\n        managed = False\r\n}}}\r\n\r\nThe main culprit happened, when the `DEFAULT_AUTO_FIELD` setting changed e.g. from `django.db.models.AutoField` to `BigAutoField`. This lead `makemigrations` to create an operation:\r\n\r\n{{{\r\nmigrations.AlterField(\r\n            model_name='parent',\r\n            name='id',\r\n            field=models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),\r\n        ),\r\n}}}\r\n\r\nThis migration in the current code tried to follow the parent_ptr OneToOne relation and update the foreign key in the Child table. As Child is a view, this failed on postgres.\r\nThe proposed fix is to exclude unmanaged models in the `_is_relevant_relation` function to make old migrations run.\r\n\r\nThis migration works well in django 3.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 1, 2026, 6:05:15 PM",
+        "updated_at": "Oct 1, 2026, 7:43:28 PM",
+        "reporter": "Felix Engelmann",
+        "owner": "Felix Engelmann",
+        "component": "Migrations",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37389",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37389",
+          "Summary": "AlterField on parent PK can generate SQL for unmanaged child model",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Migrations",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 1, 2026, 6:05:15 PM",
+          "Modified": "Oct 1, 2026, 7:43:28 PM",
+          "Reporter": "Felix Engelmann",
+          "Owner": "Felix Engelmann",
+          "Triage Stage": "Accepted",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "The main issue was applying old migrations of models that inherit but are unmanaged. A prime example is a database view that extends a real model, both in terms of python functions and with database columns.\r\n\r\nThe `model.py` is as follows:\r\n{{{\r\nfrom django.db import models\r\n\r\nclass Parent(models.Model):\r\n    name = models.CharField()\r\n\r\nclass Child(Parent):\r\n    class Meta:\r\n        managed = False\r\n}}}\r\n\r\nThe main culprit happened, when the `DEFAULT_AUTO_FIELD` setting changed e.g. from `django.db.models.AutoField` to `BigAutoField`. This lead `makemigrations` to create an operation:\r\n\r\n{{{\r\nmigrations.AlterField(\r\n            model_name='parent',\r\n            name='id',\r\n            field=models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),\r\n        ),\r\n}}}\r\n\r\nThis migration in the current code tried to follow the parent_ptr OneToOne relation and update the foreign key in the Child table. As Child is a view, this failed on postgres.\r\nThe proposed fix is to exclude unmanaged models in the `_is_relevant_relation` function to make old migrations run.\r\n\r\nThis migration works well in django 3."
         }
       }
     }
