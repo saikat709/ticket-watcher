@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37390
+      "last_seen_id": 37392
     }
   },
   "tracked": {
@@ -2451,6 +2451,106 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "`django.utils.archive.extract()` (used by `startproject`/`startapp` `--template` for tar/zip templates) crashes on a tar member that is a FIFO or a character/block device: `TarFile.extractfile()` returns `None`, and `TarArchive.extract()` then opens the target path for writing and calls `shutil.copyfileobj(None, ...)`, which raises `AttributeError` -  after an empty file has already been created at the destination. So a template archive containing a device/FIFO member aborts extraction uncleanly and leaves a partial tree behind, instead of failing with a clear error.\r\n \r\nSteps to reproduce: build a tar whose members include a FIFO (e.g. a `tarfile.TarInfo` with type `tarfile.FIFOTYPE`), then run `django-admin startproject proj --template that.tar`. Expected: a clear error. Actual: `AttributeError: 'NoneType' object has no attribute 'read'` from `shutil.copyfileobj` in `archive.py`.\r\n \r\nWhile fixing that, a related hardening gap in the same function: member modes are applied verbatim with `os.chmod()` (`BaseArchive._copy_permissions`), so a member with mode `0o4755` becomes a setuid file, and `TemplateCommand.apply_umask()` then copies `stat.S_IMODE()` -- including the setuid/setgid/sticky bits -- onto the generated project file.\r\n \r\nProposed fix, mirroring Python's own tarfile \"data\" filter (PEP 706, the default in Python 3.14):\r\n * raise `SuspiciousOperation` for tar members that are not regular files, directories or links, before anything is written (consistent with the function's existing handling of invalid paths);\r\n * mask the applied mode to `0o777` (the existing behavior of preserving `0o775` etc. is unchanged).\r\n\r\nThis hardening is in the spirit of CVE-2021-3281 and CVE-2025-59682, which both treated this function as a boundary against hostile templates. The documented \"used as is\" warning on --template is unchanged.\r\nI have a patch ready with tests and a 6.2 release note, and will open a PR once the ticket is accepted.\r\n"
+        }
+      }
+    },
+    "django:37391": {
+      "source": "django",
+      "ticket_id": 37391,
+      "watcher_issue_number": 65,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-02T18:57:57.137467+00:00",
+      "last_updated": "2026-10-02T18:57:57.137467+00:00",
+      "ticket_data": {
+        "id": 37391,
+        "source_id": "django",
+        "title": "Set minimum version of Oracle for Django 6.2",
+        "description": "We should choose a minimum version of Oracle for Django 6.2 and update SupportedDatabaseVersions.\r\n\r\nClearly we should stop supporting 21c, which is a short-term innovation release going EOL soon.\r\n\r\n19c LTS has \"premier support\" until 31 Dec 2029. Django 6.2 LTS is supported until April 2030.\r\n\r\nOn the [https://forum.djangoproject.com/t/determine-supported-oracle-versions-for-django-6-2-lts forum] there was discussion about dropping both 19c and 21c, and Mariusz offered to help with CI.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 2, 2026, 12:00:52 PM",
+        "updated_at": "Oct 2, 2026, 12:12:27 PM",
+        "reporter": "Jacob Walls",
+        "owner": "Mariusz Felisiak",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37391",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37391",
+          "Summary": "Set minimum version of Oracle for Django 6.2",
+          "Type": "Cleanup/optimization",
+          "Status": "assigned",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 2, 2026, 12:00:52 PM",
+          "Modified": "Oct 2, 2026, 12:12:27 PM",
+          "Reporter": "Jacob Walls",
+          "Owner": "Mariusz Felisiak",
+          "Triage Stage": "Accepted",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "We should choose a minimum version of Oracle for Django 6.2 and update SupportedDatabaseVersions.\r\n\r\nClearly we should stop supporting 21c, which is a short-term innovation release going EOL soon.\r\n\r\n19c LTS has \"premier support\" until 31 Dec 2029. Django 6.2 LTS is supported until April 2030.\r\n\r\nOn the [https://forum.djangoproject.com/t/determine-supported-oracle-versions-for-django-6-2-lts forum] there was discussion about dropping both 19c and 21c, and Mariusz offered to help with CI."
+        }
+      }
+    },
+    "django:37392": {
+      "source": "django",
+      "ticket_id": 37392,
+      "watcher_issue_number": 66,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-02T18:57:58.718002+00:00",
+      "last_updated": "2026-10-02T18:57:58.718002+00:00",
+      "ticket_data": {
+        "id": 37392,
+        "source_id": "django",
+        "title": "Docs for custom db_type() fields are misleading about get_internal_type() -- can silently break exact-match lookups on Django 5.0+",
+        "description": "== Background ==\r\n\r\nThis ticket was prompted by a real production incident: a Django 5.2 upgrade silently broke\r\nupdates to existing rows once a table's primary keys passed 2^31^-1, in a field type that had\r\nfollowed the docs' current advice (see below). This draft was written with AI assistance\r\n(Claude), disclosed here for transparency, consistent with Trac's practice of asking reporters to\r\nnote AI tool use (see discussion on #36484).\r\n\r\n== Description ==\r\n\r\nThe \"Emulating built-in field types\" section of the custom-model-fields how-to\r\n(https://docs.djangoproject.com/en/6.1/howto/custom-model-fields/#emulating-built-in-field-types)\r\nopens with:\r\n\r\n> If you have created a `db_type()` method, you don't need to worry about\r\n> `get_internal_type()` -- it won't be used much.\r\n\r\nThis is backwards for any field that widens or changes the *range* of a built-in type via\r\n`db_type()`/`rel_db_type()` without also updating `get_internal_type()`. Since Django 5.0\r\n(unchanged through 5.1 and 5.2; added in dde2537fbb04, \"Fixed #27397 -- Prevented integer\r\noverflows on integer field lookups\"), exact-match lookups (`IntegerFieldExact`, via\r\n`IntegerFieldOverflow` in `django/db/models/lookups.py`) call\r\n`connection.ops.integer_field_range(field.get_internal_type())`\r\n*before building any SQL*, and raise `EmptyResultSet` if the lookup value falls outside that\r\nrange -- silently returning zero rows, with no exception, no query sent to the database.\r\n`get_internal_type()` is very much \"used,\" just not where this doc section implies.\r\n\r\nRelated: #28702 hit the same shape in 2017 for CIText fields (`db_type()` wasn't consulted where\r\nthe docs implied it would be, this time for casting rather than range). A comment there noted the\r\ndocs \"need[] to be adjusted\" -- but the fix landed only for that specific case; the generic\r\nmisleading sentence above is still present today.\r\n\r\n== Reproduction ==\r\n\r\n{{{#!python\r\nfrom django.db import models\r\nfrom django.db.models import AutoField\r\n\r\nclass UnsignedBigIntAutoField(AutoField):\r\n    def db_type(self, connection):\r\n        return 'bigint UNSIGNED AUTO_INCREMENT' if connection.vendor == 'mysql' else super().db_type(connection)\r\n    def rel_db_type(self, connection):\r\n        return 'bigint UNSIGNED' if connection.vendor == 'mysql' else super().rel_db_type(connection)\r\n\r\nclass Widget(models.Model):\r\n    id = UnsignedBigIntAutoField(primary_key=True)\r\n}}}\r\n\r\nFollowing the doc's advice literally -- defining `db_type()`/`rel_db_type()` and not touching\r\n`get_internal_type()` -- leaves `get_internal_type()` at the inherited `'AutoField'`. On MySQL,\r\nonce the table's AUTO_INCREMENT sequence passes 2^31^-1 (perfectly valid for an unsigned bigint\r\ncolumn, and not unusual for a long-lived high-traffic table):\r\n\r\n{{{\r\n>>> Widget.objects.filter(pk=4_312_695_480).exists()\r\nFalse   # the row exists; this should be True\r\n>>> Widget.objects.get(pk=4_312_695_480)\r\nWidget.DoesNotExist\r\n}}}\r\n\r\n`Model.save(force_update=True)`'s internal `filter(pk=...).exists()` check hits the same path,\r\nso this isn't just a read-lookup quirk: saves/updates to existing rows silently stop working\r\n(raising `DatabaseError(\"Forced update did not affect any rows.\")` from Django's own save()\r\nmachinery) once a table's ids cross that boundary, with no application-level error pointing at\r\nthe real cause.\r\n\r\n== Our fix ==\r\n\r\nWe hit this in production with a bigint-unsigned-PK AutoField subclass predating Django 5.0;\r\nupgrading to Django 5.2 turned it into a live incident once ids passed 2^31^-1. Fix was a\r\none-line `get_internal_type()` override returning `'BigAutoField'` (wide enough 64-bit signed\r\nrange to never clip a real value, even though the column is unsigned):\r\nedx/edx-platform#495.\r\n\r\n== Possible follow-up (not proposing a patch here) ==\r\n\r\nDjango already has the plumbing to catch this class of bug at `manage.py check` time:\r\n`Field._check_backend_specific_checks()` already calls\r\n`connections[alias].validation.check_field()`, and MySQL's `check_field_type()`\r\n(`django/db/backends/mysql/validation.py`) already receives both the field and its rendered\r\n`db_type()`. Comparing that against `connection.data_types.get(field.get_internal_type())` and\r\nwarning on a mismatch could have caught this years before any table's ids reached 2^31^. Flagging\r\nthe idea for consideration, not attaching an implementation -- #36484 suggests new\r\nsettings/behavior changes get a high bar here, so happy to defer on whether/how this should be\r\npursued.\r\n",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 2, 2026, 12:23:48 PM",
+        "updated_at": "Oct 2, 2026, 12:23:48 PM",
+        "reporter": "Robert Raposa",
+        "owner": "",
+        "component": "Documentation",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37392",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37392",
+          "Summary": "Docs for custom db_type() fields are misleading about get_internal_type() -- can silently break exact-match lookups on Django 5.0+",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Documentation",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 2, 2026, 12:23:48 PM",
+          "Modified": "Oct 2, 2026, 12:23:48 PM",
+          "Reporter": "Robert Raposa",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "== Background ==\r\n\r\nThis ticket was prompted by a real production incident: a Django 5.2 upgrade silently broke\r\nupdates to existing rows once a table's primary keys passed 2^31^-1, in a field type that had\r\nfollowed the docs' current advice (see below). This draft was written with AI assistance\r\n(Claude), disclosed here for transparency, consistent with Trac's practice of asking reporters to\r\nnote AI tool use (see discussion on #36484).\r\n\r\n== Description ==\r\n\r\nThe \"Emulating built-in field types\" section of the custom-model-fields how-to\r\n(https://docs.djangoproject.com/en/6.1/howto/custom-model-fields/#emulating-built-in-field-types)\r\nopens with:\r\n\r\n> If you have created a `db_type()` method, you don't need to worry about\r\n> `get_internal_type()` -- it won't be used much.\r\n\r\nThis is backwards for any field that widens or changes the *range* of a built-in type via\r\n`db_type()`/`rel_db_type()` without also updating `get_internal_type()`. Since Django 5.0\r\n(unchanged through 5.1 and 5.2; added in dde2537fbb04, \"Fixed #27397 -- Prevented integer\r\noverflows on integer field lookups\"), exact-match lookups (`IntegerFieldExact`, via\r\n`IntegerFieldOverflow` in `django/db/models/lookups.py`) call\r\n`connection.ops.integer_field_range(field.get_internal_type())`\r\n*before building any SQL*, and raise `EmptyResultSet` if the lookup value falls outside that\r\nrange -- silently returning zero rows, with no exception, no query sent to the database.\r\n`get_internal_type()` is very much \"used,\" just not where this doc section implies.\r\n\r\nRelated: #28702 hit the same shape in 2017 for CIText fields (`db_type()` wasn't consulted where\r\nthe docs implied it would be, this time for casting rather than range). A comment there noted the\r\ndocs \"need[] to be adjusted\" -- but the fix landed only for that specific case; the generic\r\nmisleading sentence above is still present today.\r\n\r\n== Reproduction ==\r\n\r\n{{{#!python\r\nfrom django.db import models\r\nfrom django.db.models import AutoField\r\n\r\nclass UnsignedBigIntAutoField(AutoField):\r\n    def db_type(self, connection):\r\n        return 'bigint UNSIGNED AUTO_INCREMENT' if connection.vendor == 'mysql' else super().db_type(connection)\r\n    def rel_db_type(self, connection):\r\n        return 'bigint UNSIGNED' if connection.vendor == 'mysql' else super().rel_db_type(connection)\r\n\r\nclass Widget(models.Model):\r\n    id = UnsignedBigIntAutoField(primary_key=True)\r\n}}}\r\n\r\nFollowing the doc's advice literally -- defining `db_type()`/`rel_db_type()` and not touching\r\n`get_internal_type()` -- leaves `get_internal_type()` at the inherited `'AutoField'`. On MySQL,\r\nonce the table's AUTO_INCREMENT sequence passes 2^31^-1 (perfectly valid for an unsigned bigint\r\ncolumn, and not unusual for a long-lived high-traffic table):\r\n\r\n{{{\r\n>>> Widget.objects.filter(pk=4_312_695_480).exists()\r\nFalse   # the row exists; this should be True\r\n>>> Widget.objects.get(pk=4_312_695_480)\r\nWidget.DoesNotExist\r\n}}}\r\n\r\n`Model.save(force_update=True)`'s internal `filter(pk=...).exists()` check hits the same path,\r\nso this isn't just a read-lookup quirk: saves/updates to existing rows silently stop working\r\n(raising `DatabaseError(\"Forced update did not affect any rows.\")` from Django's own save()\r\nmachinery) once a table's ids cross that boundary, with no application-level error pointing at\r\nthe real cause.\r\n\r\n== Our fix ==\r\n\r\nWe hit this in production with a bigint-unsigned-PK AutoField subclass predating Django 5.0;\r\nupgrading to Django 5.2 turned it into a live incident once ids passed 2^31^-1. Fix was a\r\none-line `get_internal_type()` override returning `'BigAutoField'` (wide enough 64-bit signed\r\nrange to never clip a real value, even though the column is unsigned):\r\nedx/edx-platform#495.\r\n\r\n== Possible follow-up (not proposing a patch here) ==\r\n\r\nDjango already has the plumbing to catch this class of bug at `manage.py check` time:\r\n`Field._check_backend_specific_checks()` already calls\r\n`connections[alias].validation.check_field()`, and MySQL's `check_field_type()`\r\n(`django/db/backends/mysql/validation.py`) already receives both the field and its rendered\r\n`db_type()`. Comparing that against `connection.data_types.get(field.get_internal_type())` and\r\nwarning on a mismatch could have caught this years before any table's ids reached 2^31^. Flagging\r\nthe idea for consideration, not attaching an implementation -- #36484 suggests new\r\nsettings/behavior changes get a high bar here, so happy to defer on whether/how this should be\r\npursued.\r\n"
         }
       }
     }
