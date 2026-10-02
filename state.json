@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37392
+      "last_seen_id": 37393
     }
   },
   "tracked": {
@@ -2551,6 +2551,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "== Background ==\r\n\r\nThis ticket was prompted by a real production incident: a Django 5.2 upgrade silently broke\r\nupdates to existing rows once a table's primary keys passed 2^31^-1, in a field type that had\r\nfollowed the docs' current advice (see below). This draft was written with AI assistance\r\n(Claude), disclosed here for transparency, consistent with Trac's practice of asking reporters to\r\nnote AI tool use (see discussion on #36484).\r\n\r\n== Description ==\r\n\r\nThe \"Emulating built-in field types\" section of the custom-model-fields how-to\r\n(https://docs.djangoproject.com/en/6.1/howto/custom-model-fields/#emulating-built-in-field-types)\r\nopens with:\r\n\r\n> If you have created a `db_type()` method, you don't need to worry about\r\n> `get_internal_type()` -- it won't be used much.\r\n\r\nThis is backwards for any field that widens or changes the *range* of a built-in type via\r\n`db_type()`/`rel_db_type()` without also updating `get_internal_type()`. Since Django 5.0\r\n(unchanged through 5.1 and 5.2; added in dde2537fbb04, \"Fixed #27397 -- Prevented integer\r\noverflows on integer field lookups\"), exact-match lookups (`IntegerFieldExact`, via\r\n`IntegerFieldOverflow` in `django/db/models/lookups.py`) call\r\n`connection.ops.integer_field_range(field.get_internal_type())`\r\n*before building any SQL*, and raise `EmptyResultSet` if the lookup value falls outside that\r\nrange -- silently returning zero rows, with no exception, no query sent to the database.\r\n`get_internal_type()` is very much \"used,\" just not where this doc section implies.\r\n\r\nRelated: #28702 hit the same shape in 2017 for CIText fields (`db_type()` wasn't consulted where\r\nthe docs implied it would be, this time for casting rather than range). A comment there noted the\r\ndocs \"need[] to be adjusted\" -- but the fix landed only for that specific case; the generic\r\nmisleading sentence above is still present today.\r\n\r\n== Reproduction ==\r\n\r\n{{{#!python\r\nfrom django.db import models\r\nfrom django.db.models import AutoField\r\n\r\nclass UnsignedBigIntAutoField(AutoField):\r\n    def db_type(self, connection):\r\n        return 'bigint UNSIGNED AUTO_INCREMENT' if connection.vendor == 'mysql' else super().db_type(connection)\r\n    def rel_db_type(self, connection):\r\n        return 'bigint UNSIGNED' if connection.vendor == 'mysql' else super().rel_db_type(connection)\r\n\r\nclass Widget(models.Model):\r\n    id = UnsignedBigIntAutoField(primary_key=True)\r\n}}}\r\n\r\nFollowing the doc's advice literally -- defining `db_type()`/`rel_db_type()` and not touching\r\n`get_internal_type()` -- leaves `get_internal_type()` at the inherited `'AutoField'`. On MySQL,\r\nonce the table's AUTO_INCREMENT sequence passes 2^31^-1 (perfectly valid for an unsigned bigint\r\ncolumn, and not unusual for a long-lived high-traffic table):\r\n\r\n{{{\r\n>>> Widget.objects.filter(pk=4_312_695_480).exists()\r\nFalse   # the row exists; this should be True\r\n>>> Widget.objects.get(pk=4_312_695_480)\r\nWidget.DoesNotExist\r\n}}}\r\n\r\n`Model.save(force_update=True)`'s internal `filter(pk=...).exists()` check hits the same path,\r\nso this isn't just a read-lookup quirk: saves/updates to existing rows silently stop working\r\n(raising `DatabaseError(\"Forced update did not affect any rows.\")` from Django's own save()\r\nmachinery) once a table's ids cross that boundary, with no application-level error pointing at\r\nthe real cause.\r\n\r\n== Our fix ==\r\n\r\nWe hit this in production with a bigint-unsigned-PK AutoField subclass predating Django 5.0;\r\nupgrading to Django 5.2 turned it into a live incident once ids passed 2^31^-1. Fix was a\r\none-line `get_internal_type()` override returning `'BigAutoField'` (wide enough 64-bit signed\r\nrange to never clip a real value, even though the column is unsigned):\r\nedx/edx-platform#495.\r\n\r\n== Possible follow-up (not proposing a patch here) ==\r\n\r\nDjango already has the plumbing to catch this class of bug at `manage.py check` time:\r\n`Field._check_backend_specific_checks()` already calls\r\n`connections[alias].validation.check_field()`, and MySQL's `check_field_type()`\r\n(`django/db/backends/mysql/validation.py`) already receives both the field and its rendered\r\n`db_type()`. Comparing that against `connection.data_types.get(field.get_internal_type())` and\r\nwarning on a mismatch could have caught this years before any table's ids reached 2^31^. Flagging\r\nthe idea for consideration, not attaching an implementation -- #36484 suggests new\r\nsettings/behavior changes get a high bar here, so happy to defer on whether/how this should be\r\npursued.\r\n"
+        }
+      }
+    },
+    "django:37393": {
+      "source": "django",
+      "ticket_id": 37393,
+      "watcher_issue_number": 67,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-02T22:47:50.102225+00:00",
+      "last_updated": "2026-10-02T22:47:50.102225+00:00",
+      "ticket_data": {
+        "id": 37393,
+        "source_id": "django",
+        "title": "Docs security topic needs better advice on untrusted user input",
+        "description": "[Not sure if this should be a forum discussion or a ticket. I'm starting with a ticket.]\r\n\r\nThe first item in the [https://docs.djangoproject.com/en/6.1/topics/security/#always-sanitize-user-input Security in Django] documentation topic is:\r\n\r\n> **Always sanitize user input**\r\n>\r\n> The golden rule of web application security is to never trust user-controlled data. Hence, all user input should be sanitized before being used in your application. See the forms documentation for details on validating user inputs in Django.\r\n\r\nIt's true that \"never trust user-controlled data\" is an incredibly important golden rule. But the accompanying advice focuses entirely on input validation, conflates validation and sanitization, and doesn't really address context-specific escaping or sanitizing at the point of use.\r\n\r\nI bring this up because #37388, #37162, and #34753 were all (to varying degrees) examples of developers not fully comprehending ways that user-controlled data can introduce vulnerabilities, or misunderstanding how and where \"user input should be sanitized before being used\" applies.\r\n\r\nIn the current docs:\r\n\r\n* The second sentence can be misread as \"sanitize on input\" rather than \"sanitize at use.\" Trying to sanitize ''on input'' is often an anti-pattern, and it's usually better to retain the original input and escape or sanitize it ''on output''. (\"Input must be sanitized\" is how the web ended up with contact forms and password rules that prohibit `'` and `;` because those characters might be used in sql injection.)\r\n* The correct escaping/sanitization depends on the output context, not the input data type. html, json, sql, urls, http headers, and even csv all require different handling. This may seem obvious, but it's quite common to see code using the wrong escape function. And even experienced developers may not be aware of all the possible contexts and rules. (Like formatting email addresses. Or trying to use Django template tags to initialize js variable values in an embedded script.)\r\n* Validation is not the same thing as sanitization. And validating the ''form'' of the input (\"looks like an email address\" or \"is a jpeg\" or \"is numeric\") is not the same as validating the content (\"is an email address ''at our company''\" or \"is a jpeg ''appropriate for display in our feed''\" or \"is a numeric ''distance in km''\"). Assuming format validation means \"trusted\" can be insecure, embarrassing, or potentially even life-threatening.\r\n\r\nI realize Django's docs can't offer a full tutorial on security topics, and that some specific types of output escaping and content validation are in fact addressed later in the page. But (imho) we could expand this section just a bit and provide much better, more actionable advice on this \"golden rule\" to lead off the security topic.\r\n\r\n[I'll work on some suggested wording. But I've been meaning to bring this up for a while now and wanted to report it before I forget again.]",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 2, 2026, 2:23:28 PM",
+        "updated_at": "Oct 2, 2026, 2:59:34 PM",
+        "reporter": "Mike Edmunds",
+        "owner": "Mike Edmunds",
+        "component": "Documentation",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37393",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37393",
+          "Summary": "Docs security topic needs better advice on untrusted user input",
+          "Type": "Cleanup/optimization",
+          "Status": "assigned",
+          "Component": "Documentation",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 2, 2026, 2:23:28 PM",
+          "Modified": "Oct 2, 2026, 2:59:34 PM",
+          "Reporter": "Mike Edmunds",
+          "Owner": "Mike Edmunds",
+          "Triage Stage": "Accepted",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "[Not sure if this should be a forum discussion or a ticket. I'm starting with a ticket.]\r\n\r\nThe first item in the [https://docs.djangoproject.com/en/6.1/topics/security/#always-sanitize-user-input Security in Django] documentation topic is:\r\n\r\n> **Always sanitize user input**\r\n>\r\n> The golden rule of web application security is to never trust user-controlled data. Hence, all user input should be sanitized before being used in your application. See the forms documentation for details on validating user inputs in Django.\r\n\r\nIt's true that \"never trust user-controlled data\" is an incredibly important golden rule. But the accompanying advice focuses entirely on input validation, conflates validation and sanitization, and doesn't really address context-specific escaping or sanitizing at the point of use.\r\n\r\nI bring this up because #37388, #37162, and #34753 were all (to varying degrees) examples of developers not fully comprehending ways that user-controlled data can introduce vulnerabilities, or misunderstanding how and where \"user input should be sanitized before being used\" applies.\r\n\r\nIn the current docs:\r\n\r\n* The second sentence can be misread as \"sanitize on input\" rather than \"sanitize at use.\" Trying to sanitize ''on input'' is often an anti-pattern, and it's usually better to retain the original input and escape or sanitize it ''on output''. (\"Input must be sanitized\" is how the web ended up with contact forms and password rules that prohibit `'` and `;` because those characters might be used in sql injection.)\r\n* The correct escaping/sanitization depends on the output context, not the input data type. html, json, sql, urls, http headers, and even csv all require different handling. This may seem obvious, but it's quite common to see code using the wrong escape function. And even experienced developers may not be aware of all the possible contexts and rules. (Like formatting email addresses. Or trying to use Django template tags to initialize js variable values in an embedded script.)\r\n* Validation is not the same thing as sanitization. And validating the ''form'' of the input (\"looks like an email address\" or \"is a jpeg\" or \"is numeric\") is not the same as validating the content (\"is an email address ''at our company''\" or \"is a jpeg ''appropriate for display in our feed''\" or \"is a numeric ''distance in km''\"). Assuming format validation means \"trusted\" can be insecure, embarrassing, or potentially even life-threatening.\r\n\r\nI realize Django's docs can't offer a full tutorial on security topics, and that some specific types of output escaping and content validation are in fact addressed later in the page. But (imho) we could expand this section just a bit and provide much better, more actionable advice on this \"golden rule\" to lead off the security topic.\r\n\r\n[I'll work on some suggested wording. But I've been meaning to bring this up for a while now and wanted to report it before I forget again.]"
         }
       }
     }
