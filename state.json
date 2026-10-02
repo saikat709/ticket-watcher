@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37389
+      "last_seen_id": 37390
     }
   },
   "tracked": {
@@ -2401,6 +2401,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "The main issue was applying old migrations of models that inherit but are unmanaged. A prime example is a database view that extends a real model, both in terms of python functions and with database columns.\r\n\r\nThe `model.py` is as follows:\r\n{{{\r\nfrom django.db import models\r\n\r\nclass Parent(models.Model):\r\n    name = models.CharField()\r\n\r\nclass Child(Parent):\r\n    class Meta:\r\n        managed = False\r\n}}}\r\n\r\nThe main culprit happened, when the `DEFAULT_AUTO_FIELD` setting changed e.g. from `django.db.models.AutoField` to `BigAutoField`. This lead `makemigrations` to create an operation:\r\n\r\n{{{\r\nmigrations.AlterField(\r\n            model_name='parent',\r\n            name='id',\r\n            field=models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),\r\n        ),\r\n}}}\r\n\r\nThis migration in the current code tried to follow the parent_ptr OneToOne relation and update the foreign key in the Child table. As Child is a view, this failed on postgres.\r\nThe proposed fix is to exclude unmanaged models in the `_is_relevant_relation` function to make old migrations run.\r\n\r\nThis migration works well in django 3."
+        }
+      }
+    },
+    "django:37390": {
+      "source": "django",
+      "ticket_id": 37390,
+      "watcher_issue_number": 64,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-02T13:58:40.470654+00:00",
+      "last_updated": "2026-10-02T13:58:40.470654+00:00",
+      "ticket_data": {
+        "id": 37390,
+        "source_id": "django",
+        "title": "archive.extract() crashes with AttributeError on special tar members (and applies setuid/setgid bits)",
+        "description": "`django.utils.archive.extract()` (used by `startproject`/`startapp` `--template` for tar/zip templates) crashes on a tar member that is a FIFO or a character/block device: `TarFile.extractfile()` returns `None`, and `TarArchive.extract()` then opens the target path for writing and calls `shutil.copyfileobj(None, ...)`, which raises `AttributeError` -  after an empty file has already been created at the destination. So a template archive containing a device/FIFO member aborts extraction uncleanly and leaves a partial tree behind, instead of failing with a clear error.\r\n \r\nSteps to reproduce: build a tar whose members include a FIFO (e.g. a `tarfile.TarInfo` with type `tarfile.FIFOTYPE`), then run `django-admin startproject proj --template that.tar`. Expected: a clear error. Actual: `AttributeError: 'NoneType' object has no attribute 'read'` from `shutil.copyfileobj` in `archive.py`.\r\n \r\nWhile fixing that, a related hardening gap in the same function: member modes are applied verbatim with `os.chmod()` (`BaseArchive._copy_permissions`), so a member with mode `0o4755` becomes a setuid file, and `TemplateCommand.apply_umask()` then copies `stat.S_IMODE()` -- including the setuid/setgid/sticky bits -- onto the generated project file.\r\n \r\nProposed fix, mirroring Python's own tarfile \"data\" filter (PEP 706, the default in Python 3.14):\r\n * raise `SuspiciousOperation` for tar members that are not regular files, directories or links, before anything is written (consistent with the function's existing handling of invalid paths);\r\n * mask the applied mode to `0o777` (the existing behavior of preserving `0o775` etc. is unchanged).\r\n\r\nThis hardening is in the spirit of CVE-2021-3281 and CVE-2025-59682, which both treated this function as a boundary against hostile templates. The documented \"used as is\" warning on --template is unchanged.\r\nI have a patch ready with tests and a 6.2 release note, and will open a PR once the ticket is accepted.\r\n",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 2, 2026, 5:33:15 AM",
+        "updated_at": "Oct 2, 2026, 5:40:47 AM",
+        "reporter": "Dean Ruina",
+        "owner": "Dean Ruina",
+        "component": "Core (Management commands)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37390",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37390",
+          "Summary": "archive.extract() crashes with AttributeError on special tar members (and applies setuid/setgid bits)",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Core (Management commands)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 2, 2026, 5:33:15 AM",
+          "Modified": "Oct 2, 2026, 5:40:47 AM",
+          "Reporter": "Dean Ruina",
+          "Owner": "Dean Ruina",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "`django.utils.archive.extract()` (used by `startproject`/`startapp` `--template` for tar/zip templates) crashes on a tar member that is a FIFO or a character/block device: `TarFile.extractfile()` returns `None`, and `TarArchive.extract()` then opens the target path for writing and calls `shutil.copyfileobj(None, ...)`, which raises `AttributeError` -  after an empty file has already been created at the destination. So a template archive containing a device/FIFO member aborts extraction uncleanly and leaves a partial tree behind, instead of failing with a clear error.\r\n \r\nSteps to reproduce: build a tar whose members include a FIFO (e.g. a `tarfile.TarInfo` with type `tarfile.FIFOTYPE`), then run `django-admin startproject proj --template that.tar`. Expected: a clear error. Actual: `AttributeError: 'NoneType' object has no attribute 'read'` from `shutil.copyfileobj` in `archive.py`.\r\n \r\nWhile fixing that, a related hardening gap in the same function: member modes are applied verbatim with `os.chmod()` (`BaseArchive._copy_permissions`), so a member with mode `0o4755` becomes a setuid file, and `TemplateCommand.apply_umask()` then copies `stat.S_IMODE()` -- including the setuid/setgid/sticky bits -- onto the generated project file.\r\n \r\nProposed fix, mirroring Python's own tarfile \"data\" filter (PEP 706, the default in Python 3.14):\r\n * raise `SuspiciousOperation` for tar members that are not regular files, directories or links, before anything is written (consistent with the function's existing handling of invalid paths);\r\n * mask the applied mode to `0o777` (the existing behavior of preserving `0o775` etc. is unchanged).\r\n\r\nThis hardening is in the spirit of CVE-2021-3281 and CVE-2025-59682, which both treated this function as a boundary against hostile templates. The documented \"used as is\" warning on --template is unchanged.\r\nI have a patch ready with tests and a 6.2 release note, and will open a PR once the ticket is accepted.\r\n"
         }
       }
     }
