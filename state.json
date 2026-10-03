@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37393
+      "last_seen_id": 37395
     }
   },
   "tracked": {
@@ -2417,6 +2417,106 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "[Not sure if this should be a forum discussion or a ticket. I'm starting with a ticket.]\r\n\r\nThe first item in the [https://docs.djangoproject.com/en/6.1/topics/security/#always-sanitize-user-input Security in Django] documentation topic is:\r\n\r\n> **Always sanitize user input**\r\n>\r\n> The golden rule of web application security is to never trust user-controlled data. Hence, all user input should be sanitized before being used in your application. See the forms documentation for details on validating user inputs in Django.\r\n\r\nIt's true that \"never trust user-controlled data\" is an incredibly important golden rule. But the accompanying advice focuses entirely on input validation, conflates validation and sanitization, and doesn't really address context-specific escaping or sanitizing at the point of use.\r\n\r\nI bring this up because #37388, #37162, and #34753 were all (to varying degrees) examples of developers not fully comprehending ways that user-controlled data can introduce vulnerabilities, or misunderstanding how and where \"user input should be sanitized before being used\" applies.\r\n\r\nIn the current docs:\r\n\r\n* The second sentence can be misread as \"sanitize on input\" rather than \"sanitize at use.\" Trying to sanitize ''on input'' is often an anti-pattern, and it's usually better to retain the original input and escape or sanitize it ''on output''. (\"Input must be sanitized\" is how the web ended up with contact forms and password rules that prohibit `'` and `;` because those characters might be used in sql injection.)\r\n* The correct escaping/sanitization depends on the output context, not the input data type. html, json, sql, urls, http headers, and even csv all require different handling. This may seem obvious, but it's quite common to see code using the wrong escape function. And even experienced developers may not be aware of all the possible contexts and rules. (Like formatting email addresses. Or trying to use Django template tags to initialize js variable values in an embedded script.)\r\n* Validation is not the same thing as sanitization. And validating the ''form'' of the input (\"looks like an email address\" or \"is a jpeg\" or \"is numeric\") is not the same as validating the content (\"is an email address ''at our company''\" or \"is a jpeg ''appropriate for display in our feed''\" or \"is a numeric ''distance in km''\"). Assuming format validation means \"trusted\" can be insecure, embarrassing, or potentially even life-threatening.\r\n\r\nI realize Django's docs can't offer a full tutorial on security topics, and that some specific types of output escaping and content validation are in fact addressed later in the page. But (imho) we could expand this section just a bit and provide much better, more actionable advice on this \"golden rule\" to lead off the security topic.\r\n\r\n[I'll work on some suggested wording. But I've been meaning to bring this up for a while now and wanted to report it before I forget again.]"
+        }
+      }
+    },
+    "django:37394": {
+      "source": "django",
+      "ticket_id": 37394,
+      "watcher_issue_number": 68,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-03T19:34:26.123591+00:00",
+      "last_updated": "2026-10-03T19:34:26.123591+00:00",
+      "ticket_data": {
+        "id": 37394,
+        "source_id": "django",
+        "title": "System check rejects valid Cross-Origin-Opener-Policy value noopener-allow-popups",
+        "description": "`check_cross_origin_opener_policy` (in `django/core/checks/security/base.py`) validates `SECURE_CROSS_ORIGIN_OPENER_POLICY` against `CROSS_ORIGIN_OPENER_POLICY_VALUES`, which currently lists only `same-origin`, `same-origin-allow-popups`, and `unsafe-none`, and raises `security.E024` (an Error) for any other value.\r\n\r\nThe HTML standard defines a fourth `Cross-Origin-Opener-Policy` value, `noopener-allow-popups`, supported by Chrome and Safari. It severs the opener relationship even for same-origin popups, providing stronger isolation than `same-origin-allow-popups`.\r\n\r\nBecause the value is missing from the allow-list, a project that sets the valid, more-hardened `SECURE_CROSS_ORIGIN_OPENER_POLICY = \"noopener-allow-popups\"` fails `manage.py check --deploy` with `security.E024`, even though `SecurityMiddleware` emits the header correctly at runtime.\r\n\r\nProposed fix: add `\"noopener-allow-popups\"` to `CROSS_ORIGIN_OPENER_POLICY_VALUES`. A patch with a test and docs (versionadded 6.2) is ready.\r\n\r\nReference: https://html.spec.whatwg.org/multipage/browsers.html#cross-origin-opener-policies",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 3, 2026, 1:48:07 PM",
+        "updated_at": "Oct 3, 2026, 1:48:07 PM",
+        "reporter": "venkatchalla06",
+        "owner": "",
+        "component": "Core (System checks)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37394",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37394",
+          "Summary": "System check rejects valid Cross-Origin-Opener-Policy value noopener-allow-popups",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Core (System checks)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 3, 2026, 1:48:07 PM",
+          "Modified": "Oct 3, 2026, 1:48:07 PM",
+          "Reporter": "venkatchalla06",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "`check_cross_origin_opener_policy` (in `django/core/checks/security/base.py`) validates `SECURE_CROSS_ORIGIN_OPENER_POLICY` against `CROSS_ORIGIN_OPENER_POLICY_VALUES`, which currently lists only `same-origin`, `same-origin-allow-popups`, and `unsafe-none`, and raises `security.E024` (an Error) for any other value.\r\n\r\nThe HTML standard defines a fourth `Cross-Origin-Opener-Policy` value, `noopener-allow-popups`, supported by Chrome and Safari. It severs the opener relationship even for same-origin popups, providing stronger isolation than `same-origin-allow-popups`.\r\n\r\nBecause the value is missing from the allow-list, a project that sets the valid, more-hardened `SECURE_CROSS_ORIGIN_OPENER_POLICY = \"noopener-allow-popups\"` fails `manage.py check --deploy` with `security.E024`, even though `SecurityMiddleware` emits the header correctly at runtime.\r\n\r\nProposed fix: add `\"noopener-allow-popups\"` to `CROSS_ORIGIN_OPENER_POLICY_VALUES`. A patch with a test and docs (versionadded 6.2) is ready.\r\n\r\nReference: https://html.spec.whatwg.org/multipage/browsers.html#cross-origin-opener-policies"
+        }
+      }
+    },
+    "django:37395": {
+      "source": "django",
+      "ticket_id": 37395,
+      "watcher_issue_number": 69,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-03T19:34:27.574565+00:00",
+      "last_updated": "2026-10-03T19:34:27.574565+00:00",
+      "ticket_data": {
+        "id": 37395,
+        "source_id": "django",
+        "title": "Add a system check for a CSP directive whose only source is CSP.NONCE (silently fails open)",
+        "description": "Django 6.0 added built-in CSP. In `django.utils.csp.build_policy()`, when a directive's only source is `CSP.NONCE` and the per-request nonce was never accessed (the `LazyNonce` stays falsy because the response rendered no `{{ csp_nonce }}`), the sentinel is stripped, the directive becomes empty, and the directive is dropped from the header entirely. For the same configuration, the emitted policy then depends on whether the nonce happened to be used:\r\n\r\n * `{\"default-src\": [\"*\"], \"script-src\": [CSP.NONCE]}` \u2014 nonce used: `default-src *; script-src 'nonce-...'`; nonce unused: `default-src *` (script-src removed, scripts fall back to `*`).\r\n * `{\"script-src\": [CSP.NONCE]}` \u2014 nonce unused: an empty `Content-Security-Policy` header (no policy at all).\r\n * `{\"script-src\": [CSP.SELF, CSP.NONCE]}` (recommended) \u2014 nonce unused: `script-src 'self'` (fails closed, unaffected).\r\n\r\nSo a nonce-only directive silently degrades to its `default-src` fallback (possibly permissive) or to no policy, on exactly the responses most likely to carry injected markup (error pages, views with no inline nonce'd element). The recommended form \u2014 pairing `CSP.NONCE` with an explicit fallback \u2014 already fails closed.\r\n\r\nProposed: a new system check, `security.W028`, that warns when any `SECURE_CSP` or `SECURE_CSP_REPORT_ONLY` directive's only source is `CSP.NONCE`, hinting to add `CSP.SELF`, `CSP.STRICT_DYNAMIC`, or `CSP.NONE`. It mirrors the existing `security.W027` and makes no runtime behavior change. A patch with tests and docs is ready.\r\n\r\nAn alternative would be to make `build_policy()` fail closed (keep the directive present as block-all when the nonce is unused), but that changes documented output and would need a release note; a check seems the lower-risk fix.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 3, 2026, 1:49:40 PM",
+        "updated_at": "Oct 3, 2026, 1:49:40 PM",
+        "reporter": "venkatchalla06",
+        "owner": "",
+        "component": "Core (System checks)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37395",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37395",
+          "Summary": "Add a system check for a CSP directive whose only source is CSP.NONCE (silently fails open)",
+          "Type": "New feature",
+          "Status": "new",
+          "Component": "Core (System checks)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 3, 2026, 1:49:40 PM",
+          "Modified": "Oct 3, 2026, 1:49:40 PM",
+          "Reporter": "venkatchalla06",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Django 6.0 added built-in CSP. In `django.utils.csp.build_policy()`, when a directive's only source is `CSP.NONCE` and the per-request nonce was never accessed (the `LazyNonce` stays falsy because the response rendered no `{{ csp_nonce }}`), the sentinel is stripped, the directive becomes empty, and the directive is dropped from the header entirely. For the same configuration, the emitted policy then depends on whether the nonce happened to be used:\r\n\r\n * `{\"default-src\": [\"*\"], \"script-src\": [CSP.NONCE]}` \u2014 nonce used: `default-src *; script-src 'nonce-...'`; nonce unused: `default-src *` (script-src removed, scripts fall back to `*`).\r\n * `{\"script-src\": [CSP.NONCE]}` \u2014 nonce unused: an empty `Content-Security-Policy` header (no policy at all).\r\n * `{\"script-src\": [CSP.SELF, CSP.NONCE]}` (recommended) \u2014 nonce unused: `script-src 'self'` (fails closed, unaffected).\r\n\r\nSo a nonce-only directive silently degrades to its `default-src` fallback (possibly permissive) or to no policy, on exactly the responses most likely to carry injected markup (error pages, views with no inline nonce'd element). The recommended form \u2014 pairing `CSP.NONCE` with an explicit fallback \u2014 already fails closed.\r\n\r\nProposed: a new system check, `security.W028`, that warns when any `SECURE_CSP` or `SECURE_CSP_REPORT_ONLY` directive's only source is `CSP.NONCE`, hinting to add `CSP.SELF`, `CSP.STRICT_DYNAMIC`, or `CSP.NONE`. It mirrors the existing `security.W027` and makes no runtime behavior change. A patch with tests and docs is ready.\r\n\r\nAn alternative would be to make `build_policy()` fail closed (keep the directive present as block-all when the nonce is unused), but that changes documented output and would need a release note; a check seems the lower-risk fix."
         }
       }
     }
