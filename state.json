@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37395
+      "last_seen_id": 37396
     }
   },
   "tracked": {
@@ -2518,6 +2518,57 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Django 6.0 added built-in CSP. In `django.utils.csp.build_policy()`, when a directive's only source is `CSP.NONCE` and the per-request nonce was never accessed (the `LazyNonce` stays falsy because the response rendered no `{{ csp_nonce }}`), the sentinel is stripped, the directive becomes empty, and the directive is dropped from the header entirely. For the same configuration, the emitted policy then depends on whether the nonce happened to be used:\r\n\r\n * `{\"default-src\": [\"*\"], \"script-src\": [CSP.NONCE]}` \u2014 nonce used: `default-src *; script-src 'nonce-...'`; nonce unused: `default-src *` (script-src removed, scripts fall back to `*`).\r\n * `{\"script-src\": [CSP.NONCE]}` \u2014 nonce unused: an empty `Content-Security-Policy` header (no policy at all).\r\n * `{\"script-src\": [CSP.SELF, CSP.NONCE]}` (recommended) \u2014 nonce unused: `script-src 'self'` (fails closed, unaffected).\r\n\r\nSo a nonce-only directive silently degrades to its `default-src` fallback (possibly permissive) or to no policy, on exactly the responses most likely to carry injected markup (error pages, views with no inline nonce'd element). The recommended form \u2014 pairing `CSP.NONCE` with an explicit fallback \u2014 already fails closed.\r\n\r\nProposed: a new system check, `security.W028`, that warns when any `SECURE_CSP` or `SECURE_CSP_REPORT_ONLY` directive's only source is `CSP.NONCE`, hinting to add `CSP.SELF`, `CSP.STRICT_DYNAMIC`, or `CSP.NONE`. It mirrors the existing `security.W027` and makes no runtime behavior change. A patch with tests and docs is ready.\r\n\r\nAn alternative would be to make `build_policy()` fail closed (keep the directive present as block-all when the nonce is unused), but that changes documented output and would need a release note; a check seems the lower-risk fix."
+        }
+      }
+    },
+    "django:37396": {
+      "source": "django",
+      "ticket_id": 37396,
+      "watcher_issue_number": 70,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-04T18:16:41.453016+00:00",
+      "last_updated": "2026-10-04T18:16:41.453016+00:00",
+      "ticket_data": {
+        "id": 37396,
+        "source_id": "django",
+        "title": "msgfmt is not on GITHUB_PATH in Windows CI build in Github Actions",
+        "description": "This causes several tests to be skipped with this message:\r\n\r\n{{{\r\nskipped 'msgfmt is mandatory for compilation tests'\r\n}}}\r\n\r\nThis was noticed when updating Django Rusty Templates to install `gettext` using Chocolatey: https://github.com/LilyFirefly/django-rusty-templates/pull/533#discussion_r4176824979",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 4, 2026, 11:28:59 AM",
+        "updated_at": "Oct 4, 2026, 11:34:10 AM",
+        "reporter": "Lily",
+        "owner": "Lily",
+        "component": "Internationalization",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37396",
+        "pr_url": "https://github.com/LilyFirefly/django-rusty-templates/pull/533",
+        "pr_status": "merged",
+        "raw_data": {
+          "id": "37396",
+          "Summary": "msgfmt is not on GITHUB_PATH in Windows CI build in Github Actions",
+          "Type": "Cleanup/optimization",
+          "Status": "assigned",
+          "Component": "Internationalization",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 4, 2026, 11:28:59 AM",
+          "Modified": "Oct 4, 2026, 11:34:10 AM",
+          "Reporter": "Lily",
+          "Owner": "Lily",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "This causes several tests to be skipped with this message:\r\n\r\n{{{\r\nskipped 'msgfmt is mandatory for compilation tests'\r\n}}}\r\n\r\nThis was noticed when updating Django Rusty Templates to install `gettext` using Chocolatey: https://github.com/LilyFirefly/django-rusty-templates/pull/533#discussion_r4176824979"
         }
       }
     }
