@@ -11,7 +11,7 @@
       "watcher_issue_number": 2,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-06T03:12:14.317214+00:00",
       "ticket_data": {
         "id": 37326,
@@ -61,7 +61,7 @@
       "watcher_issue_number": 3,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-21T03:35:42.784530+00:00",
       "ticket_data": {
         "id": 37327,
@@ -113,7 +113,7 @@
       "watcher_issue_number": 4,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-06T03:12:14.317214+00:00",
       "ticket_data": {
         "id": 37328,
@@ -164,7 +164,7 @@
       "watcher_issue_number": 5,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-09T03:21:47.477014+00:00",
       "ticket_data": {
         "id": 37329,
@@ -216,7 +216,7 @@
       "watcher_issue_number": 6,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-29T04:32:09.237316+00:00",
       "ticket_data": {
         "id": 37330,
@@ -268,7 +268,7 @@
       "watcher_issue_number": 8,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-08T15:33:33.254698+00:00",
       "ticket_data": {
         "id": 37332,
@@ -320,7 +320,7 @@
       "watcher_issue_number": 9,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-18T03:27:08.576198+00:00",
       "ticket_data": {
         "id": 37333,
@@ -352,7 +352,7 @@
       "watcher_issue_number": 10,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-09T16:47:31.184624+00:00",
       "ticket_data": {
         "id": 37334,
@@ -403,7 +403,7 @@
       "watcher_issue_number": 11,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-11T03:17:00.522062+00:00",
       "ticket_data": {
         "id": 37335,
@@ -454,7 +454,7 @@
       "watcher_issue_number": 12,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-10T03:20:41.354089+00:00",
       "ticket_data": {
         "id": 37336,
@@ -486,7 +486,7 @@
       "watcher_issue_number": 13,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-12T03:22:11.526262+00:00",
       "ticket_data": {
         "id": 37337,
@@ -518,7 +518,7 @@
       "watcher_issue_number": 14,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-11T03:17:00.522062+00:00",
       "ticket_data": {
         "id": 37338,
@@ -550,7 +550,7 @@
       "watcher_issue_number": 15,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-19T03:23:35.576632+00:00",
       "ticket_data": {
         "id": 37339,
@@ -582,7 +582,7 @@
       "watcher_issue_number": 16,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-12T03:22:11.526262+00:00",
       "ticket_data": {
         "id": 37340,
@@ -632,7 +632,7 @@
       "watcher_issue_number": 17,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-15T03:39:13.000729+00:00",
       "ticket_data": {
         "id": 37342,
@@ -664,7 +664,7 @@
       "watcher_issue_number": 18,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-15T03:39:13.000729+00:00",
       "ticket_data": {
         "id": 37343,
@@ -715,7 +715,7 @@
       "watcher_issue_number": 19,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-19T03:23:35.576632+00:00",
       "ticket_data": {
         "id": 37344,
@@ -747,7 +747,7 @@
       "watcher_issue_number": 20,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-15T03:39:13.000729+00:00",
       "ticket_data": {
         "id": 37345,
@@ -779,7 +779,7 @@
       "watcher_issue_number": 21,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-30T04:15:04.028013+00:00",
       "ticket_data": {
         "id": 37346,
@@ -811,7 +811,7 @@
       "watcher_issue_number": 22,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-17T03:40:54.179611+00:00",
       "ticket_data": {
         "id": 37347,
@@ -843,7 +843,7 @@
       "watcher_issue_number": 23,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-26T03:48:05.396110+00:00",
       "ticket_data": {
         "id": 37348,
@@ -875,7 +875,7 @@
       "watcher_issue_number": 24,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-18T03:27:08.576198+00:00",
       "ticket_data": {
         "id": 37349,
@@ -926,7 +926,7 @@
       "watcher_issue_number": 26,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-19T03:23:35.576632+00:00",
       "ticket_data": {
         "id": 37351,
@@ -978,7 +978,7 @@
       "watcher_issue_number": 27,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-29T04:32:09.237316+00:00",
       "ticket_data": {
         "id": 37352,
@@ -1030,7 +1030,7 @@
       "watcher_issue_number": 33,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-26T03:48:05.396110+00:00",
       "ticket_data": {
         "id": 37359,
@@ -1081,7 +1081,7 @@
       "watcher_issue_number": 34,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-21T03:35:42.784530+00:00",
       "ticket_data": {
         "id": 37360,
@@ -1113,7 +1113,7 @@
       "watcher_issue_number": 36,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-10-03T04:01:44.733449+00:00",
       "ticket_data": {
         "id": 37362,
@@ -1164,7 +1164,7 @@
       "watcher_issue_number": 38,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-27T03:57:25.777724+00:00",
       "ticket_data": {
         "id": 37364,
@@ -1196,7 +1196,7 @@
       "watcher_issue_number": 39,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-23T03:34:31.376133+00:00",
       "ticket_data": {
         "id": 37365,
@@ -1247,7 +1247,7 @@
       "watcher_issue_number": 40,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-29T04:32:09.237316+00:00",
       "ticket_data": {
         "id": 37366,
@@ -1298,7 +1298,7 @@
       "watcher_issue_number": 41,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-25T03:42:01.987134+00:00",
       "ticket_data": {
         "id": 37367,
@@ -1350,7 +1350,7 @@
       "watcher_issue_number": 42,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-24T12:23:17.278258+00:00",
       "ticket_data": {
         "id": 37368,
@@ -1401,7 +1401,7 @@
       "watcher_issue_number": 43,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-25T03:42:01.987134+00:00",
       "ticket_data": {
         "id": 37369,
@@ -1451,7 +1451,7 @@
       "watcher_issue_number": 44,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-30T04:15:04.028013+00:00",
       "ticket_data": {
         "id": 37370,
@@ -1502,7 +1502,7 @@
       "watcher_issue_number": 45,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-26T03:48:05.396110+00:00",
       "ticket_data": {
         "id": 37371,
@@ -1552,7 +1552,7 @@
       "watcher_issue_number": 46,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-27T03:57:25.777724+00:00",
       "ticket_data": {
         "id": 37372,
@@ -1603,7 +1603,7 @@
       "watcher_issue_number": 47,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-28T03:57:29.708006+00:00",
       "ticket_data": {
         "id": 37373,
@@ -1654,7 +1654,7 @@
       "watcher_issue_number": 48,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-30T04:15:04.028013+00:00",
       "ticket_data": {
         "id": 37374,
@@ -1686,7 +1686,7 @@
       "watcher_issue_number": 49,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-28T14:15:01.030505+00:00",
       "ticket_data": {
         "id": 37375,
@@ -1736,7 +1736,7 @@
       "watcher_issue_number": 51,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-30T04:15:04.028013+00:00",
       "ticket_data": {
         "id": 37377,
@@ -1787,7 +1787,7 @@
       "watcher_issue_number": 52,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-10-01T04:26:53.488557+00:00",
       "ticket_data": {
         "id": 37378,
@@ -1819,7 +1819,7 @@
       "watcher_issue_number": 53,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-09-30T04:15:04.028013+00:00",
       "ticket_data": {
         "id": 37379,
@@ -1870,7 +1870,7 @@
       "watcher_issue_number": 56,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-10-03T04:01:44.733449+00:00",
       "ticket_data": {
         "id": 37382,
@@ -1921,7 +1921,7 @@
       "watcher_issue_number": 57,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-10-03T04:01:44.733449+00:00",
       "ticket_data": {
         "id": 37383,
@@ -1971,7 +1971,7 @@
       "watcher_issue_number": 58,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-10-04T04:35:12.174275+00:00",
       "ticket_data": {
         "id": 37384,
@@ -2021,7 +2021,7 @@
       "watcher_issue_number": 60,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-10-02T04:19:44.183640+00:00",
       "ticket_data": {
         "id": 37386,
@@ -2072,8 +2072,8 @@
       "watcher_issue_number": 61,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
-      "last_updated": "2026-10-02T04:19:44.183640+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
+      "last_updated": "2026-10-05T04:20:40.933212+00:00",
       "ticket_data": {
         "id": 37387,
         "source_id": "django",
@@ -2082,7 +2082,7 @@
         "status": "assigned",
         "resolution": "",
         "created_at": "Sep 30, 2026, 3:20:50 PM",
-        "updated_at": "Oct 1, 2026, 11:10:42 PM",
+        "updated_at": "Oct 4, 2026, 8:17:56 AM",
         "reporter": "Jacob Walls",
         "owner": "Vaibhav Pant",
         "component": "contrib.admindocs",
@@ -2092,6 +2092,7 @@
         "labels": [
           "Accepted",
           "has-patch",
+          "needs-tests",
           "ui/ux"
         ],
         "url": "https://code.djangoproject.com/ticket/37387",
@@ -2106,12 +2107,12 @@
           "Severity": "Normal",
           "Resolution": "",
           "Created": "Sep 30, 2026, 3:20:50 PM",
-          "Modified": "Oct 1, 2026, 11:10:42 PM",
+          "Modified": "Oct 4, 2026, 8:17:56 AM",
           "Reporter": "Jacob Walls",
           "Owner": "Vaibhav Pant",
           "Triage Stage": "Accepted",
           "Has patch": "1",
-          "Needs tests": "0",
+          "Needs tests": "1",
           "Needs documentation": "0",
           "UI/UX": "1",
           "Description": "Noticed during an admindocs review that we're missing full width on the `<table>`, see screenshot (white gray background does not extend to the edge.)\r\n\r\nInterestingly, we have the needed selector in responsive mode, so my suggestion is to just hoist the selector, something like:\r\n\r\n{{{#!diff\r\ndiff --git a/django/contrib/admin/static/admin/css/base.css b/django/contrib/admin/static/admin/css/base.css\r\nindex 8a526f5c73..0476eb9ed6 100644\r\n--- a/django/contrib/admin/static/admin/css/base.css\r\n+++ b/django/contrib/admin/static/admin/css/base.css\r\n@@ -1383,3 +1383,9 @@ a.deletelink:hover {\r\n .actions .button:hover {\r\n     border-color: var(--body-quiet-color);\r\n }\r\n+\r\n+/* DOCS */\r\n+\r\n+.module table.xfull {\r\n+    width: 100%;\r\n+}\r\ndiff --git a/django/contrib/admin/static/admin/css/responsive.css b/django/contrib/admin/static/admin/css/responsive.css\r\nindex d97601e648..b3bdf38dc5 100644\r\n--- a/django/contrib/admin/static/admin/css/responsive.css\r\n+++ b/django/contrib/admin/static/admin/css/responsive.css\r\n@@ -370,10 +370,6 @@ button {\r\n \r\n     /* Docs */\r\n \r\n-    .module table.xfull {\r\n-        width: 100%;\r\n-    }\r\n-\r\n     pre.literal-block {\r\n         overflow: auto;\r\n     }\r\n}}}\r\n\r\nNeeds verification and also maybe some thought around whether we want some screenshot test cases for `contrib.admindocs`?"
@@ -2124,7 +2125,7 @@
       "watcher_issue_number": 62,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-10-04T04:35:12.174275+00:00",
       "ticket_data": {
         "id": 37388,
@@ -2175,7 +2176,7 @@
       "watcher_issue_number": 63,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-10-03T04:01:44.733449+00:00",
       "ticket_data": {
         "id": 37389,
@@ -2226,7 +2227,7 @@
       "watcher_issue_number": 64,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-10-02T13:58:40.470654+00:00",
       "ticket_data": {
         "id": 37390,
@@ -2276,7 +2277,7 @@
       "watcher_issue_number": 65,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-10-02T18:57:57.137467+00:00",
       "ticket_data": {
         "id": 37391,
@@ -2326,7 +2327,7 @@
       "watcher_issue_number": 66,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-10-02T18:57:58.718002+00:00",
       "ticket_data": {
         "id": 37392,
@@ -2376,7 +2377,7 @@
       "watcher_issue_number": 67,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-10-03T04:01:44.733449+00:00",
       "ticket_data": {
         "id": 37393,
@@ -2425,21 +2426,21 @@
       "source": "django",
       "ticket_id": 37394,
       "watcher_issue_number": 68,
-      "status": "new",
+      "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
-      "last_updated": "2026-10-03T19:34:26.123591+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
+      "last_updated": "2026-10-05T04:20:40.933212+00:00",
       "ticket_data": {
         "id": 37394,
         "source_id": "django",
         "title": "System check rejects valid Cross-Origin-Opener-Policy value noopener-allow-popups",
         "description": "`check_cross_origin_opener_policy` (in `django/core/checks/security/base.py`) validates `SECURE_CROSS_ORIGIN_OPENER_POLICY` against `CROSS_ORIGIN_OPENER_POLICY_VALUES`, which currently lists only `same-origin`, `same-origin-allow-popups`, and `unsafe-none`, and raises `security.E024` (an Error) for any other value.\r\n\r\nThe HTML standard defines a fourth `Cross-Origin-Opener-Policy` value, `noopener-allow-popups`, supported by Chrome and Safari. It severs the opener relationship even for same-origin popups, providing stronger isolation than `same-origin-allow-popups`.\r\n\r\nBecause the value is missing from the allow-list, a project that sets the valid, more-hardened `SECURE_CROSS_ORIGIN_OPENER_POLICY = \"noopener-allow-popups\"` fails `manage.py check --deploy` with `security.E024`, even though `SecurityMiddleware` emits the header correctly at runtime.\r\n\r\nProposed fix: add `\"noopener-allow-popups\"` to `CROSS_ORIGIN_OPENER_POLICY_VALUES`. A patch with a test and docs (versionadded 6.2) is ready.\r\n\r\nReference: https://html.spec.whatwg.org/multipage/browsers.html#cross-origin-opener-policies",
-        "status": "new",
+        "status": "assigned",
         "resolution": "",
         "created_at": "Oct 3, 2026, 1:48:07 PM",
-        "updated_at": "Oct 3, 2026, 1:48:07 PM",
+        "updated_at": "Oct 4, 2026, 11:01:19 AM",
         "reporter": "venkatchalla06",
-        "owner": "",
+        "owner": "Farhan Ali",
         "component": "Core (System checks)",
         "priority": "Normal",
         "severity": "Normal",
@@ -2454,14 +2455,14 @@
           "id": "37394",
           "Summary": "System check rejects valid Cross-Origin-Opener-Policy value noopener-allow-popups",
           "Type": "Bug",
-          "Status": "new",
+          "Status": "assigned",
           "Component": "Core (System checks)",
           "Severity": "Normal",
           "Resolution": "",
           "Created": "Oct 3, 2026, 1:48:07 PM",
-          "Modified": "Oct 3, 2026, 1:48:07 PM",
+          "Modified": "Oct 4, 2026, 11:01:19 AM",
           "Reporter": "venkatchalla06",
-          "Owner": "",
+          "Owner": "Farhan Ali",
           "Triage Stage": "Unreviewed",
           "Has patch": "0",
           "Needs tests": "0",
@@ -2477,7 +2478,7 @@
       "watcher_issue_number": 69,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-05T04:20:40.933212+00:00",
       "last_updated": "2026-10-03T19:34:27.574565+00:00",
       "ticket_data": {
         "id": 37395,
@@ -2518,57 +2519,6 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Django 6.0 added built-in CSP. In `django.utils.csp.build_policy()`, when a directive's only source is `CSP.NONCE` and the per-request nonce was never accessed (the `LazyNonce` stays falsy because the response rendered no `{{ csp_nonce }}`), the sentinel is stripped, the directive becomes empty, and the directive is dropped from the header entirely. For the same configuration, the emitted policy then depends on whether the nonce happened to be used:\r\n\r\n * `{\"default-src\": [\"*\"], \"script-src\": [CSP.NONCE]}` \u2014 nonce used: `default-src *; script-src 'nonce-...'`; nonce unused: `default-src *` (script-src removed, scripts fall back to `*`).\r\n * `{\"script-src\": [CSP.NONCE]}` \u2014 nonce unused: an empty `Content-Security-Policy` header (no policy at all).\r\n * `{\"script-src\": [CSP.SELF, CSP.NONCE]}` (recommended) \u2014 nonce unused: `script-src 'self'` (fails closed, unaffected).\r\n\r\nSo a nonce-only directive silently degrades to its `default-src` fallback (possibly permissive) or to no policy, on exactly the responses most likely to carry injected markup (error pages, views with no inline nonce'd element). The recommended form \u2014 pairing `CSP.NONCE` with an explicit fallback \u2014 already fails closed.\r\n\r\nProposed: a new system check, `security.W028`, that warns when any `SECURE_CSP` or `SECURE_CSP_REPORT_ONLY` directive's only source is `CSP.NONCE`, hinting to add `CSP.SELF`, `CSP.STRICT_DYNAMIC`, or `CSP.NONE`. It mirrors the existing `security.W027` and makes no runtime behavior change. A patch with tests and docs is ready.\r\n\r\nAn alternative would be to make `build_policy()` fail closed (keep the directive present as block-all when the nonce is unused), but that changes documented output and would need a release note; a check seems the lower-risk fix."
-        }
-      }
-    },
-    "django:37396": {
-      "source": "django",
-      "ticket_id": 37396,
-      "watcher_issue_number": 70,
-      "status": "assigned",
-      "notification_comment_created": true,
-      "last_checked": "2026-10-04T18:16:41.453016+00:00",
-      "last_updated": "2026-10-04T18:16:41.453016+00:00",
-      "ticket_data": {
-        "id": 37396,
-        "source_id": "django",
-        "title": "msgfmt is not on GITHUB_PATH in Windows CI build in Github Actions",
-        "description": "This causes several tests to be skipped with this message:\r\n\r\n{{{\r\nskipped 'msgfmt is mandatory for compilation tests'\r\n}}}\r\n\r\nThis was noticed when updating Django Rusty Templates to install `gettext` using Chocolatey: https://github.com/LilyFirefly/django-rusty-templates/pull/533#discussion_r4176824979",
-        "status": "assigned",
-        "resolution": "",
-        "created_at": "Oct 4, 2026, 11:28:59 AM",
-        "updated_at": "Oct 4, 2026, 11:34:10 AM",
-        "reporter": "Lily",
-        "owner": "Lily",
-        "component": "Internationalization",
-        "priority": "Normal",
-        "severity": "Normal",
-        "triage_stage": "Unreviewed",
-        "labels": [
-          "Unreviewed",
-          "has-patch"
-        ],
-        "url": "https://code.djangoproject.com/ticket/37396",
-        "pr_url": "https://github.com/LilyFirefly/django-rusty-templates/pull/533",
-        "pr_status": "merged",
-        "raw_data": {
-          "id": "37396",
-          "Summary": "msgfmt is not on GITHUB_PATH in Windows CI build in Github Actions",
-          "Type": "Cleanup/optimization",
-          "Status": "assigned",
-          "Component": "Internationalization",
-          "Severity": "Normal",
-          "Resolution": "",
-          "Created": "Oct 4, 2026, 11:28:59 AM",
-          "Modified": "Oct 4, 2026, 11:34:10 AM",
-          "Reporter": "Lily",
-          "Owner": "Lily",
-          "Triage Stage": "Unreviewed",
-          "Has patch": "1",
-          "Needs tests": "0",
-          "Needs documentation": "0",
-          "UI/UX": "0",
-          "Description": "This causes several tests to be skipped with this message:\r\n\r\n{{{\r\nskipped 'msgfmt is mandatory for compilation tests'\r\n}}}\r\n\r\nThis was noticed when updating Django Rusty Templates to install `gettext` using Chocolatey: https://github.com/LilyFirefly/django-rusty-templates/pull/533#discussion_r4176824979"
         }
       }
     }
