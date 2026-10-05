@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37399
+      "last_seen_id": 37400
     }
   },
   "tracked": {
@@ -2619,6 +2619,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Provide a context variable `module_name` to all model admin views that do not yet have this value, for consistency.\r\n\r\nThis value is a capitalized version of a model's pluralized verbose name, typically used in the third breadcrumb link that points to a changelist view.\r\n\r\n== Reasoning\r\n\r\nAs originally mentioned on the forum: [https://forum.djangoproject.com/t/some-potential-bugs-found-when-making-custom-admin-pages/46049 Some potential bugs found when making custom admin pages].\r\n\r\nSome model admin pages like the history view (template: [https://github.com/django/django/blob/main/django/contrib/admin/templates/admin/object_history.html object_history.html]) provide a context variable `module_name`, which is used in the breadcrumbs block of the template.\r\n\r\nOther templates, e.g., the add/edit view (template: [https://github.com/django/django/blob/main/django/contrib/admin/templates/admin/change_form.html change_form.html]) do not provide this value as context data. Instead, they modify the object's verbose plural name in place within the breadcrumbs block.\r\n\r\nAdding this value to all the relevant admin templates would make the code more consistent.\r\n\r\n== Python code\r\n\r\nThis is is how we build the module name in Python from a `ModelAdmin` instance:\r\n\r\n{{{\r\nopts = self.model._meta\r\nmodule_name = str(capfirst(opts.verbose_name_plural))\r\n}}}\r\n\r\nTemplates like `change_form.html` use this code instead:\r\n\r\n{{{\r\n{{ opts.verbose_name_plural|capfirst }}\r\n}}}"
+        }
+      }
+    },
+    "django:37400": {
+      "source": "django",
+      "ticket_id": 37400,
+      "watcher_issue_number": 73,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-05T21:21:42.833031+00:00",
+      "last_updated": "2026-10-05T21:21:42.833031+00:00",
+      "ticket_data": {
+        "id": 37400,
+        "source_id": "django",
+        "title": "Add metadata API to Tasks",
+        "description": "A `TaskResult` should have `metadata` - a writable persistent `dict` (JSON-compatible) containing additional data about the task, but outside of its arguments.\r\n\r\nProposed API:\r\n\r\n- `my_task.using(metadata={\"trace_id\": 123}).enqueue(foo=1)` would enqueue the `my_task` task with metadata `{\"trace_id\": 123}` and arguments `foo=1`.\r\n- Metadata could be retrieved using task context `context.metadata`\r\n- If the `context.metadata` is modified, it is saved when a task finishes (successfully or otherwise)\r\n- Metadata can be saved within a task using `context.save_metadata()` (or `.asave_metadata`)\r\n- `metadata` is always a `dict`, and must be strictly JSON-supported types (as task args and kwargs are currently)\r\n- Metadata support is opt-in - backends must set the `supports_metadata` feature and implement `save_metadata` and/or `asave_metadata`\r\n- By convention, metadata keys prefixed with `_` should not be used by end users. Keys prefixed with `_django` should be considered reserved by Django and its first-party backends. Backend or library developers are free to use their own narrow-scoped reservd prefixes, so long as they start with `_`. They may be stored, but are stripped out before being shown by the user, and are ignored during save.\r\n\r\nSee also https://github.com/django/new-features/issues/141",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 5, 2026, 11:50:24 AM",
+        "updated_at": "Oct 5, 2026, 3:25:23 PM",
+        "reporter": "Jake Howard",
+        "owner": "",
+        "component": "Tasks",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37400",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37400",
+          "Summary": "Add metadata API to Tasks",
+          "Type": "New feature",
+          "Status": "new",
+          "Component": "Tasks",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 5, 2026, 11:50:24 AM",
+          "Modified": "Oct 5, 2026, 3:25:23 PM",
+          "Reporter": "Jake Howard",
+          "Owner": "",
+          "Triage Stage": "Accepted",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "A `TaskResult` should have `metadata` - a writable persistent `dict` (JSON-compatible) containing additional data about the task, but outside of its arguments.\r\n\r\nProposed API:\r\n\r\n- `my_task.using(metadata={\"trace_id\": 123}).enqueue(foo=1)` would enqueue the `my_task` task with metadata `{\"trace_id\": 123}` and arguments `foo=1`.\r\n- Metadata could be retrieved using task context `context.metadata`\r\n- If the `context.metadata` is modified, it is saved when a task finishes (successfully or otherwise)\r\n- Metadata can be saved within a task using `context.save_metadata()` (or `.asave_metadata`)\r\n- `metadata` is always a `dict`, and must be strictly JSON-supported types (as task args and kwargs are currently)\r\n- Metadata support is opt-in - backends must set the `supports_metadata` feature and implement `save_metadata` and/or `asave_metadata`\r\n- By convention, metadata keys prefixed with `_` should not be used by end users. Keys prefixed with `_django` should be considered reserved by Django and its first-party backends. Backend or library developers are free to use their own narrow-scoped reservd prefixes, so long as they start with `_`. They may be stored, but are stripped out before being shown by the user, and are ignored during save.\r\n\r\nSee also https://github.com/django/new-features/issues/141"
         }
       }
     }
