@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37396
+      "last_seen_id": 37399
     }
   },
   "tracked": {
@@ -2519,6 +2519,106 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Django 6.0 added built-in CSP. In `django.utils.csp.build_policy()`, when a directive's only source is `CSP.NONCE` and the per-request nonce was never accessed (the `LazyNonce` stays falsy because the response rendered no `{{ csp_nonce }}`), the sentinel is stripped, the directive becomes empty, and the directive is dropped from the header entirely. For the same configuration, the emitted policy then depends on whether the nonce happened to be used:\r\n\r\n * `{\"default-src\": [\"*\"], \"script-src\": [CSP.NONCE]}` \u2014 nonce used: `default-src *; script-src 'nonce-...'`; nonce unused: `default-src *` (script-src removed, scripts fall back to `*`).\r\n * `{\"script-src\": [CSP.NONCE]}` \u2014 nonce unused: an empty `Content-Security-Policy` header (no policy at all).\r\n * `{\"script-src\": [CSP.SELF, CSP.NONCE]}` (recommended) \u2014 nonce unused: `script-src 'self'` (fails closed, unaffected).\r\n\r\nSo a nonce-only directive silently degrades to its `default-src` fallback (possibly permissive) or to no policy, on exactly the responses most likely to carry injected markup (error pages, views with no inline nonce'd element). The recommended form \u2014 pairing `CSP.NONCE` with an explicit fallback \u2014 already fails closed.\r\n\r\nProposed: a new system check, `security.W028`, that warns when any `SECURE_CSP` or `SECURE_CSP_REPORT_ONLY` directive's only source is `CSP.NONCE`, hinting to add `CSP.SELF`, `CSP.STRICT_DYNAMIC`, or `CSP.NONE`. It mirrors the existing `security.W027` and makes no runtime behavior change. A patch with tests and docs is ready.\r\n\r\nAn alternative would be to make `build_policy()` fail closed (keep the directive present as block-all when the nonce is unused), but that changes documented output and would need a release note; a check seems the lower-risk fix."
+        }
+      }
+    },
+    "django:37397": {
+      "source": "django",
+      "ticket_id": 37397,
+      "watcher_issue_number": 71,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-05T13:31:33.899614+00:00",
+      "last_updated": "2026-10-05T13:31:33.899614+00:00",
+      "ticket_data": {
+        "id": 37397,
+        "source_id": "django",
+        "title": "request.body does not exclude file upload data from DATA_UPLOAD_MAX_MEMORY_SIZE, contrary to docs",
+        "description": "== Summary ==\r\n\r\nThe documentation for `DATA_UPLOAD_MAX_MEMORY_SIZE` states that the size check, when triggered via ''either'' `request.body` or `request.POST`, excludes file upload data (`request.FILES`) from the calculation. This is true for `request.POST` (via `MultiPartParser`), but is '''not true''' for `request.body` \u2014 that property compares the full `Content-Length` header (file bytes included) against the setting, with no file-exclusion logic at all, and has nothing to do with `request.FILES`.\r\n\r\n== Documentation text (verbatim, https://docs.djangoproject.com/en/6.1/ref/settings/#data-upload-max-memory-size) ==\r\n\r\n The maximum size in bytes that a request body may be before a `SuspiciousOperation` (`RequestDataTooBig`) is raised. '''The check is done when accessing `request.body` or `request.POST` and is calculated against the total request size excluding any file upload data (`request.FILES`).''' You can set this to `None` to disable the check. Applications that are expected to receive unusually large form posts should tune this setting.\r\n\r\n== What the code actually does (tag 6.1.1, current stable) ==\r\n\r\n'''`request.body`''' (`django/http/request.py:399-442`):\r\n\r\n{{{#!python\r\n@property\r\ndef body(self):\r\n    if not hasattr(self, \"_body\"):\r\n        if self._read_started:\r\n            raise RawPostDataException(\r\n                \"You cannot access body after reading from request's data stream\"\r\n            )\r\n\r\n        # Make Content-Length fall back to 0 if malformed (e.g. ASGIRequest\r\n        # comma-joins duplicate Content-Length headers).\r\n        try:\r\n            content_length = int(self.META.get(\"CONTENT_LENGTH\") or 0)\r\n        except (ValueError, TypeError):\r\n            content_length = 0\r\n        # Limit the maximum request data size that will be handled\r\n        # in-memory. Reject early when Content-Length is present and\r\n        # already exceeds the limit, avoiding reading the body at all.\r\n        self._check_data_too_big(content_length)\r\n\r\n        # Content-Length can be absent or understated (e.g.\r\n        # `Transfer-Encoding: chunked` on ASGI), so for seekable\r\n        # streams (e.g. SpooledTemporaryFile on ASGI), check the actual\r\n        # buffered size before reading it all into memory.\r\n        if self._stream.seekable():\r\n            stream_size = self._stream.seek(0, os.SEEK_END)\r\n            self._check_data_too_big(stream_size)\r\n            self._stream.seek(0)\r\n\r\n        try:\r\n            self._body = self.read()\r\n        except OSError as e:\r\n            raise UnreadablePostError(*e.args) from e\r\n        finally:\r\n            self._stream.close()\r\n        self._stream = BytesIO(self._body)\r\n    return self._body\r\n\r\ndef _check_data_too_big(self, length):\r\n    if (\r\n        settings.DATA_UPLOAD_MAX_MEMORY_SIZE is not None\r\n        and length > settings.DATA_UPLOAD_MAX_MEMORY_SIZE\r\n    ):\r\n        raise RequestDataTooBig(\r\n            \"Request body exceeded settings.DATA_UPLOAD_MAX_MEMORY_SIZE.\"\r\n        )\r\n}}}\r\n\r\n'''`request.POST`''' (for multipart requests, via `django/http/multipartparser.py:222-256`):\r\n\r\nThe parser only accumulates bytes toward the limit for `FIELD`-type parts:\r\n{{{#!python\r\nif item_type == FIELD:\r\n    # Avoid reading more than DATA_UPLOAD_MAX_MEMORY_SIZE.\r\n    if settings.DATA_UPLOAD_MAX_MEMORY_SIZE is not None:\r\n        read_size = settings.DATA_UPLOAD_MAX_MEMORY_SIZE - num_bytes_read\r\n    ...\r\n    data = field_stream.read(size=read_size)\r\n    num_bytes_read += len(data)\r\n    ...\r\n    if (\r\n        settings.DATA_UPLOAD_MAX_MEMORY_SIZE is not None\r\n        and num_bytes_read > settings.DATA_UPLOAD_MAX_MEMORY_SIZE\r\n    ):\r\n        raise RequestDataTooBig(\r\n            \"Request body exceeded settings.DATA_UPLOAD_MAX_MEMORY_SIZE.\"\r\n        )\r\nelif item_type == FILE:\r\n    # Avoid storing more than DATA_UPLOAD_MAX_NUMBER_FILES.\r\n    ...\r\n    # routed to upload handlers instead; num_bytes_read is never touched here\r\n}}}\r\n`FILE`-type parts are routed to upload handlers instead and never touch `num_bytes_read` / this check at all. So for `request.POST`, the documentation's claim is accurate \u2014 file content genuinely is excluded, and this is the code path that actually populates `request.FILES`.\r\n\r\n== Why this matters in practice ==\r\n\r\nCode that accesses `request.body` for a reason unrelated to parsing form data (e.g. logging/backing up the raw body for error reporting, signature verification helpers, etc.) on a multipart file-upload request will unexpectedly raise `RequestDataTooBig` for files well under what a developer would reasonably expect from reading this documentation \u2014 since the documented behavior (\"excludes file upload data (`request.FILES`)\") simply does not apply to that code path. We hit this in production: a multipart request with a single ~5 MB file (default `DATA_UPLOAD_MAX_MEMORY_SIZE` of 2.5 MB) crashed with `RequestDataTooBig` the moment a piece of unrelated middleware touched `request.body` before the view accessed `request.POST`/`request.FILES` \u2014 despite the documented guarantee that file data doesn't count toward this limit.\r\n\r\n== Suggested fix ==\r\n\r\nClarify the documentation to note the distinction explicitly, e.g.:\r\n\r\n The check is done when accessing `request.body` or `request.POST`. For `request.POST` (i.e. parsed multipart form data), the calculation excludes any file upload data (`request.FILES`). For `request.body`, the check is performed against the full size of the request body, '''including any file upload data''' \u2014 since `request.body` materializes the entire request body in memory (or verifies its buffered size) regardless of its content, the size limit applies to the whole body in that case.\r\n\r\n== Reproduction ==\r\n\r\n 1. Set `DATA_UPLOAD_MAX_MEMORY_SIZE` to its default (2.5 MB, or any value < file size).\r\n 2. Add trivial middleware: `def process_request(self, request): request.body` (or anything that accesses `.body` before the view touches `.POST`/`.FILES`).\r\n 3. POST a multipart/form-data request with a single file field larger than the limit (and no other large fields) to any view.\r\n 4. Observe `RequestDataTooBig: Request body exceeded settings.DATA_UPLOAD_MAX_MEMORY_SIZE.` is raised \u2014 even though the file is the only thing contributing meaningfully to the request size, and the documentation states file data is excluded from this check.\r\n",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 5, 2026, 4:59:30 AM",
+        "updated_at": "Oct 5, 2026, 4:59:30 AM",
+        "reporter": "marcapdev",
+        "owner": "",
+        "component": "Documentation",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37397",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37397",
+          "Summary": "request.body does not exclude file upload data from DATA_UPLOAD_MAX_MEMORY_SIZE, contrary to docs",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Documentation",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 5, 2026, 4:59:30 AM",
+          "Modified": "Oct 5, 2026, 4:59:30 AM",
+          "Reporter": "marcapdev",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "== Summary ==\r\n\r\nThe documentation for `DATA_UPLOAD_MAX_MEMORY_SIZE` states that the size check, when triggered via ''either'' `request.body` or `request.POST`, excludes file upload data (`request.FILES`) from the calculation. This is true for `request.POST` (via `MultiPartParser`), but is '''not true''' for `request.body` \u2014 that property compares the full `Content-Length` header (file bytes included) against the setting, with no file-exclusion logic at all, and has nothing to do with `request.FILES`.\r\n\r\n== Documentation text (verbatim, https://docs.djangoproject.com/en/6.1/ref/settings/#data-upload-max-memory-size) ==\r\n\r\n The maximum size in bytes that a request body may be before a `SuspiciousOperation` (`RequestDataTooBig`) is raised. '''The check is done when accessing `request.body` or `request.POST` and is calculated against the total request size excluding any file upload data (`request.FILES`).''' You can set this to `None` to disable the check. Applications that are expected to receive unusually large form posts should tune this setting.\r\n\r\n== What the code actually does (tag 6.1.1, current stable) ==\r\n\r\n'''`request.body`''' (`django/http/request.py:399-442`):\r\n\r\n{{{#!python\r\n@property\r\ndef body(self):\r\n    if not hasattr(self, \"_body\"):\r\n        if self._read_started:\r\n            raise RawPostDataException(\r\n                \"You cannot access body after reading from request's data stream\"\r\n            )\r\n\r\n        # Make Content-Length fall back to 0 if malformed (e.g. ASGIRequest\r\n        # comma-joins duplicate Content-Length headers).\r\n        try:\r\n            content_length = int(self.META.get(\"CONTENT_LENGTH\") or 0)\r\n        except (ValueError, TypeError):\r\n            content_length = 0\r\n        # Limit the maximum request data size that will be handled\r\n        # in-memory. Reject early when Content-Length is present and\r\n        # already exceeds the limit, avoiding reading the body at all.\r\n        self._check_data_too_big(content_length)\r\n\r\n        # Content-Length can be absent or understated (e.g.\r\n        # `Transfer-Encoding: chunked` on ASGI), so for seekable\r\n        # streams (e.g. SpooledTemporaryFile on ASGI), check the actual\r\n        # buffered size before reading it all into memory.\r\n        if self._stream.seekable():\r\n            stream_size = self._stream.seek(0, os.SEEK_END)\r\n            self._check_data_too_big(stream_size)\r\n            self._stream.seek(0)\r\n\r\n        try:\r\n            self._body = self.read()\r\n        except OSError as e:\r\n            raise UnreadablePostError(*e.args) from e\r\n        finally:\r\n            self._stream.close()\r\n        self._stream = BytesIO(self._body)\r\n    return self._body\r\n\r\ndef _check_data_too_big(self, length):\r\n    if (\r\n        settings.DATA_UPLOAD_MAX_MEMORY_SIZE is not None\r\n        and length > settings.DATA_UPLOAD_MAX_MEMORY_SIZE\r\n    ):\r\n        raise RequestDataTooBig(\r\n            \"Request body exceeded settings.DATA_UPLOAD_MAX_MEMORY_SIZE.\"\r\n        )\r\n}}}\r\n\r\n'''`request.POST`''' (for multipart requests, via `django/http/multipartparser.py:222-256`):\r\n\r\nThe parser only accumulates bytes toward the limit for `FIELD`-type parts:\r\n{{{#!python\r\nif item_type == FIELD:\r\n    # Avoid reading more than DATA_UPLOAD_MAX_MEMORY_SIZE.\r\n    if settings.DATA_UPLOAD_MAX_MEMORY_SIZE is not None:\r\n        read_size = settings.DATA_UPLOAD_MAX_MEMORY_SIZE - num_bytes_read\r\n    ...\r\n    data = field_stream.read(size=read_size)\r\n    num_bytes_read += len(data)\r\n    ...\r\n    if (\r\n        settings.DATA_UPLOAD_MAX_MEMORY_SIZE is not None\r\n        and num_bytes_read > settings.DATA_UPLOAD_MAX_MEMORY_SIZE\r\n    ):\r\n        raise RequestDataTooBig(\r\n            \"Request body exceeded settings.DATA_UPLOAD_MAX_MEMORY_SIZE.\"\r\n        )\r\nelif item_type == FILE:\r\n    # Avoid storing more than DATA_UPLOAD_MAX_NUMBER_FILES.\r\n    ...\r\n    # routed to upload handlers instead; num_bytes_read is never touched here\r\n}}}\r\n`FILE`-type parts are routed to upload handlers instead and never touch `num_bytes_read` / this check at all. So for `request.POST`, the documentation's claim is accurate \u2014 file content genuinely is excluded, and this is the code path that actually populates `request.FILES`.\r\n\r\n== Why this matters in practice ==\r\n\r\nCode that accesses `request.body` for a reason unrelated to parsing form data (e.g. logging/backing up the raw body for error reporting, signature verification helpers, etc.) on a multipart file-upload request will unexpectedly raise `RequestDataTooBig` for files well under what a developer would reasonably expect from reading this documentation \u2014 since the documented behavior (\"excludes file upload data (`request.FILES`)\") simply does not apply to that code path. We hit this in production: a multipart request with a single ~5 MB file (default `DATA_UPLOAD_MAX_MEMORY_SIZE` of 2.5 MB) crashed with `RequestDataTooBig` the moment a piece of unrelated middleware touched `request.body` before the view accessed `request.POST`/`request.FILES` \u2014 despite the documented guarantee that file data doesn't count toward this limit.\r\n\r\n== Suggested fix ==\r\n\r\nClarify the documentation to note the distinction explicitly, e.g.:\r\n\r\n The check is done when accessing `request.body` or `request.POST`. For `request.POST` (i.e. parsed multipart form data), the calculation excludes any file upload data (`request.FILES`). For `request.body`, the check is performed against the full size of the request body, '''including any file upload data''' \u2014 since `request.body` materializes the entire request body in memory (or verifies its buffered size) regardless of its content, the size limit applies to the whole body in that case.\r\n\r\n== Reproduction ==\r\n\r\n 1. Set `DATA_UPLOAD_MAX_MEMORY_SIZE` to its default (2.5 MB, or any value < file size).\r\n 2. Add trivial middleware: `def process_request(self, request): request.body` (or anything that accesses `.body` before the view touches `.POST`/`.FILES`).\r\n 3. POST a multipart/form-data request with a single file field larger than the limit (and no other large fields) to any view.\r\n 4. Observe `RequestDataTooBig: Request body exceeded settings.DATA_UPLOAD_MAX_MEMORY_SIZE.` is raised \u2014 even though the file is the only thing contributing meaningfully to the request size, and the documentation states file data is excluded from this check.\r\n"
+        }
+      }
+    },
+    "django:37399": {
+      "source": "django",
+      "ticket_id": 37399,
+      "watcher_issue_number": 72,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-05T13:31:35.635260+00:00",
+      "last_updated": "2026-10-05T13:31:35.635260+00:00",
+      "ticket_data": {
+        "id": 37399,
+        "source_id": "django",
+        "title": "Include module_name in all model admin views with breadcrumbs",
+        "description": "Provide a context variable `module_name` to all model admin views that do not yet have this value, for consistency.\r\n\r\nThis value is a capitalized version of a model's pluralized verbose name, typically used in the third breadcrumb link that points to a changelist view.\r\n\r\n== Reasoning\r\n\r\nAs originally mentioned on the forum: [https://forum.djangoproject.com/t/some-potential-bugs-found-when-making-custom-admin-pages/46049 Some potential bugs found when making custom admin pages].\r\n\r\nSome model admin pages like the history view (template: [https://github.com/django/django/blob/main/django/contrib/admin/templates/admin/object_history.html object_history.html]) provide a context variable `module_name`, which is used in the breadcrumbs block of the template.\r\n\r\nOther templates, e.g., the add/edit view (template: [https://github.com/django/django/blob/main/django/contrib/admin/templates/admin/change_form.html change_form.html]) do not provide this value as context data. Instead, they modify the object's verbose plural name in place within the breadcrumbs block.\r\n\r\nAdding this value to all the relevant admin templates would make the code more consistent.\r\n\r\n== Python code\r\n\r\nThis is is how we build the module name in Python from a `ModelAdmin` instance:\r\n\r\n{{{\r\nopts = self.model._meta\r\nmodule_name = str(capfirst(opts.verbose_name_plural))\r\n}}}\r\n\r\nTemplates like `change_form.html` use this code instead:\r\n\r\n{{{\r\n{{ opts.verbose_name_plural|capfirst }}\r\n}}}",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 5, 2026, 7:02:24 AM",
+        "updated_at": "Oct 5, 2026, 8:12:40 AM",
+        "reporter": "Marijke Luttekes",
+        "owner": "",
+        "component": "contrib.admin",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37399",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37399",
+          "Summary": "Include module_name in all model admin views with breadcrumbs",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "contrib.admin",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 5, 2026, 7:02:24 AM",
+          "Modified": "Oct 5, 2026, 8:12:40 AM",
+          "Reporter": "Marijke Luttekes",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Provide a context variable `module_name` to all model admin views that do not yet have this value, for consistency.\r\n\r\nThis value is a capitalized version of a model's pluralized verbose name, typically used in the third breadcrumb link that points to a changelist view.\r\n\r\n== Reasoning\r\n\r\nAs originally mentioned on the forum: [https://forum.djangoproject.com/t/some-potential-bugs-found-when-making-custom-admin-pages/46049 Some potential bugs found when making custom admin pages].\r\n\r\nSome model admin pages like the history view (template: [https://github.com/django/django/blob/main/django/contrib/admin/templates/admin/object_history.html object_history.html]) provide a context variable `module_name`, which is used in the breadcrumbs block of the template.\r\n\r\nOther templates, e.g., the add/edit view (template: [https://github.com/django/django/blob/main/django/contrib/admin/templates/admin/change_form.html change_form.html]) do not provide this value as context data. Instead, they modify the object's verbose plural name in place within the breadcrumbs block.\r\n\r\nAdding this value to all the relevant admin templates would make the code more consistent.\r\n\r\n== Python code\r\n\r\nThis is is how we build the module name in Python from a `ModelAdmin` instance:\r\n\r\n{{{\r\nopts = self.model._meta\r\nmodule_name = str(capfirst(opts.verbose_name_plural))\r\n}}}\r\n\r\nTemplates like `change_form.html` use this code instead:\r\n\r\n{{{\r\n{{ opts.verbose_name_plural|capfirst }}\r\n}}}"
         }
       }
     }
