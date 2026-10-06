@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37400
+      "last_seen_id": 37401
     }
   },
   "tracked": {
@@ -2669,6 +2669,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "A `TaskResult` should have `metadata` - a writable persistent `dict` (JSON-compatible) containing additional data about the task, but outside of its arguments.\r\n\r\nProposed API:\r\n\r\n- `my_task.using(metadata={\"trace_id\": 123}).enqueue(foo=1)` would enqueue the `my_task` task with metadata `{\"trace_id\": 123}` and arguments `foo=1`.\r\n- Metadata could be retrieved using task context `context.metadata`\r\n- If the `context.metadata` is modified, it is saved when a task finishes (successfully or otherwise)\r\n- Metadata can be saved within a task using `context.save_metadata()` (or `.asave_metadata`)\r\n- `metadata` is always a `dict`, and must be strictly JSON-supported types (as task args and kwargs are currently)\r\n- Metadata support is opt-in - backends must set the `supports_metadata` feature and implement `save_metadata` and/or `asave_metadata`\r\n- By convention, metadata keys prefixed with `_` should not be used by end users. Keys prefixed with `_django` should be considered reserved by Django and its first-party backends. Backend or library developers are free to use their own narrow-scoped reservd prefixes, so long as they start with `_`. They may be stored, but are stripped out before being shown by the user, and are ignored during save.\r\n\r\nSee also https://github.com/django/new-features/issues/141"
+        }
+      }
+    },
+    "django:37401": {
+      "source": "django",
+      "ticket_id": 37401,
+      "watcher_issue_number": 74,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-06T01:48:50.218339+00:00",
+      "last_updated": "2026-10-06T01:48:50.218339+00:00",
+      "ticket_data": {
+        "id": 37401,
+        "source_id": "django",
+        "title": "Made `FILE_UPLOAD_DIRECTORY_PERMISSIONS` respect the process umask to remove vendored `makedirs`",
+        "description": "Following the [https://forum.djangoproject.com/t/proposal-make-file-upload-permissions-respect-umask/45022/ forum discussion] and agreement from the Steering Council and the Security Team, directories created via `django.utils._os.safe_makedirs()` should be subject to the process umask, matching the semantics of `os.mkdir()` and `os.makedirs()`. This affects `FileSystemStorage` when `FILE_UPLOAD_DIRECTORY_PERMISSIONS` (or `directory_permissions_mode`) is set, and `FileBasedCache` (which uses a fixed `0o700`).\r\n\r\nCurrently, the vendored `makedirs()` added in the fix for [https://github.com/django/django/commit/019e44f67a8dace67b786e2818938c8691132988 CVE-2026-25674] calls `os.chmod()` after each `os.mkdir()` to force the exact mode, ignoring the umask (a behavior dating back to #13518). Since the umask can only remove bits, resulting permissions may be more restrictive than configured, never more permissive. Common combinations such as `0o755` with a `0o022` umask are unchanged, and existing directories remain untouched.\r\n\r\nPython 3.15 added `parent_mode` to `os.makedirs()` ([https://github.com/python/cpython/issues/86533 python/cpython#86533]), so `safe_makedirs()` can use it directly on 3.15+, keeping the vendored implementation (without the extra `chmod()`) for older Python versions until they are dropped.\r\n\r\nThe change applies on Django 6.2+ for all supported Python versions and will be documented as a backwards incompatible change in the 6.2 release notes, with updates to the `FILE_UPLOAD_DIRECTORY_PERMISSIONS` and `FileSystemStorage.directory_permissions_mode` docs. `FILE_UPLOAD_PERMISSIONS` is out of scope: it is applied via `os.chmod()` after writing and remains exact.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 5, 2026, 4:35:32 PM",
+        "updated_at": "Oct 5, 2026, 4:35:32 PM",
+        "reporter": "Natalia Bidart",
+        "owner": "Natalia Bidart",
+        "component": "File uploads/storage",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37401",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37401",
+          "Summary": "Made `FILE_UPLOAD_DIRECTORY_PERMISSIONS` respect the process umask to remove vendored `makedirs`",
+          "Type": "Cleanup/optimization",
+          "Status": "assigned",
+          "Component": "File uploads/storage",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 5, 2026, 4:35:32 PM",
+          "Modified": "Oct 5, 2026, 4:35:32 PM",
+          "Reporter": "Natalia Bidart",
+          "Owner": "Natalia Bidart",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Following the [https://forum.djangoproject.com/t/proposal-make-file-upload-permissions-respect-umask/45022/ forum discussion] and agreement from the Steering Council and the Security Team, directories created via `django.utils._os.safe_makedirs()` should be subject to the process umask, matching the semantics of `os.mkdir()` and `os.makedirs()`. This affects `FileSystemStorage` when `FILE_UPLOAD_DIRECTORY_PERMISSIONS` (or `directory_permissions_mode`) is set, and `FileBasedCache` (which uses a fixed `0o700`).\r\n\r\nCurrently, the vendored `makedirs()` added in the fix for [https://github.com/django/django/commit/019e44f67a8dace67b786e2818938c8691132988 CVE-2026-25674] calls `os.chmod()` after each `os.mkdir()` to force the exact mode, ignoring the umask (a behavior dating back to #13518). Since the umask can only remove bits, resulting permissions may be more restrictive than configured, never more permissive. Common combinations such as `0o755` with a `0o022` umask are unchanged, and existing directories remain untouched.\r\n\r\nPython 3.15 added `parent_mode` to `os.makedirs()` ([https://github.com/python/cpython/issues/86533 python/cpython#86533]), so `safe_makedirs()` can use it directly on 3.15+, keeping the vendored implementation (without the extra `chmod()`) for older Python versions until they are dropped.\r\n\r\nThe change applies on Django 6.2+ for all supported Python versions and will be documented as a backwards incompatible change in the 6.2 release notes, with updates to the `FILE_UPLOAD_DIRECTORY_PERMISSIONS` and `FileSystemStorage.directory_permissions_mode` docs. `FILE_UPLOAD_PERMISSIONS` is out of scope: it is applied via `os.chmod()` after writing and remains exact."
         }
       }
     }
