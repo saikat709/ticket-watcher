@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37404
+      "last_seen_id": 37405
     }
   },
   "tracked": {
@@ -2800,6 +2800,57 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "On Oracle, `JSONIn.as_oracle()` [https://github.com/django/django/blob/8c34887b1ad8bb3ec61c6e713442dab3c643d557/django/db/models/fields/json.py#L462 only special-cases JSONNull()] on the right-hand side. A `Value(None, output_field=JSONField())` is not routed to the same `JSON_EQUAL` path, so it doesn't match a JSON `null` row in `__in`. Both `JSONNull()` and `Value(None, JSONField())` match in `__exact`.\r\n\r\nFailing test:\r\n\r\n{{{#!diff\r\ndiff --git a/tests/model_fields/test_jsonfield.py b/tests/model_fields/test_jsonfield.py\r\nindex 264b88a23d..2276b7857d 100644\r\n--- a/tests/model_fields/test_jsonfield.py\r\n+++ b/tests/model_fields/test_jsonfield.py\r\n@@ -1076,6 +1076,15 @@ def test_in_json_whitespace(self):\r\n                     [obj],\r\n                 )\r\n \r\n+    @skipUnlessDBFeature(\"supports_primitives_in_json_field\")\r\n+    @skipIfDBFeature(\"has_native_json_field\")\r\n+    def test_in_value_json_typed_none_matches_json_null(self):\r\n+        json_null = NullableJSONModel.objects.create(value=JSONNull())\r\n+        self.assertSequenceEqual(\r\n+            NullableJSONModel.objects.filter(value__in=[Value(None, JSONField())]),\r\n+            [json_null],\r\n+        )\r\n+\r\n     def test_key_in(self):\r\n         tests = [\r\n             (\"value__c__in\", [14], self.objs[3:5]),\r\n}}}\r\n\r\nFound while working on #37403, but the bug predates the introduction of JSONIn or JSONNull, so it's not a regression in 6.1."
+        }
+      }
+    },
+    "django:37405": {
+      "source": "django",
+      "ticket_id": 37405,
+      "watcher_issue_number": 78,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-06T23:55:24.243602+00:00",
+      "last_updated": "2026-10-06T23:55:24.243602+00:00",
+      "ticket_data": {
+        "id": 37405,
+        "source_id": "django",
+        "title": "Using sort_keys kwarg no longer possible with YAML serializer",
+        "description": "The YAML serializer takes a `sort_keys` option, but since we neglected to use `setdefault` when \"defaulting\" this argument in 7142667340f78403cbbcaa8f33703c494282b7b7, any existing uses could raise `TypeError`:\r\n\r\nTest case for `YamlSerializerTestCase`:\r\n{{{#!py\r\n    def test_explicit_sort_keys(self):\r\n        serial_str = serializers.serialize(\r\n            \"yaml\", Author.objects.all(), sort_keys=False\r\n        )\r\n        self.assertTrue(self._validate_output(serial_str))\r\n}}}\r\n{{{#!py\r\n  File \"/Users/jwalls/django/tests/serializers/test_yaml.py\", line 159, in test_explicit_sort_keys\r\n    serial_str = serializers.serialize(\"yaml\", Author.objects.all(), sort_keys=False)\r\n    ^^^^^^^^^^^^^^^\r\n  File \"/Users/jwalls/django/django/core/serializers/__init__.py\", line 134, in serialize\r\n    s.serialize(queryset, **options)\r\n      ^^^^^^^^^^^^^^^^^\r\n  File \"/Users/jwalls/django/django/core/serializers/base.py\", line 149, in serialize\r\n    self.end_serialization()\r\n    ^^^^^^^^^^^^^^^\r\n  File \"/Users/jwalls/django/django/core/serializers/pyyaml.py\", line 49, in end_serialization\r\n    yaml.dump(\r\nTypeError: yaml.dump() got multiple values for keyword argument 'sort_keys'\r\n}}}",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 6, 2026, 4:01:26 PM",
+        "updated_at": "Oct 6, 2026, 5:21:48 PM",
+        "reporter": "Jacob Walls",
+        "owner": "Jacob Walls",
+        "component": "Core (Serialization)",
+        "priority": "Release blocker",
+        "severity": "Release blocker",
+        "triage_stage": "Ready for checkin",
+        "labels": [
+          "Ready for checkin",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37405",
+        "pr_url": "https://github.com/django/django/pull/22096",
+        "pr_status": "open",
+        "raw_data": {
+          "id": "37405",
+          "Summary": "Using sort_keys kwarg no longer possible with YAML serializer",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Core (Serialization)",
+          "Severity": "Release blocker",
+          "Resolution": "",
+          "Created": "Oct 6, 2026, 4:01:26 PM",
+          "Modified": "Oct 6, 2026, 5:21:48 PM",
+          "Reporter": "Jacob Walls",
+          "Owner": "Jacob Walls",
+          "Triage Stage": "Ready for checkin",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "The YAML serializer takes a `sort_keys` option, but since we neglected to use `setdefault` when \"defaulting\" this argument in 7142667340f78403cbbcaa8f33703c494282b7b7, any existing uses could raise `TypeError`:\r\n\r\nTest case for `YamlSerializerTestCase`:\r\n{{{#!py\r\n    def test_explicit_sort_keys(self):\r\n        serial_str = serializers.serialize(\r\n            \"yaml\", Author.objects.all(), sort_keys=False\r\n        )\r\n        self.assertTrue(self._validate_output(serial_str))\r\n}}}\r\n{{{#!py\r\n  File \"/Users/jwalls/django/tests/serializers/test_yaml.py\", line 159, in test_explicit_sort_keys\r\n    serial_str = serializers.serialize(\"yaml\", Author.objects.all(), sort_keys=False)\r\n    ^^^^^^^^^^^^^^^\r\n  File \"/Users/jwalls/django/django/core/serializers/__init__.py\", line 134, in serialize\r\n    s.serialize(queryset, **options)\r\n      ^^^^^^^^^^^^^^^^^\r\n  File \"/Users/jwalls/django/django/core/serializers/base.py\", line 149, in serialize\r\n    self.end_serialization()\r\n    ^^^^^^^^^^^^^^^\r\n  File \"/Users/jwalls/django/django/core/serializers/pyyaml.py\", line 49, in end_serialization\r\n    yaml.dump(\r\nTypeError: yaml.dump() got multiple values for keyword argument 'sort_keys'\r\n}}}"
         }
       }
     }
