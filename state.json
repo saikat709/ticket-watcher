@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37401
+      "last_seen_id": 37404
     }
   },
   "tracked": {
@@ -2649,6 +2649,157 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Following the [https://forum.djangoproject.com/t/proposal-make-file-upload-permissions-respect-umask/45022/ forum discussion] and agreement from the Steering Council and the Security Team, directories created via `django.utils._os.safe_makedirs()` should be subject to the process umask, matching the semantics of `os.mkdir()` and `os.makedirs()`. This affects `FileSystemStorage` when `FILE_UPLOAD_DIRECTORY_PERMISSIONS` (or `directory_permissions_mode`) is set, and `FileBasedCache` (which uses a fixed `0o700`).\r\n\r\nCurrently, the vendored `makedirs()` added in the fix for [https://github.com/django/django/commit/019e44f67a8dace67b786e2818938c8691132988 CVE-2026-25674] calls `os.chmod()` after each `os.mkdir()` to force the exact mode, ignoring the umask (a behavior dating back to #13518). Since the umask can only remove bits, resulting permissions may be more restrictive than configured, never more permissive. Common combinations such as `0o755` with a `0o022` umask are unchanged, and existing directories remain untouched.\r\n\r\nPython 3.15 added `parent_mode` to `os.makedirs()` ([https://github.com/python/cpython/issues/86533 python/cpython#86533]), so `safe_makedirs()` can use it directly on 3.15+, keeping the vendored implementation (without the extra `chmod()`) for older Python versions until they are dropped.\r\n\r\nThe change applies on Django 6.2+ for all supported Python versions and will be documented as a backwards incompatible change in the 6.2 release notes, with updates to the `FILE_UPLOAD_DIRECTORY_PERMISSIONS` and `FileSystemStorage.directory_permissions_mode` docs. `FILE_UPLOAD_PERMISSIONS` is out of scope: it is applied via `os.chmod()` after writing and remains exact."
+        }
+      }
+    },
+    "django:37402": {
+      "source": "django",
+      "ticket_id": 37402,
+      "watcher_issue_number": 75,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-06T20:25:41.506951+00:00",
+      "last_updated": "2026-10-06T20:25:41.506951+00:00",
+      "ticket_data": {
+        "id": 37402,
+        "source_id": "django",
+        "title": "AttributeError when calling first()/last() on an unordered queryset performing aggregation and grouping by an annotation",
+        "description": "02eed4f37879b2077496f86bb1378a076b981233 (#36648) assumed all members of a `GROUP BY` were `Col`s. That introduced an `AttributeError` for cases involving a function output like `Lower`, shown here:\r\n\r\n{{{#!py\r\nfrom django.db import models\r\nfrom django.db.models.functions import Lower\r\n\r\nclass Person(models.Model):\r\n    name = models.CharField(max_length=100)\r\n\r\ndef run():\r\n    # Should raise informative TypeError:\r\n    # Cannot use QuerySet.first() on an unordered queryset performing aggregation.\r\n    # Add an ordering with order_by().\r\n    first = (\r\n        Person.objects\r\n        .values(\"name\")\r\n        .annotate(lower=Lower(\"name\"), count=models.Count(\"id\"))\r\n        .first()\r\n    )\r\n}}}\r\n{{{#!py\r\n  File \"/usr/local/lib/python3.12/site-packages/django/db/models/query.py\", line 1187, in first\r\n    self._check_ordering_first_last_queryset_aggregation(method=\"first\")\r\n  File \"/usr/local/lib/python3.12/site-packages/django/db/models/query.py\", line 2330, in _check_ordering_first_last_queryset_aggregation\r\n    {col.target for col in self.query.group_by}\r\n     ^^^^^^^^^^\r\nAttributeError: 'Ref' object has no attribute 'target'\r\n}}}\r\n\r\nIt's introduced in 5.2, but we could consider backporting to 6.1 as a \"crashing bug\".",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 6, 2026, 10:21:04 AM",
+        "updated_at": "Oct 6, 2026, 10:21:04 AM",
+        "reporter": "Jacob Walls",
+        "owner": "Django Sprints",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37402",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37402",
+          "Summary": "AttributeError when calling first()/last() on an unordered queryset performing aggregation and grouping by an annotation",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 6, 2026, 10:21:04 AM",
+          "Modified": "Oct 6, 2026, 10:21:04 AM",
+          "Reporter": "Jacob Walls",
+          "Owner": "Django Sprints",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "02eed4f37879b2077496f86bb1378a076b981233 (#36648) assumed all members of a `GROUP BY` were `Col`s. That introduced an `AttributeError` for cases involving a function output like `Lower`, shown here:\r\n\r\n{{{#!py\r\nfrom django.db import models\r\nfrom django.db.models.functions import Lower\r\n\r\nclass Person(models.Model):\r\n    name = models.CharField(max_length=100)\r\n\r\ndef run():\r\n    # Should raise informative TypeError:\r\n    # Cannot use QuerySet.first() on an unordered queryset performing aggregation.\r\n    # Add an ordering with order_by().\r\n    first = (\r\n        Person.objects\r\n        .values(\"name\")\r\n        .annotate(lower=Lower(\"name\"), count=models.Count(\"id\"))\r\n        .first()\r\n    )\r\n}}}\r\n{{{#!py\r\n  File \"/usr/local/lib/python3.12/site-packages/django/db/models/query.py\", line 1187, in first\r\n    self._check_ordering_first_last_queryset_aggregation(method=\"first\")\r\n  File \"/usr/local/lib/python3.12/site-packages/django/db/models/query.py\", line 2330, in _check_ordering_first_last_queryset_aggregation\r\n    {col.target for col in self.query.group_by}\r\n     ^^^^^^^^^^\r\nAttributeError: 'Ref' object has no attribute 'target'\r\n}}}\r\n\r\nIt's introduced in 5.2, but we could consider backporting to 6.1 as a \"crashing bug\"."
+        }
+      }
+    },
+    "django:37403": {
+      "source": "django",
+      "ticket_id": 37403,
+      "watcher_issue_number": 76,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-06T20:25:42.782480+00:00",
+      "last_updated": "2026-10-06T20:25:42.782480+00:00",
+      "ticket_data": {
+        "id": 37403,
+        "source_id": "django",
+        "title": "JSONIn crashes at database level when preparing a models.Value(None, models.CharField()) on SQLite",
+        "description": "`Value(None, output_field=CharField())` represents SQL `NULL` and compiles without bound parameters. This query worked on 6.0 on SQLite:\r\n\r\n{{{#!py\r\nfrom django.db import models\r\n\r\nclass Person(models.Model):\r\n    metadata = models.JSONField()\r\n\r\ndef run():\r\n    qs = Person.objects.filter(metadata__in=[models.Value(None, models.CharField())])\r\n    print(qs)\r\n}}}\r\n{{{#!sql\r\nSELECT \"app_person\".\"id\",\r\n       \"app_person\".\"metadata\"\r\nFROM \"app_person\"\r\nWHERE \"app_person\".\"metadata\" IN (NULL)\r\nLIMIT 21\r\n}}}\r\n\r\nBut after 9b8e4c6d7d47f7b2e96817ba334e9fd53c10a0df (6.1), it crashes on SQLite with:\r\n{{{#!py\r\n  File \"/Users/jwalls/django/django/db/models/lookups.py\", line 349, in <genexpr>\r\n    self.resolve_expression_parameter(compiler, connection, sql, param)\r\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"/Users/jwalls/django/django/db/models/fields/json.py\", line 444, in resolve_expression_parameter\r\n    and params[0] not in connection.ops.jsonfield_datatype_values\r\n        ~~~~~~^^^\r\nIndexError: list index out of range\r\n}}}\r\nAnd differently on 6.1.2 after #37377, at the database level:\r\n{{{#!py\r\nsqlite3.ProgrammingError: Incorrect number of bindings supplied. The current statement uses 3, and there are 4 supplied.\r\n}}}",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 6, 2026, 10:52:32 AM",
+        "updated_at": "Oct 6, 2026, 2:09:20 PM",
+        "reporter": "Jacob Walls",
+        "owner": "Clifford Gama",
+        "component": "Database layer (models, ORM)",
+        "priority": "Release blocker",
+        "severity": "Release blocker",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37403",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37403",
+          "Summary": "JSONIn crashes at database level when preparing a models.Value(None, models.CharField()) on SQLite",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Release blocker",
+          "Resolution": "",
+          "Created": "Oct 6, 2026, 10:52:32 AM",
+          "Modified": "Oct 6, 2026, 2:09:20 PM",
+          "Reporter": "Jacob Walls",
+          "Owner": "Clifford Gama",
+          "Triage Stage": "Accepted",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "`Value(None, output_field=CharField())` represents SQL `NULL` and compiles without bound parameters. This query worked on 6.0 on SQLite:\r\n\r\n{{{#!py\r\nfrom django.db import models\r\n\r\nclass Person(models.Model):\r\n    metadata = models.JSONField()\r\n\r\ndef run():\r\n    qs = Person.objects.filter(metadata__in=[models.Value(None, models.CharField())])\r\n    print(qs)\r\n}}}\r\n{{{#!sql\r\nSELECT \"app_person\".\"id\",\r\n       \"app_person\".\"metadata\"\r\nFROM \"app_person\"\r\nWHERE \"app_person\".\"metadata\" IN (NULL)\r\nLIMIT 21\r\n}}}\r\n\r\nBut after 9b8e4c6d7d47f7b2e96817ba334e9fd53c10a0df (6.1), it crashes on SQLite with:\r\n{{{#!py\r\n  File \"/Users/jwalls/django/django/db/models/lookups.py\", line 349, in <genexpr>\r\n    self.resolve_expression_parameter(compiler, connection, sql, param)\r\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"/Users/jwalls/django/django/db/models/fields/json.py\", line 444, in resolve_expression_parameter\r\n    and params[0] not in connection.ops.jsonfield_datatype_values\r\n        ~~~~~~^^^\r\nIndexError: list index out of range\r\n}}}\r\nAnd differently on 6.1.2 after #37377, at the database level:\r\n{{{#!py\r\nsqlite3.ProgrammingError: Incorrect number of bindings supplied. The current statement uses 3, and there are 4 supplied.\r\n}}}"
+        }
+      }
+    },
+    "django:37404": {
+      "source": "django",
+      "ticket_id": 37404,
+      "watcher_issue_number": 77,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-06T20:25:44.113988+00:00",
+      "last_updated": "2026-10-06T20:25:44.113988+00:00",
+      "ticket_data": {
+        "id": 37404,
+        "source_id": "django",
+        "title": "JSONIn with Value(None, JSONField()) does not match JSON null on Oracle",
+        "description": "On Oracle, `JSONIn.as_oracle()` [https://github.com/django/django/blob/8c34887b1ad8bb3ec61c6e713442dab3c643d557/django/db/models/fields/json.py#L462 only special-cases JSONNull()] on the right-hand side. A `Value(None, output_field=JSONField())` is not routed to the same `JSON_EQUAL` path, so it doesn't match a JSON `null` row in `__in`. Both `JSONNull()` and `Value(None, JSONField())` match in `__exact`.\r\n\r\nFailing test:\r\n\r\n{{{#!diff\r\ndiff --git a/tests/model_fields/test_jsonfield.py b/tests/model_fields/test_jsonfield.py\r\nindex 264b88a23d..2276b7857d 100644\r\n--- a/tests/model_fields/test_jsonfield.py\r\n+++ b/tests/model_fields/test_jsonfield.py\r\n@@ -1076,6 +1076,15 @@ def test_in_json_whitespace(self):\r\n                     [obj],\r\n                 )\r\n \r\n+    @skipUnlessDBFeature(\"supports_primitives_in_json_field\")\r\n+    @skipIfDBFeature(\"has_native_json_field\")\r\n+    def test_in_value_json_typed_none_matches_json_null(self):\r\n+        json_null = NullableJSONModel.objects.create(value=JSONNull())\r\n+        self.assertSequenceEqual(\r\n+            NullableJSONModel.objects.filter(value__in=[Value(None, JSONField())]),\r\n+            [json_null],\r\n+        )\r\n+\r\n     def test_key_in(self):\r\n         tests = [\r\n             (\"value__c__in\", [14], self.objs[3:5]),\r\n}}}\r\n\r\nFound while working on #37403, but the bug predates the introduction of JSONIn or JSONNull, so it's not a regression in 6.1.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 6, 2026, 1:26:58 PM",
+        "updated_at": "Oct 6, 2026, 2:19:41 PM",
+        "reporter": "Clifford Gama",
+        "owner": "Clifford Gama",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37404",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37404",
+          "Summary": "JSONIn with Value(None, JSONField()) does not match JSON null on Oracle",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 6, 2026, 1:26:58 PM",
+          "Modified": "Oct 6, 2026, 2:19:41 PM",
+          "Reporter": "Clifford Gama",
+          "Owner": "Clifford Gama",
+          "Triage Stage": "Accepted",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "On Oracle, `JSONIn.as_oracle()` [https://github.com/django/django/blob/8c34887b1ad8bb3ec61c6e713442dab3c643d557/django/db/models/fields/json.py#L462 only special-cases JSONNull()] on the right-hand side. A `Value(None, output_field=JSONField())` is not routed to the same `JSON_EQUAL` path, so it doesn't match a JSON `null` row in `__in`. Both `JSONNull()` and `Value(None, JSONField())` match in `__exact`.\r\n\r\nFailing test:\r\n\r\n{{{#!diff\r\ndiff --git a/tests/model_fields/test_jsonfield.py b/tests/model_fields/test_jsonfield.py\r\nindex 264b88a23d..2276b7857d 100644\r\n--- a/tests/model_fields/test_jsonfield.py\r\n+++ b/tests/model_fields/test_jsonfield.py\r\n@@ -1076,6 +1076,15 @@ def test_in_json_whitespace(self):\r\n                     [obj],\r\n                 )\r\n \r\n+    @skipUnlessDBFeature(\"supports_primitives_in_json_field\")\r\n+    @skipIfDBFeature(\"has_native_json_field\")\r\n+    def test_in_value_json_typed_none_matches_json_null(self):\r\n+        json_null = NullableJSONModel.objects.create(value=JSONNull())\r\n+        self.assertSequenceEqual(\r\n+            NullableJSONModel.objects.filter(value__in=[Value(None, JSONField())]),\r\n+            [json_null],\r\n+        )\r\n+\r\n     def test_key_in(self):\r\n         tests = [\r\n             (\"value__c__in\", [14], self.objs[3:5]),\r\n}}}\r\n\r\nFound while working on #37403, but the bug predates the introduction of JSONIn or JSONNull, so it's not a regression in 6.1."
         }
       }
     }
