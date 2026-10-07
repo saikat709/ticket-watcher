@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37405
+      "last_seen_id": 37406
     }
   },
   "tracked": {
@@ -2802,6 +2802,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "On Oracle, `JSONIn.as_oracle()` [https://github.com/django/django/blob/8c34887b1ad8bb3ec61c6e713442dab3c643d557/django/db/models/fields/json.py#L462 only special-cases JSONNull()] on the right-hand side. A `Value(None, output_field=JSONField())` is not routed to the same `JSON_EQUAL` path, so it doesn't match a JSON `null` row in `__in`. Both `JSONNull()` and `Value(None, JSONField())` match in `__exact`.\r\n\r\nFailing test:\r\n\r\n{{{#!diff\r\ndiff --git a/tests/model_fields/test_jsonfield.py b/tests/model_fields/test_jsonfield.py\r\nindex 264b88a23d..2276b7857d 100644\r\n--- a/tests/model_fields/test_jsonfield.py\r\n+++ b/tests/model_fields/test_jsonfield.py\r\n@@ -1076,6 +1076,15 @@ def test_in_json_whitespace(self):\r\n                     [obj],\r\n                 )\r\n \r\n+    @skipUnlessDBFeature(\"supports_primitives_in_json_field\")\r\n+    @skipIfDBFeature(\"has_native_json_field\")\r\n+    def test_in_value_json_typed_none_matches_json_null(self):\r\n+        json_null = NullableJSONModel.objects.create(value=JSONNull())\r\n+        self.assertSequenceEqual(\r\n+            NullableJSONModel.objects.filter(value__in=[Value(None, JSONField())]),\r\n+            [json_null],\r\n+        )\r\n+\r\n     def test_key_in(self):\r\n         tests = [\r\n             (\"value__c__in\", [14], self.objs[3:5]),\r\n}}}\r\n\r\nFound while working on #37403, but the bug predates the introduction of JSONIn or JSONNull, so it's not a regression in 6.1."
+        }
+      }
+    },
+    "django:37406": {
+      "source": "django",
+      "ticket_id": 37406,
+      "watcher_issue_number": 79,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-07T10:26:19.370377+00:00",
+      "last_updated": "2026-10-07T10:26:19.370377+00:00",
+      "ticket_data": {
+        "id": 37406,
+        "source_id": "django",
+        "title": "BaseDatabaseSchemaEditor.__exit__ doesn't exit its atomic block when deferred SQL raises",
+        "description": "`BaseDatabaseSchemaEditor` (normally accessed through `connection.schema_editor`) implements the context manager protocol and wraps `transaction.atomic()` in its `__enter__` and `__exit__`. In `__exit__`, it runs the deferred SQL and then calls `self.atomic.__exit__`. If the deferred SQL raises, the second call never happens and the atomic block stays open.\r\n\r\nAfter that the connection is stuck. `in_atomic_block` is True with no atomic block on the stack, so nothing will ever commit. Once anything sets `needs_rollback` you get `TransactionManagementError` on every query. `close()` doesn't help because inside an atomic block it keeps the dead connection object around and waits for an `Atomic.__exit__` to reset it.\r\n\r\nThis doesn't affect manage.py migrate from a shell, since the process exits and the server rolls back. It matters if you catch the error and keep going, e.g. tests, `call_command(\"migrate\")`, or a tool using schema_editor directly.\r\n\r\nThere is an existing `test_migrations_not_applied_on_deferred_sql_failure` but it has `atomic = False` so it doesn't hit this.\r\n\r\nMinimal reproducer attached.\r\n\r\nRelated #29721",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 7, 2026, 3:29:10 AM",
+        "updated_at": "Oct 7, 2026, 3:35:37 AM",
+        "reporter": "Gavin Wahl(vendor)",
+        "owner": "",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37406",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37406",
+          "Summary": "BaseDatabaseSchemaEditor.__exit__ doesn't exit its atomic block when deferred SQL raises",
+          "Type": "Uncategorized",
+          "Status": "new",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 7, 2026, 3:29:10 AM",
+          "Modified": "Oct 7, 2026, 3:35:37 AM",
+          "Reporter": "Gavin Wahl(vendor)",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "`BaseDatabaseSchemaEditor` (normally accessed through `connection.schema_editor`) implements the context manager protocol and wraps `transaction.atomic()` in its `__enter__` and `__exit__`. In `__exit__`, it runs the deferred SQL and then calls `self.atomic.__exit__`. If the deferred SQL raises, the second call never happens and the atomic block stays open.\r\n\r\nAfter that the connection is stuck. `in_atomic_block` is True with no atomic block on the stack, so nothing will ever commit. Once anything sets `needs_rollback` you get `TransactionManagementError` on every query. `close()` doesn't help because inside an atomic block it keeps the dead connection object around and waits for an `Atomic.__exit__` to reset it.\r\n\r\nThis doesn't affect manage.py migrate from a shell, since the process exits and the server rolls back. It matters if you catch the error and keep going, e.g. tests, `call_command(\"migrate\")`, or a tool using schema_editor directly.\r\n\r\nThere is an existing `test_migrations_not_applied_on_deferred_sql_failure` but it has `atomic = False` so it doesn't hit this.\r\n\r\nMinimal reproducer attached.\r\n\r\nRelated #29721"
         }
       }
     }
