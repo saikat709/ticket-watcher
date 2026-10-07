@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37406
+      "last_seen_id": 37408
     }
   },
   "tracked": {
@@ -2852,6 +2852,107 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "`BaseDatabaseSchemaEditor` (normally accessed through `connection.schema_editor`) implements the context manager protocol and wraps `transaction.atomic()` in its `__enter__` and `__exit__`. In `__exit__`, it runs the deferred SQL and then calls `self.atomic.__exit__`. If the deferred SQL raises, the second call never happens and the atomic block stays open.\r\n\r\nAfter that the connection is stuck. `in_atomic_block` is True with no atomic block on the stack, so nothing will ever commit. Once anything sets `needs_rollback` you get `TransactionManagementError` on every query. `close()` doesn't help because inside an atomic block it keeps the dead connection object around and waits for an `Atomic.__exit__` to reset it.\r\n\r\nThis doesn't affect manage.py migrate from a shell, since the process exits and the server rolls back. It matters if you catch the error and keep going, e.g. tests, `call_command(\"migrate\")`, or a tool using schema_editor directly.\r\n\r\nThere is an existing `test_migrations_not_applied_on_deferred_sql_failure` but it has `atomic = False` so it doesn't hit this.\r\n\r\nMinimal reproducer attached.\r\n\r\nRelated #29721"
+        }
+      }
+    },
+    "django:37407": {
+      "source": "django",
+      "ticket_id": 37407,
+      "watcher_issue_number": 80,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-07T17:28:56.197549+00:00",
+      "last_updated": "2026-10-07T17:28:56.197549+00:00",
+      "ticket_data": {
+        "id": 37407,
+        "source_id": "django",
+        "title": "UUIDTextMixin.process_rhs() mutates the lookup's rhs in place corrupting repeated compilation",
+        "description": "[https://github.com/django/django/blob/cf564bf3a7e0d92bc32292ccff1eca5aeb24b1ef/django/db/models/lookups.py#L791-L795 django/db/models/lookups.py#L791-L795] reassigns `self.rhs` directly instead of working on a copy, so recompiling a shared `Lookup` (e.g. `str(queryset.query)` called twice, or a cloned queryset) wraps the already-stripped rhs in another `Replace()` call each time, growing the SQL/params on every pass.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 7, 2026, 10:17:55 AM",
+        "updated_at": "Oct 7, 2026, 10:35:47 AM",
+        "reporter": "Clifford Gama",
+        "owner": "Clifford Gama",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37407",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37407",
+          "Summary": "UUIDTextMixin.process_rhs() mutates the lookup's rhs in place corrupting repeated compilation",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 7, 2026, 10:17:55 AM",
+          "Modified": "Oct 7, 2026, 10:35:47 AM",
+          "Reporter": "Clifford Gama",
+          "Owner": "Clifford Gama",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "[https://github.com/django/django/blob/cf564bf3a7e0d92bc32292ccff1eca5aeb24b1ef/django/db/models/lookups.py#L791-L795 django/db/models/lookups.py#L791-L795] reassigns `self.rhs` directly instead of working on a copy, so recompiling a shared `Lookup` (e.g. `str(queryset.query)` called twice, or a cloned queryset) wraps the already-stripped rhs in another `Replace()` call each time, growing the SQL/params on every pass."
+        }
+      }
+    },
+    "django:37408": {
+      "source": "django",
+      "ticket_id": 37408,
+      "watcher_issue_number": 81,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-07T17:28:57.836002+00:00",
+      "last_updated": "2026-10-07T17:28:57.836002+00:00",
+      "ticket_data": {
+        "id": 37408,
+        "source_id": "django",
+        "title": "ValueError shadows import errors",
+        "description": "Regression from #36919\r\n\r\nWhen a user renames or moves a task, deconstruction fails with an ambiguous ValueError shadowing the `ImportError`.\r\n\r\nhttps://github.com/django/django/blob/cf564bf3a7e0d92bc32292ccff1eca5aeb24b1ef/django/tasks/base.py#L64-L66\r\nshadows ImportError.\r\n\r\nCurrently you'd need to access __causes__ to figure out that the `ValueError` was actually because the tasks can't be found.\r\n\r\nIt would be more suitable to fail with a custom error, which backends catch and handle more gracefully.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 7, 2026, 10:39:33 AM",
+        "updated_at": "Oct 7, 2026, 10:43:11 AM",
+        "reporter": "Johannes Maron",
+        "owner": "",
+        "component": "Tasks",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37408",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37408",
+          "Summary": "ValueError shadows import errors",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "Tasks",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 7, 2026, 10:39:33 AM",
+          "Modified": "Oct 7, 2026, 10:43:11 AM",
+          "Reporter": "Johannes Maron",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Regression from #36919\r\n\r\nWhen a user renames or moves a task, deconstruction fails with an ambiguous ValueError shadowing the `ImportError`.\r\n\r\nhttps://github.com/django/django/blob/cf564bf3a7e0d92bc32292ccff1eca5aeb24b1ef/django/tasks/base.py#L64-L66\r\nshadows ImportError.\r\n\r\nCurrently you'd need to access __causes__ to figure out that the `ValueError` was actually because the tasks can't be found.\r\n\r\nIt would be more suitable to fail with a custom error, which backends catch and handle more gracefully."
         }
       }
     }
