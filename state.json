@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37409
+      "last_seen_id": 37410
     }
   },
   "tracked": {
@@ -3004,6 +3004,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "The [https://docs.djangoproject.com/en/6.1/ documentation home page] uses `Overview` as the link text 15 times. It is the only duplicated link text on the page. A sighted reader sees which group each one belongs to; someone navigating by a list of links gets 15 identical entries. Most of this is self-inflicted. Every one of those targets already has a distinct title, which `docs/index.txt` overrides with the generic word.\r\n\r\nFor most of them the fix is to remove the explicit title and let `:doc:` use the document's own. Where that would repeat the group label, a short descriptive title does the job. While fixing the link text, a few groups are worth tidying: single-link groups whose label repeats their only link, and `About this documentation`, which is already reachable under Contributing to Django.\r\n\r\nThis is a derived from this [https://forum.djangoproject.com/t/a-more-accessible-home-page-table-of-contents/46072/ forum post], following ticket #37051."
+        }
+      }
+    },
+    "django:37410": {
+      "source": "django",
+      "ticket_id": 37410,
+      "watcher_issue_number": 83,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-08T16:39:25.352901+00:00",
+      "last_updated": "2026-10-08T16:39:25.352901+00:00",
+      "ticket_data": {
+        "id": 37410,
+        "source_id": "django",
+        "title": "Groups in the documentation home page table of contents are not exposed to assistive technology",
+        "description": "The groups on the home page table of contents exist only visually. The label is bold text and the links that follow it are separated by literal `|` characters, so nothing conveys to assistive technology that they belong together:\r\n\r\n{{{\r\n* **Getting started**:\r\n  :doc:`/intro/overview` |\r\n  :doc:`Installation </intro/install>`\r\n}}}\r\n\r\nAs discussed in [https://forum.djangoproject.com/t/a-more-accessible-home-page-table-of-contents/46072/ the forum], we should produce content that semantically reflects the proper hierarchy, independently of how we style it. Nested lists do that, with no extension and no new dependency:\r\n\r\n{{{\r\n* **Getting started**\r\n\r\n  * :doc:`/intro/overview`\r\n  * :doc:`Installation </intro/install>`\r\n}}}\r\n\r\nA screen reader then announces \"Getting started, list with 2 items\" before reading them.\r\n\r\nOne side effect worth mentioning is that the docs home page has 159 links in 39 groups, so one per line would lose the compact map. Keeping it needs a small rule in `docs/_static/` (`display: inline` plus a generated separator), with a companion change on djangoproject.com, which has its own stylesheet.\r\n\r\nRelated to #37409 and #37051.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 8, 2026, 10:30:56 AM",
+        "updated_at": "Oct 8, 2026, 10:39:05 AM",
+        "reporter": "Natalia Bidart",
+        "owner": "Natalia Bidart",
+        "component": "Documentation",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37410",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37410",
+          "Summary": "Groups in the documentation home page table of contents are not exposed to assistive technology",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Documentation",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 8, 2026, 10:30:56 AM",
+          "Modified": "Oct 8, 2026, 10:39:05 AM",
+          "Reporter": "Natalia Bidart",
+          "Owner": "Natalia Bidart",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "The groups on the home page table of contents exist only visually. The label is bold text and the links that follow it are separated by literal `|` characters, so nothing conveys to assistive technology that they belong together:\r\n\r\n{{{\r\n* **Getting started**:\r\n  :doc:`/intro/overview` |\r\n  :doc:`Installation </intro/install>`\r\n}}}\r\n\r\nAs discussed in [https://forum.djangoproject.com/t/a-more-accessible-home-page-table-of-contents/46072/ the forum], we should produce content that semantically reflects the proper hierarchy, independently of how we style it. Nested lists do that, with no extension and no new dependency:\r\n\r\n{{{\r\n* **Getting started**\r\n\r\n  * :doc:`/intro/overview`\r\n  * :doc:`Installation </intro/install>`\r\n}}}\r\n\r\nA screen reader then announces \"Getting started, list with 2 items\" before reading them.\r\n\r\nOne side effect worth mentioning is that the docs home page has 159 links in 39 groups, so one per line would lose the compact map. Keeping it needs a small rule in `docs/_static/` (`display: inline` plus a generated separator), with a companion change on djangoproject.com, which has its own stylesheet.\r\n\r\nRelated to #37409 and #37051."
         }
       }
     }
