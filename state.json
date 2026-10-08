@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37410
+      "last_seen_id": 37411
     }
   },
   "tracked": {
@@ -3054,6 +3054,57 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "The groups on the home page table of contents exist only visually. The label is bold text and the links that follow it are separated by literal `|` characters, so nothing conveys to assistive technology that they belong together:\r\n\r\n{{{\r\n* **Getting started**:\r\n  :doc:`/intro/overview` |\r\n  :doc:`Installation </intro/install>`\r\n}}}\r\n\r\nAs discussed in [https://forum.djangoproject.com/t/a-more-accessible-home-page-table-of-contents/46072/ the forum], we should produce content that semantically reflects the proper hierarchy, independently of how we style it. Nested lists do that, with no extension and no new dependency:\r\n\r\n{{{\r\n* **Getting started**\r\n\r\n  * :doc:`/intro/overview`\r\n  * :doc:`Installation </intro/install>`\r\n}}}\r\n\r\nA screen reader then announces \"Getting started, list with 2 items\" before reading them.\r\n\r\nOne side effect worth mentioning is that the docs home page has 159 links in 39 groups, so one per line would lose the compact map. Keeping it needs a small rule in `docs/_static/` (`display: inline` plus a generated separator), with a companion change on djangoproject.com, which has its own stylesheet.\r\n\r\nRelated to #37409 and #37051."
+        }
+      }
+    },
+    "django:37411": {
+      "source": "django",
+      "ticket_id": 37411,
+      "watcher_issue_number": 84,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-08T21:36:46.362403+00:00",
+      "last_updated": "2026-10-08T21:36:46.362403+00:00",
+      "ticket_data": {
+        "id": 37411,
+        "source_id": "django",
+        "title": "Add support for python-oracledb version 26",
+        "description": "Version 26 of the `python-oracledb` driver was released in September 2026, causing failures in our GIS tests:\r\n\r\n{{{#!py\r\ndjango.db.utils.DatabaseError: Problem installing fixture '/django/source/tests/gis_tests/geoapp/fixtures/initial.json.gz':Could not load geoapp.Country(pk=1): ORA-01461: The value at bind position 2 exceeded the maximum VARCHAR2 length.\r\nHelp: https://docs.oracle.com/error-help/db/ora-01461/\r\n}}}\r\n\r\nIt relates to a behavior change -- you can no longer pass long strings (like this geometry from the test fixture) as parameters by calling `setinputsizes(DB_TYPE_CLOB)`: you must actually create the `LOB` first. See this [https://github.com/oracle/python-oracledb/issues/618 issue discussion].\r\n\r\nOur Oracle backend already has logic to \"request\" a `CLOB` -- I presume the fix is as outlined on the oracledb issue: in those cases, take responsibility for creating the CLOB ourselves.\r\n\r\nI presume we will backport to at least mainstream support (6.1) like #36646, and possibly document on lower versions an upper bound on `python-oracledb` like 99e033694c54b5d0e2cfd796ce598cc1e6c9af4a",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 8, 2026, 12:25:21 PM",
+        "updated_at": "Oct 8, 2026, 2:20:04 PM",
+        "reporter": "Jacob Walls",
+        "owner": "Jacob Walls",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37411",
+        "pr_url": "https://github.com/django/django/pull/22112",
+        "pr_status": "open",
+        "raw_data": {
+          "id": "37411",
+          "Summary": "Add support for python-oracledb version 26",
+          "Type": "New feature",
+          "Status": "assigned",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 8, 2026, 12:25:21 PM",
+          "Modified": "Oct 8, 2026, 2:20:04 PM",
+          "Reporter": "Jacob Walls",
+          "Owner": "Jacob Walls",
+          "Triage Stage": "Accepted",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Version 26 of the `python-oracledb` driver was released in September 2026, causing failures in our GIS tests:\r\n\r\n{{{#!py\r\ndjango.db.utils.DatabaseError: Problem installing fixture '/django/source/tests/gis_tests/geoapp/fixtures/initial.json.gz':Could not load geoapp.Country(pk=1): ORA-01461: The value at bind position 2 exceeded the maximum VARCHAR2 length.\r\nHelp: https://docs.oracle.com/error-help/db/ora-01461/\r\n}}}\r\n\r\nIt relates to a behavior change -- you can no longer pass long strings (like this geometry from the test fixture) as parameters by calling `setinputsizes(DB_TYPE_CLOB)`: you must actually create the `LOB` first. See this [https://github.com/oracle/python-oracledb/issues/618 issue discussion].\r\n\r\nOur Oracle backend already has logic to \"request\" a `CLOB` -- I presume the fix is as outlined on the oracledb issue: in those cases, take responsibility for creating the CLOB ourselves.\r\n\r\nI presume we will backport to at least mainstream support (6.1) like #36646, and possibly document on lower versions an upper bound on `python-oracledb` like 99e033694c54b5d0e2cfd796ce598cc1e6c9af4a"
         }
       }
     }
