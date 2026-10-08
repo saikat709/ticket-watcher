@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37408
+      "last_seen_id": 37409
     }
   },
   "tracked": {
@@ -2953,6 +2953,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Regression from #36919\r\n\r\nWhen a user renames or moves a task, deconstruction fails with an ambiguous ValueError shadowing the `ImportError`.\r\n\r\nhttps://github.com/django/django/blob/cf564bf3a7e0d92bc32292ccff1eca5aeb24b1ef/django/tasks/base.py#L64-L66\r\nshadows ImportError.\r\n\r\nCurrently you'd need to access __causes__ to figure out that the `ValueError` was actually because the tasks can't be found.\r\n\r\nIt would be more suitable to fail with a custom error, which backends catch and handle more gracefully."
+        }
+      }
+    },
+    "django:37409": {
+      "source": "django",
+      "ticket_id": 37409,
+      "watcher_issue_number": 82,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-08T02:06:04.139914+00:00",
+      "last_updated": "2026-10-08T02:06:04.139914+00:00",
+      "ticket_data": {
+        "id": 37409,
+        "source_id": "django",
+        "title": "Ambiguous \"Overview\" link text on the documentation home page",
+        "description": "The [https://docs.djangoproject.com/en/6.1/ documentation home page] uses `Overview` as the link text 15 times. It is the only duplicated link text on the page. A sighted reader sees which group each one belongs to; someone navigating by a list of links gets 15 identical entries. Most of this is self-inflicted. Every one of those targets already has a distinct title, which `docs/index.txt` overrides with the generic word.\r\n\r\nFor most of them the fix is to remove the explicit title and let `:doc:` use the document's own. Where that would repeat the group label, a short descriptive title does the job. While fixing the link text, a few groups are worth tidying: single-link groups whose label repeats their only link, and `About this documentation`, which is already reachable under Contributing to Django.\r\n\r\nThis is a derived from this [https://forum.djangoproject.com/t/a-more-accessible-home-page-table-of-contents/46072/ forum post], following ticket #37051.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 7, 2026, 8:36:58 PM",
+        "updated_at": "Oct 7, 2026, 8:36:58 PM",
+        "reporter": "Natalia Bidart",
+        "owner": "Natalia Bidart",
+        "component": "Documentation",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37409",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37409",
+          "Summary": "Ambiguous \"Overview\" link text on the documentation home page",
+          "Type": "Cleanup/optimization",
+          "Status": "assigned",
+          "Component": "Documentation",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 7, 2026, 8:36:58 PM",
+          "Modified": "Oct 7, 2026, 8:36:58 PM",
+          "Reporter": "Natalia Bidart",
+          "Owner": "Natalia Bidart",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "The [https://docs.djangoproject.com/en/6.1/ documentation home page] uses `Overview` as the link text 15 times. It is the only duplicated link text on the page. A sighted reader sees which group each one belongs to; someone navigating by a list of links gets 15 identical entries. Most of this is self-inflicted. Every one of those targets already has a distinct title, which `docs/index.txt` overrides with the generic word.\r\n\r\nFor most of them the fix is to remove the explicit title and let `:doc:` use the document's own. Where that would repeat the group label, a short descriptive title does the job. While fixing the link text, a few groups are worth tidying: single-link groups whose label repeats their only link, and `About this documentation`, which is already reachable under Contributing to Django.\r\n\r\nThis is a derived from this [https://forum.djangoproject.com/t/a-more-accessible-home-page-table-of-contents/46072/ forum post], following ticket #37051."
         }
       }
     }
