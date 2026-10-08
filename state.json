@@ -11,7 +11,7 @@
       "watcher_issue_number": 2,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-06T03:12:14.317214+00:00",
       "ticket_data": {
         "id": 37326,
@@ -61,7 +61,7 @@
       "watcher_issue_number": 3,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-21T03:35:42.784530+00:00",
       "ticket_data": {
         "id": 37327,
@@ -113,7 +113,7 @@
       "watcher_issue_number": 4,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-06T03:12:14.317214+00:00",
       "ticket_data": {
         "id": 37328,
@@ -164,7 +164,7 @@
       "watcher_issue_number": 5,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-09T03:21:47.477014+00:00",
       "ticket_data": {
         "id": 37329,
@@ -216,7 +216,7 @@
       "watcher_issue_number": 6,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-29T04:32:09.237316+00:00",
       "ticket_data": {
         "id": 37330,
@@ -268,7 +268,7 @@
       "watcher_issue_number": 8,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-08T15:33:33.254698+00:00",
       "ticket_data": {
         "id": 37332,
@@ -320,7 +320,7 @@
       "watcher_issue_number": 9,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-18T03:27:08.576198+00:00",
       "ticket_data": {
         "id": 37333,
@@ -352,7 +352,7 @@
       "watcher_issue_number": 10,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-09T16:47:31.184624+00:00",
       "ticket_data": {
         "id": 37334,
@@ -403,7 +403,7 @@
       "watcher_issue_number": 11,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-11T03:17:00.522062+00:00",
       "ticket_data": {
         "id": 37335,
@@ -454,7 +454,7 @@
       "watcher_issue_number": 12,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-10T03:20:41.354089+00:00",
       "ticket_data": {
         "id": 37336,
@@ -486,7 +486,7 @@
       "watcher_issue_number": 13,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-12T03:22:11.526262+00:00",
       "ticket_data": {
         "id": 37337,
@@ -518,7 +518,7 @@
       "watcher_issue_number": 14,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-11T03:17:00.522062+00:00",
       "ticket_data": {
         "id": 37338,
@@ -582,8 +582,8 @@
       "watcher_issue_number": 16,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
-      "last_updated": "2026-09-12T03:22:11.526262+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
+      "last_updated": "2026-10-08T04:46:15.889621+00:00",
       "ticket_data": {
         "id": 37340,
         "source_id": "django",
@@ -592,7 +592,7 @@
         "status": "assigned",
         "resolution": "",
         "created_at": "Sep 11, 2026, 3:05:52 AM",
-        "updated_at": "Sep 11, 2026, 8:17:50 AM",
+        "updated_at": "Oct 7, 2026, 4:21:27 AM",
         "reporter": "ollehu",
         "owner": "ollehu",
         "component": "Forms",
@@ -600,7 +600,8 @@
         "severity": "Normal",
         "triage_stage": "Accepted",
         "labels": [
-          "Accepted"
+          "Accepted",
+          "has-patch"
         ],
         "url": "https://code.djangoproject.com/ticket/37340",
         "pr_url": null,
@@ -614,11 +615,11 @@
           "Severity": "Normal",
           "Resolution": "",
           "Created": "Sep 11, 2026, 3:05:52 AM",
-          "Modified": "Sep 11, 2026, 8:17:50 AM",
+          "Modified": "Oct 7, 2026, 4:21:27 AM",
           "Reporter": "ollehu",
           "Owner": "ollehu",
           "Triage Stage": "Accepted",
-          "Has patch": "0",
+          "Has patch": "1",
           "Needs tests": "0",
           "Needs documentation": "0",
           "UI/UX": "0",
@@ -632,7 +633,7 @@
       "watcher_issue_number": 17,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-15T03:39:13.000729+00:00",
       "ticket_data": {
         "id": 37342,
@@ -664,7 +665,7 @@
       "watcher_issue_number": 18,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-15T03:39:13.000729+00:00",
       "ticket_data": {
         "id": 37343,
@@ -715,7 +716,7 @@
       "watcher_issue_number": 19,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-19T03:23:35.576632+00:00",
       "ticket_data": {
         "id": 37344,
@@ -747,7 +748,7 @@
       "watcher_issue_number": 20,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-15T03:39:13.000729+00:00",
       "ticket_data": {
         "id": 37345,
@@ -811,7 +812,7 @@
       "watcher_issue_number": 22,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-17T03:40:54.179611+00:00",
       "ticket_data": {
         "id": 37347,
@@ -926,7 +927,7 @@
       "watcher_issue_number": 26,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-19T03:23:35.576632+00:00",
       "ticket_data": {
         "id": 37351,
@@ -978,7 +979,7 @@
       "watcher_issue_number": 27,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-29T04:32:09.237316+00:00",
       "ticket_data": {
         "id": 37352,
@@ -1030,7 +1031,7 @@
       "watcher_issue_number": 33,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-26T03:48:05.396110+00:00",
       "ticket_data": {
         "id": 37359,
@@ -1081,7 +1082,7 @@
       "watcher_issue_number": 34,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-21T03:35:42.784530+00:00",
       "ticket_data": {
         "id": 37360,
@@ -1113,7 +1114,7 @@
       "watcher_issue_number": 36,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-10-03T04:01:44.733449+00:00",
       "ticket_data": {
         "id": 37362,
@@ -1164,7 +1165,7 @@
       "watcher_issue_number": 38,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-27T03:57:25.777724+00:00",
       "ticket_data": {
         "id": 37364,
@@ -1196,7 +1197,7 @@
       "watcher_issue_number": 39,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-23T03:34:31.376133+00:00",
       "ticket_data": {
         "id": 37365,
@@ -1247,7 +1248,7 @@
       "watcher_issue_number": 40,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-29T04:32:09.237316+00:00",
       "ticket_data": {
         "id": 37366,
@@ -1350,7 +1351,7 @@
       "watcher_issue_number": 42,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-24T12:23:17.278258+00:00",
       "ticket_data": {
         "id": 37368,
@@ -1401,7 +1402,7 @@
       "watcher_issue_number": 43,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-25T03:42:01.987134+00:00",
       "ticket_data": {
         "id": 37369,
@@ -1451,7 +1452,7 @@
       "watcher_issue_number": 44,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-30T04:15:04.028013+00:00",
       "ticket_data": {
         "id": 37370,
@@ -1502,7 +1503,7 @@
       "watcher_issue_number": 45,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-26T03:48:05.396110+00:00",
       "ticket_data": {
         "id": 37371,
@@ -1603,7 +1604,7 @@
       "watcher_issue_number": 47,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-28T03:57:29.708006+00:00",
       "ticket_data": {
         "id": 37373,
@@ -1654,7 +1655,7 @@
       "watcher_issue_number": 48,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-30T04:15:04.028013+00:00",
       "ticket_data": {
         "id": 37374,
@@ -1686,7 +1687,7 @@
       "watcher_issue_number": 49,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-28T14:15:01.030505+00:00",
       "ticket_data": {
         "id": 37375,
@@ -1736,7 +1737,7 @@
       "watcher_issue_number": 51,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-10-06T05:08:46.120988+00:00",
       "ticket_data": {
         "id": 37377,
@@ -1800,7 +1801,7 @@
       "watcher_issue_number": 53,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-09-30T04:15:04.028013+00:00",
       "ticket_data": {
         "id": 37379,
@@ -1851,7 +1852,7 @@
       "watcher_issue_number": 56,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-10-03T04:01:44.733449+00:00",
       "ticket_data": {
         "id": 37382,
@@ -1902,7 +1903,7 @@
       "watcher_issue_number": 57,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-10-03T04:01:44.733449+00:00",
       "ticket_data": {
         "id": 37383,
@@ -2002,7 +2003,7 @@
       "watcher_issue_number": 61,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-10-05T04:20:40.933212+00:00",
       "ticket_data": {
         "id": 37387,
@@ -2055,8 +2056,8 @@
       "watcher_issue_number": 62,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
-      "last_updated": "2026-10-04T04:35:12.174275+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
+      "last_updated": "2026-10-08T04:46:15.889621+00:00",
       "ticket_data": {
         "id": 37388,
         "source_id": "django",
@@ -2065,15 +2066,15 @@
         "status": "assigned",
         "resolution": "",
         "created_at": "Sep 30, 2026, 4:02:26 PM",
-        "updated_at": "Oct 6, 2026, 6:20:55 PM",
+        "updated_at": "Oct 7, 2026, 7:25:45 PM",
         "reporter": "Mike Edmunds",
         "owner": "Sahil Advani",
         "component": "Documentation",
         "priority": "Normal",
         "severity": "Normal",
-        "triage_stage": "Accepted",
+        "triage_stage": "Ready for checkin",
         "labels": [
-          "Accepted",
+          "Ready for checkin",
           "has-patch"
         ],
         "url": "https://code.djangoproject.com/ticket/37388",
@@ -2088,10 +2089,10 @@
           "Severity": "Normal",
           "Resolution": "",
           "Created": "Sep 30, 2026, 4:02:26 PM",
-          "Modified": "Oct 6, 2026, 6:20:55 PM",
+          "Modified": "Oct 7, 2026, 7:25:45 PM",
           "Reporter": "Mike Edmunds",
           "Owner": "Sahil Advani",
-          "Triage Stage": "Accepted",
+          "Triage Stage": "Ready for checkin",
           "Has patch": "1",
           "Needs tests": "0",
           "Needs documentation": "0",
@@ -2106,7 +2107,7 @@
       "watcher_issue_number": 63,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-10-03T04:01:44.733449+00:00",
       "ticket_data": {
         "id": 37389,
@@ -2157,7 +2158,7 @@
       "watcher_issue_number": 64,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-10-02T13:58:40.470654+00:00",
       "ticket_data": {
         "id": 37390,
@@ -2207,7 +2208,7 @@
       "watcher_issue_number": 65,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-10-02T18:57:57.137467+00:00",
       "ticket_data": {
         "id": 37391,
@@ -2257,7 +2258,7 @@
       "watcher_issue_number": 66,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-10-02T18:57:58.718002+00:00",
       "ticket_data": {
         "id": 37392,
@@ -2307,7 +2308,7 @@
       "watcher_issue_number": 67,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-10-03T04:01:44.733449+00:00",
       "ticket_data": {
         "id": 37393,
@@ -2358,7 +2359,7 @@
       "watcher_issue_number": 68,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-10-07T04:35:37.911519+00:00",
       "ticket_data": {
         "id": 37394,
@@ -2408,7 +2409,7 @@
       "watcher_issue_number": 69,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-10-03T19:34:27.574565+00:00",
       "ticket_data": {
         "id": 37395,
@@ -2509,7 +2510,7 @@
       "watcher_issue_number": 72,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-10-06T05:08:46.120988+00:00",
       "ticket_data": {
         "id": 37399,
@@ -2609,8 +2610,8 @@
       "watcher_issue_number": 74,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
-      "last_updated": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
+      "last_updated": "2026-10-08T04:46:15.889621+00:00",
       "ticket_data": {
         "id": 37401,
         "source_id": "django",
@@ -2631,8 +2632,8 @@
           "has-patch"
         ],
         "url": "https://code.djangoproject.com/ticket/37401",
-        "pr_url": "https://github.com/django/django/pull/22095",
-        "pr_status": "open",
+        "pr_url": null,
+        "pr_status": null,
         "raw_data": {
           "id": "37401",
           "Summary": "Made `FILE_UPLOAD_DIRECTORY_PERMISSIONS` respect the process umask to remove vendored `makedirs`",
@@ -2660,8 +2661,8 @@
       "watcher_issue_number": 75,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
-      "last_updated": "2026-10-06T20:25:41.506951+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
+      "last_updated": "2026-10-08T04:46:15.889621+00:00",
       "ticket_data": {
         "id": 37402,
         "source_id": "django",
@@ -2670,15 +2671,15 @@
         "status": "assigned",
         "resolution": "",
         "created_at": "Oct 6, 2026, 10:21:04 AM",
-        "updated_at": "Oct 6, 2026, 10:21:04 AM",
+        "updated_at": "Oct 7, 2026, 6:36:02 AM",
         "reporter": "Jacob Walls",
         "owner": "Django Sprints",
         "component": "Database layer (models, ORM)",
         "priority": "Normal",
         "severity": "Normal",
-        "triage_stage": "Unreviewed",
+        "triage_stage": "Accepted",
         "labels": [
-          "Unreviewed"
+          "Accepted"
         ],
         "url": "https://code.djangoproject.com/ticket/37402",
         "pr_url": null,
@@ -2692,10 +2693,10 @@
           "Severity": "Normal",
           "Resolution": "",
           "Created": "Oct 6, 2026, 10:21:04 AM",
-          "Modified": "Oct 6, 2026, 10:21:04 AM",
+          "Modified": "Oct 7, 2026, 6:36:02 AM",
           "Reporter": "Jacob Walls",
           "Owner": "Django Sprints",
-          "Triage Stage": "Unreviewed",
+          "Triage Stage": "Accepted",
           "Has patch": "0",
           "Needs tests": "0",
           "Needs documentation": "0",
@@ -2710,8 +2711,8 @@
       "watcher_issue_number": 76,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
-      "last_updated": "2026-10-06T20:25:42.782480+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
+      "last_updated": "2026-10-08T04:46:15.889621+00:00",
       "ticket_data": {
         "id": 37403,
         "source_id": "django",
@@ -2720,15 +2721,15 @@
         "status": "assigned",
         "resolution": "",
         "created_at": "Oct 6, 2026, 10:52:32 AM",
-        "updated_at": "Oct 6, 2026, 2:09:20 PM",
+        "updated_at": "Oct 7, 2026, 6:06:03 PM",
         "reporter": "Jacob Walls",
         "owner": "Clifford Gama",
         "component": "Database layer (models, ORM)",
         "priority": "Release blocker",
         "severity": "Release blocker",
-        "triage_stage": "Accepted",
+        "triage_stage": "Ready for checkin",
         "labels": [
-          "Accepted",
+          "Ready for checkin",
           "has-patch"
         ],
         "url": "https://code.djangoproject.com/ticket/37403",
@@ -2743,10 +2744,10 @@
           "Severity": "Release blocker",
           "Resolution": "",
           "Created": "Oct 6, 2026, 10:52:32 AM",
-          "Modified": "Oct 6, 2026, 2:09:20 PM",
+          "Modified": "Oct 7, 2026, 6:06:03 PM",
           "Reporter": "Jacob Walls",
           "Owner": "Clifford Gama",
-          "Triage Stage": "Accepted",
+          "Triage Stage": "Ready for checkin",
           "Has patch": "1",
           "Needs tests": "0",
           "Needs documentation": "0",
@@ -2761,7 +2762,7 @@
       "watcher_issue_number": 77,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-10-06T20:25:44.113988+00:00",
       "ticket_data": {
         "id": 37404,
@@ -2811,7 +2812,7 @@
       "watcher_issue_number": 79,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T10:26:19.370377+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-10-07T10:26:19.370377+00:00",
       "ticket_data": {
         "id": 37406,
@@ -2861,7 +2862,7 @@
       "watcher_issue_number": 80,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T17:28:56.197549+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-10-07T17:28:56.197549+00:00",
       "ticket_data": {
         "id": 37407,
@@ -2912,7 +2913,7 @@
       "watcher_issue_number": 81,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-10-07T17:28:57.836002+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-10-07T17:28:57.836002+00:00",
       "ticket_data": {
         "id": 37408,
@@ -2962,7 +2963,7 @@
       "watcher_issue_number": 82,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-08T02:06:04.139914+00:00",
+      "last_checked": "2026-10-08T04:46:15.889621+00:00",
       "last_updated": "2026-10-08T02:06:04.139914+00:00",
       "ticket_data": {
         "id": 37409,
