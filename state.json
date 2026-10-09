@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37413
+      "last_seen_id": 37414
     }
   },
   "tracked": {
@@ -3168,6 +3168,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "`BoundaryIter._find_boundary()` in `django/http/multipartparser.py` looks for the bare `--<boundary>` string and only strips a preceding CRLF if present. Per [https://www.rfc-editor.org/rfc/rfc2046.html#section-5.1.1 RFC 2046 section 5.1.1], a delimiter is `CRLF \"--\" boundary`, so a boundary token appearing inside part data without a leading CRLF should be treated as content, not as the end of the part:\r\n\r\n  The boundary delimiter MUST occur at the beginning of a line, i.e., following a CRLF, and the initial CRLF is considered to be attached to the boundary delimiter line rather than part of the preceding part.\r\n\r\nFor example, with boundary `XYZ`, this body (CRLF line endings):\r\n\r\n{{{\r\n--XYZ\r\nContent-Disposition: form-data; name=\"a\"\r\n\r\nfoo--XYZ\r\nContent-Disposition: form-data; name=\"b\"\r\n\r\nbar\r\n--XYZ--\r\n}}}\r\n\r\nis parsed as two fields (`a=\"foo\"`, `b=\"bar\"`), while a strict parser would return a single field `a` whose value includes the embedded token.\r\n\r\nRequiring the CRLF prefix (other than for the first delimiter at the start of the body) would align Django with the RFC. Lenient clients that rely on the current behavior could be affected, so this may need a deprecation path or at least a release note."
+        }
+      }
+    },
+    "django:37414": {
+      "source": "django",
+      "ticket_id": 37414,
+      "watcher_issue_number": 87,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-09T20:09:57.865265+00:00",
+      "last_updated": "2026-10-09T20:09:57.865265+00:00",
+      "ticket_data": {
+        "id": 37414,
+        "source_id": "django",
+        "title": "Reject invalid characters in response header names and values",
+        "description": "`ResponseHeaders._convert_to_charset()` only rejects CR and LF, so other characters that are invalid per [https://www.rfc-editor.org/rfc/rfc9110.html#section-5.5 RFC 9110 section 5.5] are sent as-is:\r\n\r\n  Field values containing CR, LF, or NUL characters are invalid and dangerous [...] Field values containing other CTL characters are also invalid [...]\r\n\r\nField names must be `token` characters, which Django doesn't validate at all. For example:\r\n\r\n{{{#!python\r\nfrom django.conf import settings; settings.configure()\r\nfrom django.http import HttpResponse\r\n\r\nr = HttpResponse()\r\nr[\"X-Test\"] = \"a\\x00b\"\r\nr[\"X-Test\\x0b\"] = \"1\"\r\nprint(r.serialize_headers())\r\n}}}\r\n\r\noutputs:\r\n{{{\r\nb'Content-Type: text/html; charset=utf-8\\r\\nX-Test: a\\x00b\\r\\nX-Test\\x0b: 1'\r\n}}}\r\n\r\nDjango could raise `django.http.BadHeaderError` for NUL and other C0 controls (except HTAB) and DEL in values, and for non-token characters in names, similar to what #37100 did for `reason_phrase`. Note that `_control_chars_re` can't be reused as is.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 9, 2026, 11:58:10 AM",
+        "updated_at": "Oct 9, 2026, 12:39:52 PM",
+        "reporter": "Natalia Bidart",
+        "owner": "",
+        "component": "HTTP handling",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37414",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37414",
+          "Summary": "Reject invalid characters in response header names and values",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "HTTP handling",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 9, 2026, 11:58:10 AM",
+          "Modified": "Oct 9, 2026, 12:39:52 PM",
+          "Reporter": "Natalia Bidart",
+          "Owner": "",
+          "Triage Stage": "Accepted",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "`ResponseHeaders._convert_to_charset()` only rejects CR and LF, so other characters that are invalid per [https://www.rfc-editor.org/rfc/rfc9110.html#section-5.5 RFC 9110 section 5.5] are sent as-is:\r\n\r\n  Field values containing CR, LF, or NUL characters are invalid and dangerous [...] Field values containing other CTL characters are also invalid [...]\r\n\r\nField names must be `token` characters, which Django doesn't validate at all. For example:\r\n\r\n{{{#!python\r\nfrom django.conf import settings; settings.configure()\r\nfrom django.http import HttpResponse\r\n\r\nr = HttpResponse()\r\nr[\"X-Test\"] = \"a\\x00b\"\r\nr[\"X-Test\\x0b\"] = \"1\"\r\nprint(r.serialize_headers())\r\n}}}\r\n\r\noutputs:\r\n{{{\r\nb'Content-Type: text/html; charset=utf-8\\r\\nX-Test: a\\x00b\\r\\nX-Test\\x0b: 1'\r\n}}}\r\n\r\nDjango could raise `django.http.BadHeaderError` for NUL and other C0 controls (except HTAB) and DEL in values, and for non-token characters in names, similar to what #37100 did for `reason_phrase`. Note that `_control_chars_re` can't be reused as is."
         }
       }
     }
