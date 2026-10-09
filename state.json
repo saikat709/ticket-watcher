@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37411
+      "last_seen_id": 37412
     }
   },
   "tracked": {
@@ -3067,6 +3067,57 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Version 26 of the `python-oracledb` driver was released in September 2026, causing failures in our GIS tests:\r\n\r\n{{{#!py\r\ndjango.db.utils.DatabaseError: Problem installing fixture '/django/source/tests/gis_tests/geoapp/fixtures/initial.json.gz':Could not load geoapp.Country(pk=1): ORA-01461: The value at bind position 2 exceeded the maximum VARCHAR2 length.\r\nHelp: https://docs.oracle.com/error-help/db/ora-01461/\r\n}}}\r\n\r\nIt relates to a behavior change -- you can no longer pass long strings (like this geometry from the test fixture) as parameters by calling `setinputsizes(DB_TYPE_CLOB)`: you must actually create the `LOB` first. See this [https://github.com/oracle/python-oracledb/issues/618 issue discussion].\r\n\r\nOur Oracle backend already has logic to \"request\" a `CLOB` -- I presume the fix is as outlined on the oracledb issue: in those cases, take responsibility for creating the CLOB ourselves.\r\n\r\nI presume we will backport to at least mainstream support (6.1) like #36646, and possibly document on lower versions an upper bound on `python-oracledb` like 99e033694c54b5d0e2cfd796ce598cc1e6c9af4a"
+        }
+      }
+    },
+    "django:37412": {
+      "source": "django",
+      "ticket_id": 37412,
+      "watcher_issue_number": 85,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-09T08:06:56.470886+00:00",
+      "last_updated": "2026-10-09T08:06:56.470886+00:00",
+      "ticket_data": {
+        "id": 37412,
+        "source_id": "django",
+        "title": "Breaking change in #34041 absent from release notes",
+        "description": "https://github.com/django/django/pull/19492  Introduces a breaking changes in the HTML structure of the breadcrumbs which passes from a plain `div` to an `ol` with children and also relative stylesheet is no more compatible with the previous structure.\r\n\r\nIn the PR the checkbox for \" I have added or updated relevant docs, including release notes if applicable.\" is not flagged, yet this change breaks existing template styles.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 9, 2026, 2:53:47 AM",
+        "updated_at": "Oct 9, 2026, 2:53:47 AM",
+        "reporter": "David",
+        "owner": "",
+        "component": "contrib.admin",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "ui/ux"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37412",
+        "pr_url": "https://github.com/django/django/pull/19492",
+        "pr_status": "merged",
+        "raw_data": {
+          "id": "37412",
+          "Summary": "Breaking change in #34041 absent from release notes",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "contrib.admin",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 9, 2026, 2:53:47 AM",
+          "Modified": "Oct 9, 2026, 2:53:47 AM",
+          "Reporter": "David",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "1",
+          "Description": "https://github.com/django/django/pull/19492  Introduces a breaking changes in the HTML structure of the breadcrumbs which passes from a plain `div` to an `ol` with children and also relative stylesheet is no more compatible with the previous structure.\r\n\r\nIn the PR the checkbox for \" I have added or updated relevant docs, including release notes if applicable.\" is not flagged, yet this change breaks existing template styles."
         }
       }
     }
