@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37412
+      "last_seen_id": 37413
     }
   },
   "tracked": {
@@ -3118,6 +3118,56 @@
           "Needs documentation": "0",
           "UI/UX": "1",
           "Description": "https://github.com/django/django/pull/19492  Introduces a breaking changes in the HTML structure of the breadcrumbs which passes from a plain `div` to an `ol` with children and also relative stylesheet is no more compatible with the previous structure.\r\n\r\nIn the PR the checkbox for \" I have added or updated relevant docs, including release notes if applicable.\" is not flagged, yet this change breaks existing template styles."
+        }
+      }
+    },
+    "django:37413": {
+      "source": "django",
+      "ticket_id": 37413,
+      "watcher_issue_number": 86,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-09T15:23:17.143482+00:00",
+      "last_updated": "2026-10-09T15:23:17.143482+00:00",
+      "ticket_data": {
+        "id": 37413,
+        "source_id": "django",
+        "title": "MultiPartParser treats boundary tokens not preceded by CRLF as delimiters",
+        "description": "`BoundaryIter._find_boundary()` in `django/http/multipartparser.py` looks for the bare `--<boundary>` string and only strips a preceding CRLF if present. Per [https://www.rfc-editor.org/rfc/rfc2046.html#section-5.1.1 RFC 2046 section 5.1.1], a delimiter is `CRLF \"--\" boundary`, so a boundary token appearing inside part data without a leading CRLF should be treated as content, not as the end of the part:\r\n\r\n  The boundary delimiter MUST occur at the beginning of a line, i.e., following a CRLF, and the initial CRLF is considered to be attached to the boundary delimiter line rather than part of the preceding part.\r\n\r\nFor example, with boundary `XYZ`, this body (CRLF line endings):\r\n\r\n{{{\r\n--XYZ\r\nContent-Disposition: form-data; name=\"a\"\r\n\r\nfoo--XYZ\r\nContent-Disposition: form-data; name=\"b\"\r\n\r\nbar\r\n--XYZ--\r\n}}}\r\n\r\nis parsed as two fields (`a=\"foo\"`, `b=\"bar\"`), while a strict parser would return a single field `a` whose value includes the embedded token.\r\n\r\nRequiring the CRLF prefix (other than for the first delimiter at the start of the body) would align Django with the RFC. Lenient clients that rely on the current behavior could be affected, so this may need a deprecation path or at least a release note.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 9, 2026, 9:16:35 AM",
+        "updated_at": "Oct 9, 2026, 9:16:35 AM",
+        "reporter": "Natalia Bidart",
+        "owner": "",
+        "component": "HTTP handling",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37413",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37413",
+          "Summary": "MultiPartParser treats boundary tokens not preceded by CRLF as delimiters",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "HTTP handling",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 9, 2026, 9:16:35 AM",
+          "Modified": "Oct 9, 2026, 9:16:35 AM",
+          "Reporter": "Natalia Bidart",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "`BoundaryIter._find_boundary()` in `django/http/multipartparser.py` looks for the bare `--<boundary>` string and only strips a preceding CRLF if present. Per [https://www.rfc-editor.org/rfc/rfc2046.html#section-5.1.1 RFC 2046 section 5.1.1], a delimiter is `CRLF \"--\" boundary`, so a boundary token appearing inside part data without a leading CRLF should be treated as content, not as the end of the part:\r\n\r\n  The boundary delimiter MUST occur at the beginning of a line, i.e., following a CRLF, and the initial CRLF is considered to be attached to the boundary delimiter line rather than part of the preceding part.\r\n\r\nFor example, with boundary `XYZ`, this body (CRLF line endings):\r\n\r\n{{{\r\n--XYZ\r\nContent-Disposition: form-data; name=\"a\"\r\n\r\nfoo--XYZ\r\nContent-Disposition: form-data; name=\"b\"\r\n\r\nbar\r\n--XYZ--\r\n}}}\r\n\r\nis parsed as two fields (`a=\"foo\"`, `b=\"bar\"`), while a strict parser would return a single field `a` whose value includes the embedded token.\r\n\r\nRequiring the CRLF prefix (other than for the first delimiter at the start of the body) would align Django with the RFC. Lenient clients that rely on the current behavior could be affected, so this may need a deprecation path or at least a release note."
         }
       }
     }
