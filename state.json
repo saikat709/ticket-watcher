@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37414
+      "last_seen_id": 37415
     }
   },
   "tracked": {
@@ -3062,6 +3062,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "`ResponseHeaders._convert_to_charset()` only rejects CR and LF, so other characters that are invalid per [https://www.rfc-editor.org/rfc/rfc9110.html#section-5.5 RFC 9110 section 5.5] are sent as-is:\r\n\r\n  Field values containing CR, LF, or NUL characters are invalid and dangerous [...] Field values containing other CTL characters are also invalid [...]\r\n\r\nField names must be `token` characters, which Django doesn't validate at all. For example:\r\n\r\n{{{#!python\r\nfrom django.conf import settings; settings.configure()\r\nfrom django.http import HttpResponse\r\n\r\nr = HttpResponse()\r\nr[\"X-Test\"] = \"a\\x00b\"\r\nr[\"X-Test\\x0b\"] = \"1\"\r\nprint(r.serialize_headers())\r\n}}}\r\n\r\noutputs:\r\n{{{\r\nb'Content-Type: text/html; charset=utf-8\\r\\nX-Test: a\\x00b\\r\\nX-Test\\x0b: 1'\r\n}}}\r\n\r\nDjango could raise `django.http.BadHeaderError` for NUL and other C0 controls (except HTAB) and DEL in values, and for non-token characters in names, similar to what #37100 did for `reason_phrase`. Note that `_control_chars_re` can't be reused as is."
+        }
+      }
+    },
+    "django:37415": {
+      "source": "django",
+      "ticket_id": 37415,
+      "watcher_issue_number": 88,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-10T23:56:28.810643+00:00",
+      "last_updated": "2026-10-10T23:56:28.810643+00:00",
+      "ticket_data": {
+        "id": 37415,
+        "source_id": "django",
+        "title": "Error in the documentation of django.db.connection.execute_wrapper",
+        "description": "In the page [https://docs.djangoproject.com/en/6.1/topics/db/instrumentation/ Database instrumentation] of the documentation, in the documentation of \r\n{{{ connection.execute_wrapper }}}:\r\n----\r\nThe parameters sent to the wrappers are: \\\\\r\n... \\\\\r\nparams \u2013 a list/tuple of parameter values for the SQL command, or a list/tuple of lists/tuples if the wrapped call is executemany(). \\\\\r\n...\r\n----\r\nThis is however incorrect: sql queries like {{{ BEGIN }}}, {{{ SAVEPOINT }}} and {{{ RELEASE SAVEPOINT }}} have params set to {{{ None }}} instead of an empty tuple. This can be easily verified by running anything wrapped with {{{ @transaction.atomic }}}: it will generate a query with {{{ params = None }}}.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 10, 2026, 4:07:10 PM",
+        "updated_at": "Oct 10, 2026, 4:07:10 PM",
+        "reporter": "BestCrazyNoob",
+        "owner": "",
+        "component": "Documentation",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37415",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37415",
+          "Summary": "Error in the documentation of django.db.connection.execute_wrapper",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Documentation",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 10, 2026, 4:07:10 PM",
+          "Modified": "Oct 10, 2026, 4:07:10 PM",
+          "Reporter": "BestCrazyNoob",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "In the page [https://docs.djangoproject.com/en/6.1/topics/db/instrumentation/ Database instrumentation] of the documentation, in the documentation of \r\n{{{ connection.execute_wrapper }}}:\r\n----\r\nThe parameters sent to the wrappers are: \\\\\r\n... \\\\\r\nparams \u2013 a list/tuple of parameter values for the SQL command, or a list/tuple of lists/tuples if the wrapped call is executemany(). \\\\\r\n...\r\n----\r\nThis is however incorrect: sql queries like {{{ BEGIN }}}, {{{ SAVEPOINT }}} and {{{ RELEASE SAVEPOINT }}} have params set to {{{ None }}} instead of an empty tuple. This can be easily verified by running anything wrapped with {{{ @transaction.atomic }}}: it will generate a query with {{{ params = None }}}."
         }
       }
     }
