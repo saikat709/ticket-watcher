@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37418
+      "last_seen_id": 37420
     }
   },
   "tracked": {
@@ -3215,6 +3215,107 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "`forms.JSONField.to_python()` and `bound_data()` only catch `json.JSONDecodeError`. When the submitted value is nested more deeply than the recursion limit, `json.loads()` raises `RecursionError` instead, so the form crashes (HTTP 500) rather than showing \"Enter a valid JSON.\". About 4 KB of input is enough, well within `DATA_UPLOAD_MAX_MEMORY_SIZE`:\r\n\r\n{{{\r\n>>> from django import forms\r\n>>> forms.JSONField().clean(\"[\" * 100_000 + \"]\" * 100_000)\r\nRecursionError: maximum recursion depth exceeded while decoding a JSON array from a unicode string\r\n}}}\r\n\r\nThis affects any form or ModelForm with a JSONField, including the admin. The `contrib.postgres` `HStoreField` form field has the same pattern.\r\n\r\nPatch: also catch `RecursionError` in those three places, with regression tests.\r\n"
+        }
+      }
+    },
+    "django:37419": {
+      "source": "django",
+      "ticket_id": 37419,
+      "watcher_issue_number": 92,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-12T11:08:09.359137+00:00",
+      "last_updated": "2026-10-12T11:08:09.359137+00:00",
+      "ticket_data": {
+        "id": 37419,
+        "source_id": "django",
+        "title": "Include CSP nonces in headers for streaming responses",
+        "description": "Background:\r\nThe security team received a report from Michael Codispoti (codispoti) on HackerOne. This report was agreed to be handled in public as a hardening as the CSP middleware doesn't absolve developer responsibility to escape untrusted input.\r\n\r\nIssue:\r\nFor a StreamingHttpResponse, the response headers are constructed before the streaming iterator is consumed.\r\nIf the iterator first accesses csp_nonce while producing the response body, the HTML receives a generated nonce after the CSP header has already been finalized.\r\n\r\nThis causes the streamed HTML to contain a nonce that is absent from the corresponding Content-Security-Policy header.\r\n\r\nRegression test:\r\n{{{#!diff\r\ndiff --git a/tests/middleware/test_csp.py b/tests/middleware/test_csp.py\r\nindex f0a4af2a7c..c64754c221 100644\r\n--- a/tests/middleware/test_csp.py\r\n+++ b/tests/middleware/test_csp.py\r\n@@ -2,7 +2,11 @@ from playwright_tests import PlaywrightTestCase\r\n from utils_tests.test_csp import basic_config, basic_policy\r\n \r\n from django.contrib.staticfiles.testing import StaticLiveServerTestCase\r\n-from django.test import SimpleTestCase\r\n+from django.http import StreamingHttpResponse\r\n+from django.middleware.csp import ContentSecurityPolicyMiddleware\r\n+from django.template import Context, Template\r\n+from django.template.context_processors import csp\r\n+from django.test import RequestFactory, SimpleTestCase\r\n from django.test.utils import modify_settings, override_settings\r\n from django.utils.csp import CSP\r\n \r\n@@ -173,6 +177,32 @@ class CSPMiddlewareWithDecoratedViewsTest(SimpleTestCase):\r\n         )\r\n \r\n \r\n+class CSPStreamingTests(SimpleTestCase):\r\n+    @override_settings(\r\n+        SECURE_CSP={\r\n+            \"default-src\": [CSP.SELF],\r\n+            \"script-src\": [CSP.NONCE],\r\n+        },\r\n+        SECURE_CSP_REPORT_ONLY={},\r\n+    )\r\n+    def test_nonce_generated_during_streaming_is_in_header(self):\r\n+        request = RequestFactory().get(\"/\")\r\n+        template = Template('<script nonce=\"{{ csp_nonce }}\"></script>')\r\n+\r\n+        def view(request):\r\n+            def content():\r\n+                yield template.render(Context(csp(request)))\r\n+\r\n+            return StreamingHttpResponse(content())\r\n+\r\n+        response = ContentSecurityPolicyMiddleware(view)(request)\r\n+        body = b\"\".join(response.streaming_content).decode()\r\n+\r\n+        nonce = body.split('nonce=\"', 1)[1].split('\"', 1)[0]\r\n+        self.assertTrue(nonce)\r\n+        self.assertIn(f\"'nonce-{nonce}'\", response[\"Content-Security-Policy\"])\r\n+\r\n+\r\n @override_settings(\r\n     ROOT_URLCONF=\"middleware.urls\",\r\n}}}\r\n",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 12, 2026, 3:57:37 AM",
+        "updated_at": "Oct 12, 2026, 4:03:02 AM",
+        "reporter": "Sarah Boyce",
+        "owner": "Sarah Boyce",
+        "component": "Core (Other)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37419",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37419",
+          "Summary": "Include CSP nonces in headers for streaming responses",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Core (Other)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 12, 2026, 3:57:37 AM",
+          "Modified": "Oct 12, 2026, 4:03:02 AM",
+          "Reporter": "Sarah Boyce",
+          "Owner": "Sarah Boyce",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Background:\r\nThe security team received a report from Michael Codispoti (codispoti) on HackerOne. This report was agreed to be handled in public as a hardening as the CSP middleware doesn't absolve developer responsibility to escape untrusted input.\r\n\r\nIssue:\r\nFor a StreamingHttpResponse, the response headers are constructed before the streaming iterator is consumed.\r\nIf the iterator first accesses csp_nonce while producing the response body, the HTML receives a generated nonce after the CSP header has already been finalized.\r\n\r\nThis causes the streamed HTML to contain a nonce that is absent from the corresponding Content-Security-Policy header.\r\n\r\nRegression test:\r\n{{{#!diff\r\ndiff --git a/tests/middleware/test_csp.py b/tests/middleware/test_csp.py\r\nindex f0a4af2a7c..c64754c221 100644\r\n--- a/tests/middleware/test_csp.py\r\n+++ b/tests/middleware/test_csp.py\r\n@@ -2,7 +2,11 @@ from playwright_tests import PlaywrightTestCase\r\n from utils_tests.test_csp import basic_config, basic_policy\r\n \r\n from django.contrib.staticfiles.testing import StaticLiveServerTestCase\r\n-from django.test import SimpleTestCase\r\n+from django.http import StreamingHttpResponse\r\n+from django.middleware.csp import ContentSecurityPolicyMiddleware\r\n+from django.template import Context, Template\r\n+from django.template.context_processors import csp\r\n+from django.test import RequestFactory, SimpleTestCase\r\n from django.test.utils import modify_settings, override_settings\r\n from django.utils.csp import CSP\r\n \r\n@@ -173,6 +177,32 @@ class CSPMiddlewareWithDecoratedViewsTest(SimpleTestCase):\r\n         )\r\n \r\n \r\n+class CSPStreamingTests(SimpleTestCase):\r\n+    @override_settings(\r\n+        SECURE_CSP={\r\n+            \"default-src\": [CSP.SELF],\r\n+            \"script-src\": [CSP.NONCE],\r\n+        },\r\n+        SECURE_CSP_REPORT_ONLY={},\r\n+    )\r\n+    def test_nonce_generated_during_streaming_is_in_header(self):\r\n+        request = RequestFactory().get(\"/\")\r\n+        template = Template('<script nonce=\"{{ csp_nonce }}\"></script>')\r\n+\r\n+        def view(request):\r\n+            def content():\r\n+                yield template.render(Context(csp(request)))\r\n+\r\n+            return StreamingHttpResponse(content())\r\n+\r\n+        response = ContentSecurityPolicyMiddleware(view)(request)\r\n+        body = b\"\".join(response.streaming_content).decode()\r\n+\r\n+        nonce = body.split('nonce=\"', 1)[1].split('\"', 1)[0]\r\n+        self.assertTrue(nonce)\r\n+        self.assertIn(f\"'nonce-{nonce}'\", response[\"Content-Security-Policy\"])\r\n+\r\n+\r\n @override_settings(\r\n     ROOT_URLCONF=\"middleware.urls\",\r\n}}}\r\n"
+        }
+      }
+    },
+    "django:37420": {
+      "source": "django",
+      "ticket_id": 37420,
+      "watcher_issue_number": 93,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-12T11:08:11.147410+00:00",
+      "last_updated": "2026-10-12T11:08:11.147410+00:00",
+      "ticket_data": {
+        "id": 37420,
+        "source_id": "django",
+        "title": "GIS ST_MakeLine, ST_Union and ST_Collect should accept the ORDER BY clause",
+        "description": "Since PostGIS version 2.2, ST_MakeLine, ST_Union, and ST_Collect accept the ORDER BY clause when running on PostgreSQL version 9+. However, Django still does not support it. It would be nice to have this feature integrated. Since Django currently requires PostgreSQL version 15+ and PostGIS version 3.2, backward compatibility so it should not be an issue\r\n\r\nPostgres 9.0.0 release note:\r\n[https://www.postgresql.org/docs/release/9.0.0/#AEN103013]\r\n\r\nPostGIS 2.2 ST_MakeLine manual:\r\n[https://postgis.net/docs/manual-2.2/ST_MakeLine.html#idm4835]\r\n\r\nDjango 6.1 release note about PostgreSQL version:\r\n[https://docs.djangoproject.com/en/6.1/releases/6.1/#dropped-support-for-postgresql-14]\r\n\r\nDjango 6.1 release note about PostGIS version:\r\n[https://docs.djangoproject.com/en/6.1/releases/6.1/#id3]\r\n\r\n\r\n",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 12, 2026, 4:55:40 AM",
+        "updated_at": "Oct 12, 2026, 4:55:40 AM",
+        "reporter": "Jefferson Raylan",
+        "owner": "",
+        "component": "GIS",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37420",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37420",
+          "Summary": "GIS ST_MakeLine, ST_Union and ST_Collect should accept the ORDER BY clause",
+          "Type": "Uncategorized",
+          "Status": "new",
+          "Component": "GIS",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 12, 2026, 4:55:40 AM",
+          "Modified": "Oct 12, 2026, 4:55:40 AM",
+          "Reporter": "Jefferson Raylan",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Since PostGIS version 2.2, ST_MakeLine, ST_Union, and ST_Collect accept the ORDER BY clause when running on PostgreSQL version 9+. However, Django still does not support it. It would be nice to have this feature integrated. Since Django currently requires PostgreSQL version 15+ and PostGIS version 3.2, backward compatibility so it should not be an issue\r\n\r\nPostgres 9.0.0 release note:\r\n[https://www.postgresql.org/docs/release/9.0.0/#AEN103013]\r\n\r\nPostGIS 2.2 ST_MakeLine manual:\r\n[https://postgis.net/docs/manual-2.2/ST_MakeLine.html#idm4835]\r\n\r\nDjango 6.1 release note about PostgreSQL version:\r\n[https://docs.djangoproject.com/en/6.1/releases/6.1/#dropped-support-for-postgresql-14]\r\n\r\nDjango 6.1 release note about PostGIS version:\r\n[https://docs.djangoproject.com/en/6.1/releases/6.1/#id3]\r\n\r\n\r\n"
         }
       }
     }
