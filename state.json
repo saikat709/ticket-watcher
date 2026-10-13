@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37422
+      "last_seen_id": 37424
     }
   },
   "tracked": {
@@ -3348,6 +3348,108 @@
           "Needs documentation": "0",
           "UI/UX": "1",
           "Description": "In Django Admin, when we pick a record to delete, we are brought to a delete confirmation page. Here, the cancel button collapse due to wrong CSS.\r\n\r\n"
+        }
+      }
+    },
+    "django:37423": {
+      "source": "django",
+      "ticket_id": 37423,
+      "watcher_issue_number": 95,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-13T17:12:53.602566+00:00",
+      "last_updated": "2026-10-13T17:12:53.602566+00:00",
+      "ticket_data": {
+        "id": 37423,
+        "source_id": "django",
+        "title": "File-based sessions remain accessible after integer expiry",
+        "description": "The file-based session backend does not enforce the server-side expiry time when `SessionBase.set_expiry()` is called with a positive integer.\r\nA session can still be loaded using its session ID after the configured timeout has elapsed. `clearsessions` also leaves the expired file in place.\r\n\r\nFor example, with the file-based backend:\r\n\r\n{{{#!python\r\nfrom django.contrib.sessions.backends.file import SessionStore\r\nimport time\r\n\r\nsession = SessionStore()\r\nsession[\"foo\"] = \"bar\"\r\nsession.set_expiry(1)\r\nsession.save()\r\nsession_key = session.session_key\r\n\r\ntime.sleep(2)\r\n\r\nSessionStore(session_key).get(\"foo\")  # Returns \"bar\"; expected None.\r\n}}}\r\n\r\n`set_expiry(1)` stores the integer `1` in `_session_expiry`. The file backend passes that value to `get_expiry_age()`, which returns `1` without comparing it with the file\u2019s last modification time. The session therefore remains accessible server-side.\r\n\r\nThe backend should calculate the expiry date using the stored timeout and the file\u2019s last modification time.\r\n\r\n----\r\nThis had been reported to the security team by Chris Griffin. The security team has agreed to treat this a security hardening in public. \r\nI recommend that we backport to 5.2.\r\nThis was then later reported publicly by Patel Namraa, who is now in cc.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 13, 2026, 8:00:55 AM",
+        "updated_at": "Oct 13, 2026, 8:21:47 AM",
+        "reporter": "Sarah Boyce",
+        "owner": "Sarah Boyce",
+        "component": "contrib.sessions",
+        "priority": "Release blocker",
+        "severity": "Release blocker",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37423",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37423",
+          "Summary": "File-based sessions remain accessible after integer expiry",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "contrib.sessions",
+          "Severity": "Release blocker",
+          "Resolution": "",
+          "Created": "Oct 13, 2026, 8:00:55 AM",
+          "Modified": "Oct 13, 2026, 8:21:47 AM",
+          "Reporter": "Sarah Boyce",
+          "Owner": "Sarah Boyce",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "The file-based session backend does not enforce the server-side expiry time when `SessionBase.set_expiry()` is called with a positive integer.\r\nA session can still be loaded using its session ID after the configured timeout has elapsed. `clearsessions` also leaves the expired file in place.\r\n\r\nFor example, with the file-based backend:\r\n\r\n{{{#!python\r\nfrom django.contrib.sessions.backends.file import SessionStore\r\nimport time\r\n\r\nsession = SessionStore()\r\nsession[\"foo\"] = \"bar\"\r\nsession.set_expiry(1)\r\nsession.save()\r\nsession_key = session.session_key\r\n\r\ntime.sleep(2)\r\n\r\nSessionStore(session_key).get(\"foo\")  # Returns \"bar\"; expected None.\r\n}}}\r\n\r\n`set_expiry(1)` stores the integer `1` in `_session_expiry`. The file backend passes that value to `get_expiry_age()`, which returns `1` without comparing it with the file\u2019s last modification time. The session therefore remains accessible server-side.\r\n\r\nThe backend should calculate the expiry date using the stored timeout and the file\u2019s last modification time.\r\n\r\n----\r\nThis had been reported to the security team by Chris Griffin. The security team has agreed to treat this a security hardening in public. \r\nI recommend that we backport to 5.2.\r\nThis was then later reported publicly by Patel Namraa, who is now in cc."
+        }
+      }
+    },
+    "django:37424": {
+      "source": "django",
+      "ticket_id": 37424,
+      "watcher_issue_number": 96,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-13T17:12:55.852616+00:00",
+      "last_updated": "2026-10-13T17:12:55.852616+00:00",
+      "ticket_data": {
+        "id": 37424,
+        "source_id": "django",
+        "title": "CacheMiddleware does not correctly handle whitespace between \"max-age\" and the equals sign",
+        "description": "Failing test:\r\n\r\n{{{#!diff\r\ndiff --git a/tests/cache/tests.py b/tests/cache/tests.py\r\nindex 96385fd084..3f7aec4961 100644\r\n--- a/tests/cache/tests.py\r\n+++ b/tests/cache/tests.py\r\n@@ -2330,6 +2330,9 @@ class CacheUtils(SimpleTestCase):\r\n             (\"no-cache,\\tmax-age=600\", 600),\r\n             # Whitespace after the value is handled by int() transparently.\r\n             (\"max-age=300 \", 300),\r\n+            # Whitespace preceding the =.\r\n+            (\"max-age =300\", 300),\r\n+            (\"max-age\\t=300 \", 300),\r\n         ]\r\n         for header_value, expected in tests:\r\n             with self.subTest(header_value=header_value):\r\n}}}\r\n{{{#!py\r\nAssertionError: None != 300\r\n}}}\r\n\r\nI believe we need changes analogous to `patch_cache_control()`, which calls `strip()` in `_to_tuple()`, see `test_patch_cache_control_whitespace_around_equals()`:\r\n{{{#!py\r\n        if len(t) > 1:\r\n            return (t[0].strip().lower(), t[1])\r\n        else:\r\n            return (t[0].lower(), True)\r\n}}}\r\n\r\nNot a security issue, same class of public hardening as b461519bf5973d7fc149560d2f99acdba71a437d\r\n\r\nThanks Aaron Chen for the report.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 13, 2026, 10:25:53 AM",
+        "updated_at": "Oct 13, 2026, 10:37:30 AM",
+        "reporter": "Jacob Walls",
+        "owner": "Jacob Walls",
+        "component": "Core (Cache system)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37424",
+        "pr_url": "https://github.com/django/django/pull/22144",
+        "pr_status": "open",
+        "raw_data": {
+          "id": "37424",
+          "Summary": "CacheMiddleware does not correctly handle whitespace between \"max-age\" and the equals sign",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Core (Cache system)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 13, 2026, 10:25:53 AM",
+          "Modified": "Oct 13, 2026, 10:37:30 AM",
+          "Reporter": "Jacob Walls",
+          "Owner": "Jacob Walls",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Failing test:\r\n\r\n{{{#!diff\r\ndiff --git a/tests/cache/tests.py b/tests/cache/tests.py\r\nindex 96385fd084..3f7aec4961 100644\r\n--- a/tests/cache/tests.py\r\n+++ b/tests/cache/tests.py\r\n@@ -2330,6 +2330,9 @@ class CacheUtils(SimpleTestCase):\r\n             (\"no-cache,\\tmax-age=600\", 600),\r\n             # Whitespace after the value is handled by int() transparently.\r\n             (\"max-age=300 \", 300),\r\n+            # Whitespace preceding the =.\r\n+            (\"max-age =300\", 300),\r\n+            (\"max-age\\t=300 \", 300),\r\n         ]\r\n         for header_value, expected in tests:\r\n             with self.subTest(header_value=header_value):\r\n}}}\r\n{{{#!py\r\nAssertionError: None != 300\r\n}}}\r\n\r\nI believe we need changes analogous to `patch_cache_control()`, which calls `strip()` in `_to_tuple()`, see `test_patch_cache_control_whitespace_around_equals()`:\r\n{{{#!py\r\n        if len(t) > 1:\r\n            return (t[0].strip().lower(), t[1])\r\n        else:\r\n            return (t[0].lower(), True)\r\n}}}\r\n\r\nNot a security issue, same class of public hardening as b461519bf5973d7fc149560d2f99acdba71a437d\r\n\r\nThanks Aaron Chen for the report."
         }
       }
     }
