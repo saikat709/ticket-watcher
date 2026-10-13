@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37420
+      "last_seen_id": 37422
     }
   },
   "tracked": {
@@ -3297,6 +3297,57 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Since PostGIS version 2.2, ST_MakeLine, ST_Union, and ST_Collect accept the ORDER BY clause when running on PostgreSQL version 9+. However, Django still does not support it. It would be nice to have this feature integrated. Since Django currently requires PostgreSQL version 15+ and PostGIS version 3.2, backward compatibility so it should not be an issue\r\n\r\nPostgres 9.0.0 release note:\r\n[https://www.postgresql.org/docs/release/9.0.0/#AEN103013]\r\n\r\nPostGIS 2.2 ST_MakeLine manual:\r\n[https://postgis.net/docs/manual-2.2/ST_MakeLine.html#idm4835]\r\n\r\nDjango 6.1 release note about PostgreSQL version:\r\n[https://docs.djangoproject.com/en/6.1/releases/6.1/#dropped-support-for-postgresql-14]\r\n\r\nDjango 6.1 release note about PostGIS version:\r\n[https://docs.djangoproject.com/en/6.1/releases/6.1/#id3]\r\n\r\n\r\n"
+        }
+      }
+    },
+    "django:37422": {
+      "source": "django",
+      "ticket_id": 37422,
+      "watcher_issue_number": 94,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-13T09:35:31.442344+00:00",
+      "last_updated": "2026-10-13T09:35:31.442344+00:00",
+      "ticket_data": {
+        "id": 37422,
+        "source_id": "django",
+        "title": "Cancel button collapses in Admin delete confirmation page",
+        "description": "In Django Admin, when we pick a record to delete, we are brought to a delete confirmation page. Here, the cancel button collapse due to wrong CSS.\r\n\r\n",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 13, 2026, 4:24:00 AM",
+        "updated_at": "Oct 13, 2026, 4:24:00 AM",
+        "reporter": "Nguy\u1ec5n H\u1ed3ng Qu\u00e2n",
+        "owner": "",
+        "component": "contrib.admin",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "ui/ux"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37422",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37422",
+          "Summary": "Cancel button collapses in Admin delete confirmation page",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "contrib.admin",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 13, 2026, 4:24:00 AM",
+          "Modified": "Oct 13, 2026, 4:24:00 AM",
+          "Reporter": "Nguy\u1ec5n H\u1ed3ng Qu\u00e2n",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "1",
+          "Description": "In Django Admin, when we pick a record to delete, we are brought to a delete confirmation page. Here, the cancel button collapse due to wrong CSS.\r\n\r\n"
         }
       }
     }
