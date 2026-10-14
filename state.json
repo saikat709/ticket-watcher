@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37424
+      "last_seen_id": 37425
     }
   },
   "tracked": {
@@ -3413,6 +3413,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Failing test:\r\n\r\n{{{#!diff\r\ndiff --git a/tests/cache/tests.py b/tests/cache/tests.py\r\nindex 96385fd084..3f7aec4961 100644\r\n--- a/tests/cache/tests.py\r\n+++ b/tests/cache/tests.py\r\n@@ -2330,6 +2330,9 @@ class CacheUtils(SimpleTestCase):\r\n             (\"no-cache,\\tmax-age=600\", 600),\r\n             # Whitespace after the value is handled by int() transparently.\r\n             (\"max-age=300 \", 300),\r\n+            # Whitespace preceding the =.\r\n+            (\"max-age =300\", 300),\r\n+            (\"max-age\\t=300 \", 300),\r\n         ]\r\n         for header_value, expected in tests:\r\n             with self.subTest(header_value=header_value):\r\n}}}\r\n{{{#!py\r\nAssertionError: None != 300\r\n}}}\r\n\r\nI believe we need changes analogous to `patch_cache_control()`, which calls `strip()` in `_to_tuple()`, see `test_patch_cache_control_whitespace_around_equals()`:\r\n{{{#!py\r\n        if len(t) > 1:\r\n            return (t[0].strip().lower(), t[1])\r\n        else:\r\n            return (t[0].lower(), True)\r\n}}}\r\n\r\nNot a security issue, same class of public hardening as b461519bf5973d7fc149560d2f99acdba71a437d\r\n\r\nThanks Aaron Chen for the report."
+        }
+      }
+    },
+    "django:37425": {
+      "source": "django",
+      "ticket_id": 37425,
+      "watcher_issue_number": 97,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-14T10:46:58.304331+00:00",
+      "last_updated": "2026-10-14T10:46:58.304331+00:00",
+      "ticket_data": {
+        "id": 37425,
+        "source_id": "django",
+        "title": "Adding a nullable ForeignKey on MySQL rebuilds the table",
+        "description": "On MySQL, adding a nullable ForeignKey to an existing table rebuilds the whole table. ADD COLUMN can be ALGORITHM=INSTANT. ADD FOREIGN KEY can't be INSTANT, and it\r\ncan't be INPLACE unless foreign_key_checks is off (error 1846: \"Adding foreign keys needs foreign_key_checks=OFF\"). Django leaves checks on, so the constraint step is\r\nALGORITHM=COPY.\r\n\r\nBefore 3.0, add_field() ran the column add on its own and queued the FK in deferred_sql (code\r\n(https://github.com/django/django/blob/9a0cc54524422dbdd9213e83a8ad7e8a4c13bd3e/django/db/backends/base/schema.py)). The column was instant, but the FK statement was\r\nstill a COPY. Since 3.0, 738faf9da2 (https://github.com/django/django/commit/738faf9da2a5cd03148a36375db80746c99c9623) (#30108) puts both in one statement:\r\n\r\n{{{#!sql\r\nALTER TABLE t\r\n    ADD COLUMN owner_id integer NULL,\r\n    ADD CONSTRAINT t_owner_id_fk FOREIGN KEY (owner_id) REFERENCES owner (id);\r\n}}}\r\n\r\nso the column add is no longer instant either (see comment:11 on #30108). On a ~100GB table this takes hours.\r\n\r\nOur workaround is a hand-written migration:\r\n\r\n{{{#!python\r\nmigrations.SeparateDatabaseAndState(\r\n    state_operations=[\r\n        migrations.AddField(\r\n            model_name=\"book\",\r\n            name=\"owner\",\r\n            field=models.ForeignKey(\r\n                \"app.Owner\",\r\n                null=True,\r\n                on_delete=models.SET_NULL,\r\n            ),\r\n        ),\r\n    ],\r\n    database_operations=[\r\n        migrations.RunSQL(\r\n            \"ALTER TABLE app_book \"\r\n            \"ADD COLUMN owner_id integer NULL, ALGORITHM=INSTANT\",\r\n            reverse_sql=(\r\n                \"ALTER TABLE app_book DROP COLUMN owner_id, ALGORITHM=INSTANT\"\r\n            ),\r\n        ),\r\n        migrations.RunSQL(\"SET foreign_key_checks = 0\"),\r\n        migrations.RunSQL(\r\n            \"ALTER TABLE app_book \"\r\n            \"ADD CONSTRAINT app_book_owner_fk \"\r\n            \"FOREIGN KEY (owner_id) REFERENCES app_owner (id), \"\r\n            \"ALGORITHM=INPLACE, LOCK=NONE\"\r\n        ),\r\n        migrations.RunSQL(\"SET foreign_key_checks = 1\"),\r\n    ],\r\n)\r\n}}}\r\n\r\nFor a nullable FK, all existing rows are NULL, so there's nothing to validate and it's safe to disable foreign_key_checks for the constraint step.\r\n\r\nThe patch makes the MySQL schema editor do this for nullable FKs with db_constraint=True. Non-null FKs keep the single statement. The test checks that\r\ninformation_schema.innodb_tables.total_row_versions goes up by one, which is how an instant add shows up. A rebuild resets it to 0.\r\n\r\nPR: https://github.com/django/django/pull/22146",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 14, 2026, 2:55:06 AM",
+        "updated_at": "Oct 14, 2026, 3:04:24 AM",
+        "reporter": "Tim Kedmenec",
+        "owner": "",
+        "component": "Migrations",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37425",
+        "pr_url": "https://github.com/django/django/pull/22146",
+        "pr_status": "open",
+        "raw_data": {
+          "id": "37425",
+          "Summary": "Adding a nullable ForeignKey on MySQL rebuilds the table",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Migrations",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 14, 2026, 2:55:06 AM",
+          "Modified": "Oct 14, 2026, 3:04:24 AM",
+          "Reporter": "Tim Kedmenec",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "On MySQL, adding a nullable ForeignKey to an existing table rebuilds the whole table. ADD COLUMN can be ALGORITHM=INSTANT. ADD FOREIGN KEY can't be INSTANT, and it\r\ncan't be INPLACE unless foreign_key_checks is off (error 1846: \"Adding foreign keys needs foreign_key_checks=OFF\"). Django leaves checks on, so the constraint step is\r\nALGORITHM=COPY.\r\n\r\nBefore 3.0, add_field() ran the column add on its own and queued the FK in deferred_sql (code\r\n(https://github.com/django/django/blob/9a0cc54524422dbdd9213e83a8ad7e8a4c13bd3e/django/db/backends/base/schema.py)). The column was instant, but the FK statement was\r\nstill a COPY. Since 3.0, 738faf9da2 (https://github.com/django/django/commit/738faf9da2a5cd03148a36375db80746c99c9623) (#30108) puts both in one statement:\r\n\r\n{{{#!sql\r\nALTER TABLE t\r\n    ADD COLUMN owner_id integer NULL,\r\n    ADD CONSTRAINT t_owner_id_fk FOREIGN KEY (owner_id) REFERENCES owner (id);\r\n}}}\r\n\r\nso the column add is no longer instant either (see comment:11 on #30108). On a ~100GB table this takes hours.\r\n\r\nOur workaround is a hand-written migration:\r\n\r\n{{{#!python\r\nmigrations.SeparateDatabaseAndState(\r\n    state_operations=[\r\n        migrations.AddField(\r\n            model_name=\"book\",\r\n            name=\"owner\",\r\n            field=models.ForeignKey(\r\n                \"app.Owner\",\r\n                null=True,\r\n                on_delete=models.SET_NULL,\r\n            ),\r\n        ),\r\n    ],\r\n    database_operations=[\r\n        migrations.RunSQL(\r\n            \"ALTER TABLE app_book \"\r\n            \"ADD COLUMN owner_id integer NULL, ALGORITHM=INSTANT\",\r\n            reverse_sql=(\r\n                \"ALTER TABLE app_book DROP COLUMN owner_id, ALGORITHM=INSTANT\"\r\n            ),\r\n        ),\r\n        migrations.RunSQL(\"SET foreign_key_checks = 0\"),\r\n        migrations.RunSQL(\r\n            \"ALTER TABLE app_book \"\r\n            \"ADD CONSTRAINT app_book_owner_fk \"\r\n            \"FOREIGN KEY (owner_id) REFERENCES app_owner (id), \"\r\n            \"ALGORITHM=INPLACE, LOCK=NONE\"\r\n        ),\r\n        migrations.RunSQL(\"SET foreign_key_checks = 1\"),\r\n    ],\r\n)\r\n}}}\r\n\r\nFor a nullable FK, all existing rows are NULL, so there's nothing to validate and it's safe to disable foreign_key_checks for the constraint step.\r\n\r\nThe patch makes the MySQL schema editor do this for nullable FKs with db_constraint=True. Non-null FKs keep the single statement. The test checks that\r\ninformation_schema.innodb_tables.total_row_versions goes up by one, which is how an instant add shows up. A rebuild resets it to 0.\r\n\r\nPR: https://github.com/django/django/pull/22146"
         }
       }
     }
