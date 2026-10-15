@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37428
+      "last_seen_id": 37429
     }
   },
   "tracked": {
@@ -3546,6 +3546,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Sibling ticket for #37232, which is already advanced on the new features board. This ticket is not open for assignment until the contributors who have already reviewed and participated on #37232 have had a chance to indicate interest.\r\n\r\n#37232 left caching out of scope. We should consider adding support for caching HTTP QUERY methods to the cache middleware if we can answer these questions:\r\n- Cache key: I presume we need to append a hash of the request body to the cache key, without parsing.\r\n- Re-reading: what happens when a view calls `request.read()`? This would cause `RawPostDataException` when trying to read the raw body again to calculate the cache key afterward. (Calculating the key after the view could happen on cold-caches.)\r\n- Do we let `RequestDataTooBig` emanate from the cache middleware instead of the view? This could catch someone who has `except RequestDataTooBig` in a `def post()` decorated with `@csrf_exempt` that they are converting to `def query()`. Or do we treat the over-limit case as \"don't cache\" and let the view run? One way or the other we might need a backward incompatible change notice."
+        }
+      }
+    },
+    "django:37429": {
+      "source": "django",
+      "ticket_id": 37429,
+      "watcher_issue_number": 101,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-15T19:32:20.338334+00:00",
+      "last_updated": "2026-10-15T19:32:20.338334+00:00",
+      "ticket_data": {
+        "id": 37429,
+        "source_id": "django",
+        "title": "Cannot create multipart alternative mail with subparts",
+        "description": "I want to create a mail with a plain/text alternative, and an html alternative containing images referenced by CID.\r\nIt used to be possible before Django 6, but the new API fails when trying to build such mail:\r\n\r\n\r\n{{{\r\nmultipart/alternative\r\n\u251c\u2500\u2500 text/plain; charset=UTF-8\r\n\u2514\u2500\u2500 multipart/related; type=\"text/html\"\r\n    \u251c\u2500\u2500 text/html; charset=UTF-8\r\n    \u2514\u2500\u2500 image/png\r\n        Content-ID: <image001>\r\n        Content-Disposition: inline\r\n}}}\r\n\r\n\r\nI tried to create the HTML + image part using a MIMEPart(), but there is no way to attach it to the Django EmailMultiAlternatives.\r\n\r\nThe attach_alternative() method does not support taking a MimePart as content parameter. It requires a content-type.\r\nIf the content-type is text, in _add_bodies(), it calls add_alternative() with a charset parameter, and fails as the charset argument is not supported by the content manager when inserting a MimePart.\r\nIf the content-type is something else, _add_bodies() converts the whole MimePart into base64 and insert it unstructured.\r\n \r\nIf I use the attach() method instead, the part is properly inserted, but the whole messages switch to mixed content-type, and not alternative content-type.\r\n\r\n\r\n",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 15, 2026, 12:49:23 PM",
+        "updated_at": "Oct 15, 2026, 1:15:17 PM",
+        "reporter": "jddupas",
+        "owner": "",
+        "component": "Core (Mail)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37429",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37429",
+          "Summary": "Cannot create multipart alternative mail with subparts",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Core (Mail)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 15, 2026, 12:49:23 PM",
+          "Modified": "Oct 15, 2026, 1:15:17 PM",
+          "Reporter": "jddupas",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "I want to create a mail with a plain/text alternative, and an html alternative containing images referenced by CID.\r\nIt used to be possible before Django 6, but the new API fails when trying to build such mail:\r\n\r\n\r\n{{{\r\nmultipart/alternative\r\n\u251c\u2500\u2500 text/plain; charset=UTF-8\r\n\u2514\u2500\u2500 multipart/related; type=\"text/html\"\r\n    \u251c\u2500\u2500 text/html; charset=UTF-8\r\n    \u2514\u2500\u2500 image/png\r\n        Content-ID: <image001>\r\n        Content-Disposition: inline\r\n}}}\r\n\r\n\r\nI tried to create the HTML + image part using a MIMEPart(), but there is no way to attach it to the Django EmailMultiAlternatives.\r\n\r\nThe attach_alternative() method does not support taking a MimePart as content parameter. It requires a content-type.\r\nIf the content-type is text, in _add_bodies(), it calls add_alternative() with a charset parameter, and fails as the charset argument is not supported by the content manager when inserting a MimePart.\r\nIf the content-type is something else, _add_bodies() converts the whole MimePart into base64 and insert it unstructured.\r\n \r\nIf I use the attach() method instead, the part is properly inserted, but the whole messages switch to mixed content-type, and not alternative content-type.\r\n\r\n\r\n"
         }
       }
     }
