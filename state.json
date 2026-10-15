@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37425
+      "last_seen_id": 37427
     }
   },
   "tracked": {
@@ -3395,6 +3395,107 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "On MySQL, adding a nullable ForeignKey to an existing table rebuilds the whole table. ADD COLUMN can be ALGORITHM=INSTANT. ADD FOREIGN KEY can't be INSTANT, and it\r\ncan't be INPLACE unless foreign_key_checks is off (error 1846: \"Adding foreign keys needs foreign_key_checks=OFF\"). Django leaves checks on, so the constraint step is\r\nALGORITHM=COPY.\r\n\r\nBefore 3.0, add_field() ran the column add on its own and queued the FK in deferred_sql (code\r\n(https://github.com/django/django/blob/9a0cc54524422dbdd9213e83a8ad7e8a4c13bd3e/django/db/backends/base/schema.py)). The column was instant, but the FK statement was\r\nstill a COPY. Since 3.0, 738faf9da2 (https://github.com/django/django/commit/738faf9da2a5cd03148a36375db80746c99c9623) (#30108) puts both in one statement:\r\n\r\n{{{#!sql\r\nALTER TABLE t\r\n    ADD COLUMN owner_id integer NULL,\r\n    ADD CONSTRAINT t_owner_id_fk FOREIGN KEY (owner_id) REFERENCES owner (id);\r\n}}}\r\n\r\nso the column add is no longer instant either (see comment:11 on #30108). On a ~100GB table this takes hours.\r\n\r\nOur workaround is a hand-written migration:\r\n\r\n{{{#!python\r\nmigrations.SeparateDatabaseAndState(\r\n    state_operations=[\r\n        migrations.AddField(\r\n            model_name=\"book\",\r\n            name=\"owner\",\r\n            field=models.ForeignKey(\r\n                \"app.Owner\",\r\n                null=True,\r\n                on_delete=models.SET_NULL,\r\n            ),\r\n        ),\r\n    ],\r\n    database_operations=[\r\n        migrations.RunSQL(\r\n            \"ALTER TABLE app_book \"\r\n            \"ADD COLUMN owner_id integer NULL, ALGORITHM=INSTANT\",\r\n            reverse_sql=(\r\n                \"ALTER TABLE app_book DROP COLUMN owner_id, ALGORITHM=INSTANT\"\r\n            ),\r\n        ),\r\n        migrations.RunSQL(\"SET foreign_key_checks = 0\"),\r\n        migrations.RunSQL(\r\n            \"ALTER TABLE app_book \"\r\n            \"ADD CONSTRAINT app_book_owner_fk \"\r\n            \"FOREIGN KEY (owner_id) REFERENCES app_owner (id), \"\r\n            \"ALGORITHM=INPLACE, LOCK=NONE\"\r\n        ),\r\n        migrations.RunSQL(\"SET foreign_key_checks = 1\"),\r\n    ],\r\n)\r\n}}}\r\n\r\nFor a nullable FK, all existing rows are NULL, so there's nothing to validate and it's safe to disable foreign_key_checks for the constraint step.\r\n\r\nThe patch makes the MySQL schema editor do this for nullable FKs with db_constraint=True. Non-null FKs keep the single statement. The test checks that\r\ninformation_schema.innodb_tables.total_row_versions goes up by one, which is how an instant add shows up. A rebuild resets it to 0.\r\n\r\nPR: https://github.com/django/django/pull/22146"
+        }
+      }
+    },
+    "django:37426": {
+      "source": "django",
+      "ticket_id": 37426,
+      "watcher_issue_number": 98,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-15T11:47:14.660781+00:00",
+      "last_updated": "2026-10-15T11:47:14.660781+00:00",
+      "ticket_data": {
+        "id": 37426,
+        "source_id": "django",
+        "title": "Restrict the allowed number of open PRs to django/django for new contributors",
+        "description": "Following discussions with many Django contributors, we have agreed that Django should use a GitHub Action to limit the number of open pull requests from new contributors.\r\n\r\nWhen a pull request is opened on `django/django`, the action will check whether the contributor meets all three conditions:\r\n\r\n- Has fewer than five commits on Django\u2019s `main` branch.\r\n- Has another open pull request created within the past six months.\r\n- Is not a member of a Django organisation GitHub team, such as the triage and review team, accessibility team, or steering council.\r\n\r\nIf all three conditions hold, the new pull request will be automatically closed with an explanatory message.\r\n\r\n> Thank you for contributing to Django!\r\n>\r\n> Since you have fewer than five commits in Django and already have an open pull request created within the past six months, please finish or close that pull request before opening another. We are closing this pull request because you have reached this limit.\r\n>\r\n> Please focus on your existing pull request and any outstanding review feedback. If you would prefer to work on this issue, you can close your existing pull request and unassign yourself from its associated ticket so someone else can take it on. You can then reopen this pull request.\r\n\r\nThe aim is to help new contributors learn Django\u2019s contribution and review process by focusing on one contribution at a time, responding to feedback, and bringing their work to completion. This would also discourage contributors from claiming several tickets at once, leaving them unavailable to others.\r\n\r\nThe limits that I have suggested (5 commits, 6 months etc) can be later changed or changed during review.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 15, 2026, 3:01:03 AM",
+        "updated_at": "Oct 15, 2026, 3:01:10 AM",
+        "reporter": "Sarah Boyce",
+        "owner": "Sarah Boyce",
+        "component": "Core (Other)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37426",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37426",
+          "Summary": "Restrict the allowed number of open PRs to django/django for new contributors",
+          "Type": "Cleanup/optimization",
+          "Status": "assigned",
+          "Component": "Core (Other)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 15, 2026, 3:01:03 AM",
+          "Modified": "Oct 15, 2026, 3:01:10 AM",
+          "Reporter": "Sarah Boyce",
+          "Owner": "Sarah Boyce",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Following discussions with many Django contributors, we have agreed that Django should use a GitHub Action to limit the number of open pull requests from new contributors.\r\n\r\nWhen a pull request is opened on `django/django`, the action will check whether the contributor meets all three conditions:\r\n\r\n- Has fewer than five commits on Django\u2019s `main` branch.\r\n- Has another open pull request created within the past six months.\r\n- Is not a member of a Django organisation GitHub team, such as the triage and review team, accessibility team, or steering council.\r\n\r\nIf all three conditions hold, the new pull request will be automatically closed with an explanatory message.\r\n\r\n> Thank you for contributing to Django!\r\n>\r\n> Since you have fewer than five commits in Django and already have an open pull request created within the past six months, please finish or close that pull request before opening another. We are closing this pull request because you have reached this limit.\r\n>\r\n> Please focus on your existing pull request and any outstanding review feedback. If you would prefer to work on this issue, you can close your existing pull request and unassign yourself from its associated ticket so someone else can take it on. You can then reopen this pull request.\r\n\r\nThe aim is to help new contributors learn Django\u2019s contribution and review process by focusing on one contribution at a time, responding to feedback, and bringing their work to completion. This would also discourage contributors from claiming several tickets at once, leaving them unavailable to others.\r\n\r\nThe limits that I have suggested (5 commits, 6 months etc) can be later changed or changed during review."
+        }
+      }
+    },
+    "django:37427": {
+      "source": "django",
+      "ticket_id": 37427,
+      "watcher_issue_number": 99,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-15T11:47:16.217050+00:00",
+      "last_updated": "2026-10-15T11:47:16.217050+00:00",
+      "ticket_data": {
+        "id": 37427,
+        "source_id": "django",
+        "title": "GenericRelation querysets fail as subqueries after implicit database routing",
+        "description": "Generic relation managers eagerly bind the database selected by the read router, even when the caller hasn't selected a database explicitly. When such a queryset is used in an __in subquery on another connection, this implicit selection triggers the cross-database ValueError.\r\n\r\nOrdinary related managers pass the related instance as a router hint without binding an implicit database choice.\r\n\r\n=== Reproduction ===\r\n\r\nConfigure two databases, default and other, with the application's tables and django.contrib.contenttypes migrated on both. The following deterministic router illustrates the issue in a primary/replica configuration:\r\n\r\n{{{#!python\r\nclass ReplicaRouter:\r\n    def db_for_read(self, model, instance=None, **hints):\r\n        if instance is not None:\r\n            return instance._state.db or \"other\"\r\n        return \"other\"\r\n\r\n    def db_for_write(self, model, **hints):\r\n        return \"default\"\r\n\r\n\r\nDATABASE_ROUTERS = [ReplicaRouter()]\r\n}}}\r\n\r\nModels in an installed application:\r\n\r\n{{{#!python\r\nfrom django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation\r\nfrom django.contrib.contenttypes.models import ContentType\r\nfrom django.db import models\r\n\r\n\r\nclass Review(models.Model):\r\n    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)\r\n    object_id = models.PositiveIntegerField()\r\n    content_object = GenericForeignKey()\r\n\r\n\r\nclass Book(models.Model):\r\n    title = models.CharField(max_length=100)\r\n    reviews = GenericRelation(Review)\r\n}}}\r\n\r\nAfter migrating both databases, run:\r\n\r\n{{{#!python\r\nbook = Book.objects.create(title=\"Example\")\r\nReview.objects.create(content_object=book)\r\n\r\ninner = book.reviews.all()\r\nouter = Review.objects.filter(pk__in=inner)\r\n\r\n# No using() or db_manager() call was made.\r\nassert inner._db == \"default\"\r\nassert outer._db is None\r\nassert outer.db == \"other\"\r\n\r\nlist(outer)\r\n}}}\r\n\r\nActual result:\r\n\r\n{{{\r\nValueError: Subqueries aren't allowed across different databases. Force the inner query to be evaluated using `list(inner_query)`.\r\n}}}\r\n\r\nExpected result: the subquery should execute on the outer query's connection (other). Evaluating the inner queryset independently should retain instance-aware routing to default.\r\n\r\n=== Proposed fix ===\r\n\r\nIn GenericRelatedObjectManager._apply_rel_filters(), pass the related instance as a queryset routing hint and call using(self._db) only when the manager has an explicitly selected database, following the existing foreign-key and many-to-many related managers.\r\n\r\nExplicit using() and db_manager() selections remain respected, including the existing ValueError when an explicitly selected inner database conflicts with the outer connection.\r\n\r\nThe patch includes a regression test for implicit subquery execution, standalone routing, and explicit database selections, plus documentation explaining database selection for __in subqueries.\r\n\r\nVerified against the main development branch. The selected SQLite suites completed successfully (1,433 tests, including 20 skips and 5 expected failures). Formatting, lint checks, and the Sphinx HTML documentation build also passed.\r\n\r\nPatch: https://github.com/django/django/pull/22154\r\n",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 15, 2026, 5:23:44 AM",
+        "updated_at": "Oct 15, 2026, 5:23:44 AM",
+        "reporter": "Lev Zlobin",
+        "owner": "Lev Zlobin",
+        "component": "contrib.contenttypes",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37427",
+        "pr_url": "https://github.com/django/django/pull/22154",
+        "pr_status": "open",
+        "raw_data": {
+          "id": "37427",
+          "Summary": "GenericRelation querysets fail as subqueries after implicit database routing",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "contrib.contenttypes",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 15, 2026, 5:23:44 AM",
+          "Modified": "Oct 15, 2026, 5:23:44 AM",
+          "Reporter": "Lev Zlobin",
+          "Owner": "Lev Zlobin",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Generic relation managers eagerly bind the database selected by the read router, even when the caller hasn't selected a database explicitly. When such a queryset is used in an __in subquery on another connection, this implicit selection triggers the cross-database ValueError.\r\n\r\nOrdinary related managers pass the related instance as a router hint without binding an implicit database choice.\r\n\r\n=== Reproduction ===\r\n\r\nConfigure two databases, default and other, with the application's tables and django.contrib.contenttypes migrated on both. The following deterministic router illustrates the issue in a primary/replica configuration:\r\n\r\n{{{#!python\r\nclass ReplicaRouter:\r\n    def db_for_read(self, model, instance=None, **hints):\r\n        if instance is not None:\r\n            return instance._state.db or \"other\"\r\n        return \"other\"\r\n\r\n    def db_for_write(self, model, **hints):\r\n        return \"default\"\r\n\r\n\r\nDATABASE_ROUTERS = [ReplicaRouter()]\r\n}}}\r\n\r\nModels in an installed application:\r\n\r\n{{{#!python\r\nfrom django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation\r\nfrom django.contrib.contenttypes.models import ContentType\r\nfrom django.db import models\r\n\r\n\r\nclass Review(models.Model):\r\n    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)\r\n    object_id = models.PositiveIntegerField()\r\n    content_object = GenericForeignKey()\r\n\r\n\r\nclass Book(models.Model):\r\n    title = models.CharField(max_length=100)\r\n    reviews = GenericRelation(Review)\r\n}}}\r\n\r\nAfter migrating both databases, run:\r\n\r\n{{{#!python\r\nbook = Book.objects.create(title=\"Example\")\r\nReview.objects.create(content_object=book)\r\n\r\ninner = book.reviews.all()\r\nouter = Review.objects.filter(pk__in=inner)\r\n\r\n# No using() or db_manager() call was made.\r\nassert inner._db == \"default\"\r\nassert outer._db is None\r\nassert outer.db == \"other\"\r\n\r\nlist(outer)\r\n}}}\r\n\r\nActual result:\r\n\r\n{{{\r\nValueError: Subqueries aren't allowed across different databases. Force the inner query to be evaluated using `list(inner_query)`.\r\n}}}\r\n\r\nExpected result: the subquery should execute on the outer query's connection (other). Evaluating the inner queryset independently should retain instance-aware routing to default.\r\n\r\n=== Proposed fix ===\r\n\r\nIn GenericRelatedObjectManager._apply_rel_filters(), pass the related instance as a queryset routing hint and call using(self._db) only when the manager has an explicitly selected database, following the existing foreign-key and many-to-many related managers.\r\n\r\nExplicit using() and db_manager() selections remain respected, including the existing ValueError when an explicitly selected inner database conflicts with the outer connection.\r\n\r\nThe patch includes a regression test for implicit subquery execution, standalone routing, and explicit database selections, plus documentation explaining database selection for __in subqueries.\r\n\r\nVerified against the main development branch. The selected SQLite suites completed successfully (1,433 tests, including 20 skips and 5 expected failures). Formatting, lint checks, and the Sphinx HTML documentation build also passed.\r\n\r\nPatch: https://github.com/django/django/pull/22154\r\n"
         }
       }
     }
