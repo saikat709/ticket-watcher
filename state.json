@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37427
+      "last_seen_id": 37428
     }
   },
   "tracked": {
@@ -3496,6 +3496,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Generic relation managers eagerly bind the database selected by the read router, even when the caller hasn't selected a database explicitly. When such a queryset is used in an __in subquery on another connection, this implicit selection triggers the cross-database ValueError.\r\n\r\nOrdinary related managers pass the related instance as a router hint without binding an implicit database choice.\r\n\r\n=== Reproduction ===\r\n\r\nConfigure two databases, default and other, with the application's tables and django.contrib.contenttypes migrated on both. The following deterministic router illustrates the issue in a primary/replica configuration:\r\n\r\n{{{#!python\r\nclass ReplicaRouter:\r\n    def db_for_read(self, model, instance=None, **hints):\r\n        if instance is not None:\r\n            return instance._state.db or \"other\"\r\n        return \"other\"\r\n\r\n    def db_for_write(self, model, **hints):\r\n        return \"default\"\r\n\r\n\r\nDATABASE_ROUTERS = [ReplicaRouter()]\r\n}}}\r\n\r\nModels in an installed application:\r\n\r\n{{{#!python\r\nfrom django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation\r\nfrom django.contrib.contenttypes.models import ContentType\r\nfrom django.db import models\r\n\r\n\r\nclass Review(models.Model):\r\n    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)\r\n    object_id = models.PositiveIntegerField()\r\n    content_object = GenericForeignKey()\r\n\r\n\r\nclass Book(models.Model):\r\n    title = models.CharField(max_length=100)\r\n    reviews = GenericRelation(Review)\r\n}}}\r\n\r\nAfter migrating both databases, run:\r\n\r\n{{{#!python\r\nbook = Book.objects.create(title=\"Example\")\r\nReview.objects.create(content_object=book)\r\n\r\ninner = book.reviews.all()\r\nouter = Review.objects.filter(pk__in=inner)\r\n\r\n# No using() or db_manager() call was made.\r\nassert inner._db == \"default\"\r\nassert outer._db is None\r\nassert outer.db == \"other\"\r\n\r\nlist(outer)\r\n}}}\r\n\r\nActual result:\r\n\r\n{{{\r\nValueError: Subqueries aren't allowed across different databases. Force the inner query to be evaluated using `list(inner_query)`.\r\n}}}\r\n\r\nExpected result: the subquery should execute on the outer query's connection (other). Evaluating the inner queryset independently should retain instance-aware routing to default.\r\n\r\n=== Proposed fix ===\r\n\r\nIn GenericRelatedObjectManager._apply_rel_filters(), pass the related instance as a queryset routing hint and call using(self._db) only when the manager has an explicitly selected database, following the existing foreign-key and many-to-many related managers.\r\n\r\nExplicit using() and db_manager() selections remain respected, including the existing ValueError when an explicitly selected inner database conflicts with the outer connection.\r\n\r\nThe patch includes a regression test for implicit subquery execution, standalone routing, and explicit database selections, plus documentation explaining database selection for __in subqueries.\r\n\r\nVerified against the main development branch. The selected SQLite suites completed successfully (1,433 tests, including 20 skips and 5 expected failures). Formatting, lint checks, and the Sphinx HTML documentation build also passed.\r\n\r\nPatch: https://github.com/django/django/pull/22154\r\n"
+        }
+      }
+    },
+    "django:37428": {
+      "source": "django",
+      "ticket_id": 37428,
+      "watcher_issue_number": 100,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-15T15:53:51.858529+00:00",
+      "last_updated": "2026-10-15T15:53:51.858529+00:00",
+      "ticket_data": {
+        "id": 37428,
+        "source_id": "django",
+        "title": "Add support for HTTP QUERY method to CacheMiddleware/@cache_page",
+        "description": "Sibling ticket for #37232, which is already advanced on the new features board. This ticket is not open for assignment until the contributors who have already reviewed and participated on #37232 have had a chance to indicate interest.\r\n\r\n#37232 left caching out of scope. We should consider adding support for caching HTTP QUERY methods to the cache middleware if we can answer these questions:\r\n- Cache key: I presume we need to append a hash of the request body to the cache key, without parsing.\r\n- Re-reading: what happens when a view calls `request.read()`? This would cause `RawPostDataException` when trying to read the raw body again to calculate the cache key afterward. (Calculating the key after the view could happen on cold-caches.)\r\n- Do we let `RequestDataTooBig` emanate from the cache middleware instead of the view? This could catch someone who has `except RequestDataTooBig` in a `def post()` decorated with `@csrf_exempt` that they are converting to `def query()`. Or do we treat the over-limit case as \"don't cache\" and let the view run? One way or the other we might need a backward incompatible change notice.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 15, 2026, 10:06:56 AM",
+        "updated_at": "Oct 15, 2026, 10:06:56 AM",
+        "reporter": "Jacob Walls",
+        "owner": "Participants on sibling ticket have right of first refusal",
+        "component": "Core (Cache system)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37428",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37428",
+          "Summary": "Add support for HTTP QUERY method to CacheMiddleware/@cache_page",
+          "Type": "New feature",
+          "Status": "assigned",
+          "Component": "Core (Cache system)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 15, 2026, 10:06:56 AM",
+          "Modified": "Oct 15, 2026, 10:06:56 AM",
+          "Reporter": "Jacob Walls",
+          "Owner": "Participants on sibling ticket have right of first refusal",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Sibling ticket for #37232, which is already advanced on the new features board. This ticket is not open for assignment until the contributors who have already reviewed and participated on #37232 have had a chance to indicate interest.\r\n\r\n#37232 left caching out of scope. We should consider adding support for caching HTTP QUERY methods to the cache middleware if we can answer these questions:\r\n- Cache key: I presume we need to append a hash of the request body to the cache key, without parsing.\r\n- Re-reading: what happens when a view calls `request.read()`? This would cause `RawPostDataException` when trying to read the raw body again to calculate the cache key afterward. (Calculating the key after the view could happen on cold-caches.)\r\n- Do we let `RequestDataTooBig` emanate from the cache middleware instead of the view? This could catch someone who has `except RequestDataTooBig` in a `def post()` decorated with `@csrf_exempt` that they are converting to `def query()`. Or do we treat the over-limit case as \"don't cache\" and let the view run? One way or the other we might need a backward incompatible change notice."
         }
       }
     }
