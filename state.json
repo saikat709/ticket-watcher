@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37431
+      "last_seen_id": 37432
     }
   },
   "tracked": {
@@ -3697,6 +3697,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "On Python 3.15.0, Django's migration serializer treats built-in frozendict instances as generic iterables, preserving only their keys and silently discarding their values.\r\n\r\nReproduced against Django main at d430084791.\r\n\r\nMinimal reproducer:\r\n\r\n{{{#!python\r\nfrom django.db.migrations.writer import MigrationWriter\r\n\r\nMigrationWriter.serialize(frozendict(answer=42))\r\n}}}\r\n\r\nActual result:\r\n\r\n{{{#!python\r\n(\"('answer',)\", set())\r\n}}}\r\n\r\nExpected behavior: preserve the mapping's keys and values instead of serializing it as a tuple of keys.\r\n\r\nThis affects field defaults:\r\n\r\n{{{#!python\r\nmodels.JSONField(default=frozendict(answer=42))\r\n}}}\r\n\r\nThe generated migration contains:\r\n\r\n{{{#!python\r\nmodels.JSONField(default=('answer',))\r\n}}}\r\n\r\nThe database consequence was reproduced on SQLite: executing a generated AddField migration against an existing row stores {{{[\"answer\"]}}} instead of {{{{\"answer\": 42}}}}.\r\n\r\nThe serializer registry handles dict explicitly, but frozendict is not a dict subclass and falls through to IterableSerializer.\r\n\r\nA proposed patch adds a dedicated serializer, regression tests in the migration writer and operation suites, and documentation noting that generated migrations containing frozendict require Python 3.15+.\r\n\r\nValidation:\r\n * Python 3.15: 75 writer/regression tests passed.\r\n * Python 3.15: 181 migration operation tests ran successfully, with 2 skipped.\r\n * Python 3.14: 75 writer/regression tests ran successfully, with 3 skipped.\r\n * Formatting and whitespace checks passed.\r\n * The full Django test suite has not been run.\r\n\r\nAI disclosure: OpenAI Codex (GPT-6) assisted with investigation, implementation, regression tests, documentation, and commit preparation."
+        }
+      }
+    },
+    "django:37432": {
+      "source": "django",
+      "ticket_id": 37432,
+      "watcher_issue_number": 104,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-16T09:58:31.131204+00:00",
+      "last_updated": "2026-10-16T09:58:31.131204+00:00",
+      "ticket_data": {
+        "id": 37432,
+        "source_id": "django",
+        "title": "QuerySet.select_for_update() after union() and friends is silently ignored",
+        "description": "`select_for_update()` doesn't raise an error when called after `union()`, `intersection()` or `difference()`. Instead, the locking is silently dropped:\r\n- the generated SQL contains no FOR UPDATE clause, so no rows are locked;\r\n- the \"select_for_update cannot be used outside of a transaction.\" `TransactionManagementError` is never raised, because the compiler only performs that check for non-combined queries.\r\n\r\nFor example, on PostgreSQL:\r\n\r\n{{{#!python\r\nfrom django.db import transaction\r\n\r\nqs = Number.objects.filter(num__lt=5)\r\nqs.select_for_update()  # outside a transaction, as expected:\r\nTransactionManagementError: select_for_update cannot be used outside of a transaction.\r\n\r\nqs.union(qs).select_for_update()  # no error, query runs\r\n<QuerySet [<Number: 0>, <Number: 4>, <Number: 3>, <Number: 2>, <Number: 1>]>\r\n\r\nwith transaction.atomic():\r\n    print(qs.union(qs).select_for_update().query)\r\n# NOTE: there's no FOR UPDATE\r\n(SELECT \"queries_number\".\"id\" AS \"col1\", \"queries_number\".\"num\" AS \"col2\", \"queries_number\".\"other_num\" AS \"col3\", \"queries_number\".\"another_num\" AS \"col4\" FROM \"queries_number\" WHERE \"queries_number\".\"num\" < 5) UNION (SELECT \"queries_number\".\"id\" AS \"col1\", \"queries_number\".\"num\" AS \"col2\", \"queries_number\".\"other_num\" AS \"col3\", \"queries_number\".\"another_num\" AS \"col4\" FROM \"queries_number\" WHERE \"queries_number\".\"num\" < 5)\r\n}}}\r\n\r\nThe [https://docs.djangoproject.com/en/dev/ref/models/querysets/#union union() docs] say that only slicing, `count()`, `exists()`, `order_by()`, and `values()`/`values_list()` are allowed on the resulting `QuerySet`. Other unsupported methods already raise `NotSupportedError` (\"Calling QuerySet.filter() after union() is not supported.\") following #27995, #31148, and #31580, but `select_for_update` was never added to that list. PostgreSQL rejects FOR UPDATE on UNION/INTERSECT/EXCEPT and their inputs, and Oracle and SQLite don\u2019t support it either. So raising `NotSupportedError` like the other methods seems the right fix. I think that\u2019s a one-line `self._not_support_combined_queries(\"select_for_update\")` in `QuerySet.select_for_update()`.\r\n\r\nHere's an example failing test based on the others in `test_qs_combinators`:\r\n{{{#!python\r\ndef test_select_for_update_unsupported_on_combined_qs(self):\r\n    qs = Number.objects.all()\r\n    msg = \"Calling QuerySet.select_for_update() after %s() is not supported.\"\r\n    combinators = [\"union\"]\r\n    if connection.features.supports_select_difference:\r\n        combinators.append(\"difference\")\r\n    if connection.features.supports_select_intersection:\r\n        combinators.append(\"intersection\")\r\n    for combinator in combinators:\r\n        with self.subTest(combinator=combinator):\r\n            with self.assertRaisesMessage(NotSupportedError, msg % combinator):\r\n                getattr(qs, combinator)(qs).select_for_update()\r\n}}}\r\n\r\nI had a hunt for any other methods that might be missing this check and the only one flagged up was the internal `complex_filter`. I'm not really familiar with this method but it would be simple enough to add the same check there if it's considered necessary.\r\n\r\nHappy to create the patch as outlined above if that seems like a sensible fix.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 16, 2026, 4:41:13 AM",
+        "updated_at": "Oct 16, 2026, 4:41:13 AM",
+        "reporter": "Alex Henman",
+        "owner": "",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37432",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37432",
+          "Summary": "QuerySet.select_for_update() after union() and friends is silently ignored",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 16, 2026, 4:41:13 AM",
+          "Modified": "Oct 16, 2026, 4:41:13 AM",
+          "Reporter": "Alex Henman",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "`select_for_update()` doesn't raise an error when called after `union()`, `intersection()` or `difference()`. Instead, the locking is silently dropped:\r\n- the generated SQL contains no FOR UPDATE clause, so no rows are locked;\r\n- the \"select_for_update cannot be used outside of a transaction.\" `TransactionManagementError` is never raised, because the compiler only performs that check for non-combined queries.\r\n\r\nFor example, on PostgreSQL:\r\n\r\n{{{#!python\r\nfrom django.db import transaction\r\n\r\nqs = Number.objects.filter(num__lt=5)\r\nqs.select_for_update()  # outside a transaction, as expected:\r\nTransactionManagementError: select_for_update cannot be used outside of a transaction.\r\n\r\nqs.union(qs).select_for_update()  # no error, query runs\r\n<QuerySet [<Number: 0>, <Number: 4>, <Number: 3>, <Number: 2>, <Number: 1>]>\r\n\r\nwith transaction.atomic():\r\n    print(qs.union(qs).select_for_update().query)\r\n# NOTE: there's no FOR UPDATE\r\n(SELECT \"queries_number\".\"id\" AS \"col1\", \"queries_number\".\"num\" AS \"col2\", \"queries_number\".\"other_num\" AS \"col3\", \"queries_number\".\"another_num\" AS \"col4\" FROM \"queries_number\" WHERE \"queries_number\".\"num\" < 5) UNION (SELECT \"queries_number\".\"id\" AS \"col1\", \"queries_number\".\"num\" AS \"col2\", \"queries_number\".\"other_num\" AS \"col3\", \"queries_number\".\"another_num\" AS \"col4\" FROM \"queries_number\" WHERE \"queries_number\".\"num\" < 5)\r\n}}}\r\n\r\nThe [https://docs.djangoproject.com/en/dev/ref/models/querysets/#union union() docs] say that only slicing, `count()`, `exists()`, `order_by()`, and `values()`/`values_list()` are allowed on the resulting `QuerySet`. Other unsupported methods already raise `NotSupportedError` (\"Calling QuerySet.filter() after union() is not supported.\") following #27995, #31148, and #31580, but `select_for_update` was never added to that list. PostgreSQL rejects FOR UPDATE on UNION/INTERSECT/EXCEPT and their inputs, and Oracle and SQLite don\u2019t support it either. So raising `NotSupportedError` like the other methods seems the right fix. I think that\u2019s a one-line `self._not_support_combined_queries(\"select_for_update\")` in `QuerySet.select_for_update()`.\r\n\r\nHere's an example failing test based on the others in `test_qs_combinators`:\r\n{{{#!python\r\ndef test_select_for_update_unsupported_on_combined_qs(self):\r\n    qs = Number.objects.all()\r\n    msg = \"Calling QuerySet.select_for_update() after %s() is not supported.\"\r\n    combinators = [\"union\"]\r\n    if connection.features.supports_select_difference:\r\n        combinators.append(\"difference\")\r\n    if connection.features.supports_select_intersection:\r\n        combinators.append(\"intersection\")\r\n    for combinator in combinators:\r\n        with self.subTest(combinator=combinator):\r\n            with self.assertRaisesMessage(NotSupportedError, msg % combinator):\r\n                getattr(qs, combinator)(qs).select_for_update()\r\n}}}\r\n\r\nI had a hunt for any other methods that might be missing this check and the only one flagged up was the internal `complex_filter`. I'm not really familiar with this method but it would be simple enough to add the same check there if it's considered necessary.\r\n\r\nHappy to create the patch as outlined above if that seems like a sensible fix."
         }
       }
     }
