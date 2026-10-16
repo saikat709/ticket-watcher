@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37430
+      "last_seen_id": 37431
     }
   },
   "tracked": {
@@ -3646,6 +3646,57 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "* Without an explicitly selected database, the subquery uses the outer query's connection rather than being routed independently.\r\n* Explicitly selecting a different database for the inner queryset raises {{{ValueError}}}.\r\n* Evaluating the inner queryset with {{{list()}}} allows values to be retrieved from another database.\r\n\r\nAdd examples to the multiple-databases guide and cross-references from the {{{using()}}} and {{{in}}} lookup documentation.\r\n\r\nThis documentation improvement was split out from https://code.djangoproject.com/ticket/37427 following review on github https://github.com/django/django/pull/22154."
+        }
+      }
+    },
+    "django:37431": {
+      "source": "django",
+      "ticket_id": 37431,
+      "watcher_issue_number": 103,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-16T05:14:50.581917+00:00",
+      "last_updated": "2026-10-16T05:14:50.581917+00:00",
+      "ticket_data": {
+        "id": 37431,
+        "source_id": "django",
+        "title": "MigrationWriter silently serializes Python 3.15 frozendict values as tuples of keys",
+        "description": "On Python 3.15.0, Django's migration serializer treats built-in frozendict instances as generic iterables, preserving only their keys and silently discarding their values.\r\n\r\nReproduced against Django main at d430084791.\r\n\r\nMinimal reproducer:\r\n\r\n{{{#!python\r\nfrom django.db.migrations.writer import MigrationWriter\r\n\r\nMigrationWriter.serialize(frozendict(answer=42))\r\n}}}\r\n\r\nActual result:\r\n\r\n{{{#!python\r\n(\"('answer',)\", set())\r\n}}}\r\n\r\nExpected behavior: preserve the mapping's keys and values instead of serializing it as a tuple of keys.\r\n\r\nThis affects field defaults:\r\n\r\n{{{#!python\r\nmodels.JSONField(default=frozendict(answer=42))\r\n}}}\r\n\r\nThe generated migration contains:\r\n\r\n{{{#!python\r\nmodels.JSONField(default=('answer',))\r\n}}}\r\n\r\nThe database consequence was reproduced on SQLite: executing a generated AddField migration against an existing row stores {{{[\"answer\"]}}} instead of {{{{\"answer\": 42}}}}.\r\n\r\nThe serializer registry handles dict explicitly, but frozendict is not a dict subclass and falls through to IterableSerializer.\r\n\r\nA proposed patch adds a dedicated serializer, regression tests in the migration writer and operation suites, and documentation noting that generated migrations containing frozendict require Python 3.15+.\r\n\r\nValidation:\r\n * Python 3.15: 75 writer/regression tests passed.\r\n * Python 3.15: 181 migration operation tests ran successfully, with 2 skipped.\r\n * Python 3.14: 75 writer/regression tests ran successfully, with 3 skipped.\r\n * Formatting and whitespace checks passed.\r\n * The full Django test suite has not been run.\r\n\r\nAI disclosure: OpenAI Codex (GPT-6) assisted with investigation, implementation, regression tests, documentation, and commit preparation.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 15, 2026, 9:06:32 PM",
+        "updated_at": "Oct 15, 2026, 9:16:29 PM",
+        "reporter": "amanjain",
+        "owner": "",
+        "component": "Migrations",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37431",
+        "pr_url": "https://github.com/django/django/pull/22157",
+        "pr_status": "closed",
+        "raw_data": {
+          "id": "37431",
+          "Summary": "MigrationWriter silently serializes Python 3.15 frozendict values as tuples of keys",
+          "Type": "Uncategorized",
+          "Status": "new",
+          "Component": "Migrations",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 15, 2026, 9:06:32 PM",
+          "Modified": "Oct 15, 2026, 9:16:29 PM",
+          "Reporter": "amanjain",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "On Python 3.15.0, Django's migration serializer treats built-in frozendict instances as generic iterables, preserving only their keys and silently discarding their values.\r\n\r\nReproduced against Django main at d430084791.\r\n\r\nMinimal reproducer:\r\n\r\n{{{#!python\r\nfrom django.db.migrations.writer import MigrationWriter\r\n\r\nMigrationWriter.serialize(frozendict(answer=42))\r\n}}}\r\n\r\nActual result:\r\n\r\n{{{#!python\r\n(\"('answer',)\", set())\r\n}}}\r\n\r\nExpected behavior: preserve the mapping's keys and values instead of serializing it as a tuple of keys.\r\n\r\nThis affects field defaults:\r\n\r\n{{{#!python\r\nmodels.JSONField(default=frozendict(answer=42))\r\n}}}\r\n\r\nThe generated migration contains:\r\n\r\n{{{#!python\r\nmodels.JSONField(default=('answer',))\r\n}}}\r\n\r\nThe database consequence was reproduced on SQLite: executing a generated AddField migration against an existing row stores {{{[\"answer\"]}}} instead of {{{{\"answer\": 42}}}}.\r\n\r\nThe serializer registry handles dict explicitly, but frozendict is not a dict subclass and falls through to IterableSerializer.\r\n\r\nA proposed patch adds a dedicated serializer, regression tests in the migration writer and operation suites, and documentation noting that generated migrations containing frozendict require Python 3.15+.\r\n\r\nValidation:\r\n * Python 3.15: 75 writer/regression tests passed.\r\n * Python 3.15: 181 migration operation tests ran successfully, with 2 skipped.\r\n * Python 3.14: 75 writer/regression tests ran successfully, with 3 skipped.\r\n * Formatting and whitespace checks passed.\r\n * The full Django test suite has not been run.\r\n\r\nAI disclosure: OpenAI Codex (GPT-6) assisted with investigation, implementation, regression tests, documentation, and commit preparation."
         }
       }
     }
