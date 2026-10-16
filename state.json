@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37433
+      "last_seen_id": 37434
     }
   },
   "tracked": {
@@ -3797,6 +3797,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "`Q.check()`, used by `CheckConstraint.validate()` and by `UniqueConstraint.validate()` with a `condition`, catches `DatabaseError` and logs it to the `django.db.models` logger:\r\n\r\n{{{#!python\r\nlogger.warning(\"Got a database error calling check() on %r: %s\", self, e)\r\n}}}\r\n\r\nDatabase error messages can include the values being validated, which may originate from user input (for example through `ModelForm` validation). These messages are currently logged as-is. For defense in depth, and for consistency with other logging call sites, `Q.check()` should log the message through `django.utils.log.log_message()` so that its content is escaped, and trim it to a reasonable length.\r\n\r\nThe trimming logic for large values is currently duplicated in `django/views/debug.py` and `django/contrib/gis/gdal/raster/source.py`. A small `trim_value()` helper in `django.utils.text` could be shared by those two places and by `Q.check()`.\r\n\r\nSeparately, the fact that `BaseConstraint.validate()` treats a constraint as satisfied when evaluating it raises a database error (logging a warning and leaving the error to surface on `save()`) is not documented. A short note in the constraints reference would help developers understand why a condition that can fail to evaluate does not act as validation."
+        }
+      }
+    },
+    "django:37434": {
+      "source": "django",
+      "ticket_id": 37434,
+      "watcher_issue_number": 106,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-16T18:29:44.453874+00:00",
+      "last_updated": "2026-10-16T18:29:44.453874+00:00",
+      "ticket_data": {
+        "id": 37434,
+        "source_id": "django",
+        "title": "Speed up post-commit callback dispatch",
+        "description": "Summary:\r\nSpeed up post-commit callback dispatch\r\n\r\nDescription:\r\n\r\nBaseDatabaseWrapper.run_and_clear_commit_hooks() drains its detached callback list with pop(0). Each removal shifts the remaining entries, so queue-management overhead is O(N\u00b2) in the number of callbacks.\r\n\r\nThis can matter for bulk work that registers a post-commit callback per item, such as deferred cache updates. Callback work itself may dominate in applications that make network or task-broker calls; those costs are not part of the queue-complexity claim.\r\n\r\nA local patch keeps the existing list-detachment step and visits each entry once, clearing its slot before calling it. This makes queue-management overhead O(N), without allocating another queue. Clearing the slot prevents completed callbacks from being retained by the detached list or a saved traceback from a later callback failure.\r\n\r\nThe existing robust/nonrobust handling stays unchanged. The list allocation still lasts until the frame is released, and failing or unrun callbacks can still be retained by a saved traceback. An external alias to this private list would see None slots instead of a shrinking list, so private-list inspection and direct mutation are not claimed to be identical.\r\n\r\nReproduction and measurements:\r\n\r\nChecked against d430084791a61b31cecec132bce3dca19194f7f2 on Python 3.14.5, Windows, SQLite.\r\n\r\nThe runner compiles the original method from that commit in memory and compares it with the changed method. Its benchmarks include transaction begin/commit, callback registration and callbacks updating an in-memory dictionary. Two workloads give callbacks separately captured bytearrays to check retained state. These are controlled workloads, not production traffic, model writes or broker calls.\r\n\r\nThere are 48 rows: 12 workloads measured separately on each of four CPU pairs. Each row has five paired timing samples per implementation and five separate tracemalloc measurements. Only two physical cores are allowed at a time, with one process and rotating CPU pairs. All rows, including slower cases, are retained. Different CPU pairs are not pooled. Peaks describe newly traced Python allocations, not total process RAM.\r\n\r\nVerification:\r\n\r\n- The same 195 focused tests ran on the original and changed methods, with no failures and the same 10 SQLite skips.\r\n- Five regression tests cover exceptions, execution ordering and callback lifetimes, including retained tracebacks and error logs.\r\n- 468 before/after comparisons matched callback order, error/log outcomes, queue state and transaction state.\r\n- Black, isort, flake8 and git diff --check passed for the changed files.\r\n\r\nThe full Django suite and other database backends have not been run. The benchmark runner, raw samples and full result table are available to attach for reproduction.\r\n\r\nWould this slot-clearing approach be acceptable, particularly the retained list allocation and the change visible through aliases to the private queue?\r\n\r\nAssistance disclosure:\r\n\r\nCodex helped run benchmarks, and draft the description and submission helper.\r\n",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 16, 2026, 12:57:46 PM",
+        "updated_at": "Oct 16, 2026, 12:57:46 PM",
+        "reporter": "harshit gupta",
+        "owner": "",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37434",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37434",
+          "Summary": "Speed up post-commit callback dispatch",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 16, 2026, 12:57:46 PM",
+          "Modified": "Oct 16, 2026, 12:57:46 PM",
+          "Reporter": "harshit gupta",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Summary:\r\nSpeed up post-commit callback dispatch\r\n\r\nDescription:\r\n\r\nBaseDatabaseWrapper.run_and_clear_commit_hooks() drains its detached callback list with pop(0). Each removal shifts the remaining entries, so queue-management overhead is O(N\u00b2) in the number of callbacks.\r\n\r\nThis can matter for bulk work that registers a post-commit callback per item, such as deferred cache updates. Callback work itself may dominate in applications that make network or task-broker calls; those costs are not part of the queue-complexity claim.\r\n\r\nA local patch keeps the existing list-detachment step and visits each entry once, clearing its slot before calling it. This makes queue-management overhead O(N), without allocating another queue. Clearing the slot prevents completed callbacks from being retained by the detached list or a saved traceback from a later callback failure.\r\n\r\nThe existing robust/nonrobust handling stays unchanged. The list allocation still lasts until the frame is released, and failing or unrun callbacks can still be retained by a saved traceback. An external alias to this private list would see None slots instead of a shrinking list, so private-list inspection and direct mutation are not claimed to be identical.\r\n\r\nReproduction and measurements:\r\n\r\nChecked against d430084791a61b31cecec132bce3dca19194f7f2 on Python 3.14.5, Windows, SQLite.\r\n\r\nThe runner compiles the original method from that commit in memory and compares it with the changed method. Its benchmarks include transaction begin/commit, callback registration and callbacks updating an in-memory dictionary. Two workloads give callbacks separately captured bytearrays to check retained state. These are controlled workloads, not production traffic, model writes or broker calls.\r\n\r\nThere are 48 rows: 12 workloads measured separately on each of four CPU pairs. Each row has five paired timing samples per implementation and five separate tracemalloc measurements. Only two physical cores are allowed at a time, with one process and rotating CPU pairs. All rows, including slower cases, are retained. Different CPU pairs are not pooled. Peaks describe newly traced Python allocations, not total process RAM.\r\n\r\nVerification:\r\n\r\n- The same 195 focused tests ran on the original and changed methods, with no failures and the same 10 SQLite skips.\r\n- Five regression tests cover exceptions, execution ordering and callback lifetimes, including retained tracebacks and error logs.\r\n- 468 before/after comparisons matched callback order, error/log outcomes, queue state and transaction state.\r\n- Black, isort, flake8 and git diff --check passed for the changed files.\r\n\r\nThe full Django suite and other database backends have not been run. The benchmark runner, raw samples and full result table are available to attach for reproduction.\r\n\r\nWould this slot-clearing approach be acceptable, particularly the retained list allocation and the change visible through aliases to the private queue?\r\n\r\nAssistance disclosure:\r\n\r\nCodex helped run benchmarks, and draft the description and submission helper.\r\n"
         }
       }
     }
