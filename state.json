@@ -11,7 +11,7 @@
       "watcher_issue_number": 2,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-06T03:12:14.317214+00:00",
       "ticket_data": {
         "id": 37326,
@@ -61,7 +61,7 @@
       "watcher_issue_number": 3,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-21T03:35:42.784530+00:00",
       "ticket_data": {
         "id": 37327,
@@ -113,7 +113,7 @@
       "watcher_issue_number": 4,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-06T03:12:14.317214+00:00",
       "ticket_data": {
         "id": 37328,
@@ -164,7 +164,7 @@
       "watcher_issue_number": 5,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-09T03:21:47.477014+00:00",
       "ticket_data": {
         "id": 37329,
@@ -216,7 +216,7 @@
       "watcher_issue_number": 6,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-15T03:26:50.698069+00:00",
       "ticket_data": {
         "id": 37330,
@@ -267,7 +267,7 @@
       "watcher_issue_number": 8,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-08T15:33:33.254698+00:00",
       "ticket_data": {
         "id": 37332,
@@ -319,7 +319,7 @@
       "watcher_issue_number": 9,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-18T03:27:08.576198+00:00",
       "ticket_data": {
         "id": 37333,
@@ -351,7 +351,7 @@
       "watcher_issue_number": 10,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-09T16:47:31.184624+00:00",
       "ticket_data": {
         "id": 37334,
@@ -402,7 +402,7 @@
       "watcher_issue_number": 11,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-11T03:17:00.522062+00:00",
       "ticket_data": {
         "id": 37335,
@@ -453,7 +453,7 @@
       "watcher_issue_number": 12,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-10T03:20:41.354089+00:00",
       "ticket_data": {
         "id": 37336,
@@ -485,7 +485,7 @@
       "watcher_issue_number": 13,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-12T03:22:11.526262+00:00",
       "ticket_data": {
         "id": 37337,
@@ -517,7 +517,7 @@
       "watcher_issue_number": 14,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-11T03:17:00.522062+00:00",
       "ticket_data": {
         "id": 37338,
@@ -549,7 +549,7 @@
       "watcher_issue_number": 15,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-19T03:23:35.576632+00:00",
       "ticket_data": {
         "id": 37339,
@@ -581,7 +581,7 @@
       "watcher_issue_number": 16,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-08T04:46:15.889621+00:00",
       "ticket_data": {
         "id": 37340,
@@ -632,7 +632,7 @@
       "watcher_issue_number": 17,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-15T03:39:13.000729+00:00",
       "ticket_data": {
         "id": 37342,
@@ -664,7 +664,7 @@
       "watcher_issue_number": 18,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-15T03:39:13.000729+00:00",
       "ticket_data": {
         "id": 37343,
@@ -715,7 +715,7 @@
       "watcher_issue_number": 19,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-19T03:23:35.576632+00:00",
       "ticket_data": {
         "id": 37344,
@@ -747,7 +747,7 @@
       "watcher_issue_number": 20,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-15T03:39:13.000729+00:00",
       "ticket_data": {
         "id": 37345,
@@ -779,7 +779,7 @@
       "watcher_issue_number": 21,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-30T04:15:04.028013+00:00",
       "ticket_data": {
         "id": 37346,
@@ -811,7 +811,7 @@
       "watcher_issue_number": 22,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-17T03:40:54.179611+00:00",
       "ticket_data": {
         "id": 37347,
@@ -843,7 +843,7 @@
       "watcher_issue_number": 23,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-26T03:48:05.396110+00:00",
       "ticket_data": {
         "id": 37348,
@@ -875,7 +875,7 @@
       "watcher_issue_number": 24,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-18T03:27:08.576198+00:00",
       "ticket_data": {
         "id": 37349,
@@ -926,7 +926,7 @@
       "watcher_issue_number": 26,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-19T03:23:35.576632+00:00",
       "ticket_data": {
         "id": 37351,
@@ -978,7 +978,7 @@
       "watcher_issue_number": 27,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-29T04:32:09.237316+00:00",
       "ticket_data": {
         "id": 37352,
@@ -1030,7 +1030,7 @@
       "watcher_issue_number": 33,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-26T03:48:05.396110+00:00",
       "ticket_data": {
         "id": 37359,
@@ -1081,7 +1081,7 @@
       "watcher_issue_number": 34,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-21T03:35:42.784530+00:00",
       "ticket_data": {
         "id": 37360,
@@ -1113,7 +1113,7 @@
       "watcher_issue_number": 36,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-09T04:49:21.496537+00:00",
       "ticket_data": {
         "id": 37362,
@@ -1145,7 +1145,7 @@
       "watcher_issue_number": 38,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-27T03:57:25.777724+00:00",
       "ticket_data": {
         "id": 37364,
@@ -1177,7 +1177,7 @@
       "watcher_issue_number": 39,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-23T03:34:31.376133+00:00",
       "ticket_data": {
         "id": 37365,
@@ -1228,7 +1228,7 @@
       "watcher_issue_number": 40,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-29T04:32:09.237316+00:00",
       "ticket_data": {
         "id": 37366,
@@ -1279,7 +1279,7 @@
       "watcher_issue_number": 41,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-25T03:42:01.987134+00:00",
       "ticket_data": {
         "id": 37367,
@@ -1331,7 +1331,7 @@
       "watcher_issue_number": 42,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-10T04:34:41.916876+00:00",
       "ticket_data": {
         "id": 37368,
@@ -1382,7 +1382,7 @@
       "watcher_issue_number": 43,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-25T03:42:01.987134+00:00",
       "ticket_data": {
         "id": 37369,
@@ -1432,7 +1432,7 @@
       "watcher_issue_number": 44,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-30T04:15:04.028013+00:00",
       "ticket_data": {
         "id": 37370,
@@ -1483,7 +1483,7 @@
       "watcher_issue_number": 45,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-26T03:48:05.396110+00:00",
       "ticket_data": {
         "id": 37371,
@@ -1533,7 +1533,7 @@
       "watcher_issue_number": 46,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-16T03:22:33.887886+00:00",
       "ticket_data": {
         "id": 37372,
@@ -1584,7 +1584,7 @@
       "watcher_issue_number": 47,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-28T03:57:29.708006+00:00",
       "ticket_data": {
         "id": 37373,
@@ -1635,7 +1635,7 @@
       "watcher_issue_number": 48,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-30T04:15:04.028013+00:00",
       "ticket_data": {
         "id": 37374,
@@ -1667,7 +1667,7 @@
       "watcher_issue_number": 49,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-10T04:34:41.916876+00:00",
       "ticket_data": {
         "id": 37375,
@@ -1699,7 +1699,7 @@
       "watcher_issue_number": 51,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-06T05:08:46.120988+00:00",
       "ticket_data": {
         "id": 37377,
@@ -1731,7 +1731,7 @@
       "watcher_issue_number": 52,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-01T04:26:53.488557+00:00",
       "ticket_data": {
         "id": 37378,
@@ -1763,7 +1763,7 @@
       "watcher_issue_number": 53,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-09-30T04:15:04.028013+00:00",
       "ticket_data": {
         "id": 37379,
@@ -1814,7 +1814,7 @@
       "watcher_issue_number": 56,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-10T04:34:41.916876+00:00",
       "ticket_data": {
         "id": 37382,
@@ -1846,7 +1846,7 @@
       "watcher_issue_number": 57,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-03T04:01:44.733449+00:00",
       "ticket_data": {
         "id": 37383,
@@ -1896,7 +1896,7 @@
       "watcher_issue_number": 58,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-06T05:08:46.120988+00:00",
       "ticket_data": {
         "id": 37384,
@@ -1946,7 +1946,7 @@
       "watcher_issue_number": 62,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-08T04:46:15.889621+00:00",
       "ticket_data": {
         "id": 37388,
@@ -1997,7 +1997,7 @@
       "watcher_issue_number": 63,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-03T04:01:44.733449+00:00",
       "ticket_data": {
         "id": 37389,
@@ -2048,7 +2048,7 @@
       "watcher_issue_number": 64,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-10T04:34:41.916876+00:00",
       "ticket_data": {
         "id": 37390,
@@ -2099,7 +2099,7 @@
       "watcher_issue_number": 65,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-02T18:57:57.137467+00:00",
       "ticket_data": {
         "id": 37391,
@@ -2149,8 +2149,8 @@
       "watcher_issue_number": 66,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
-      "last_updated": "2026-10-11T04:19:26.362245+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
+      "last_updated": "2026-10-17T03:12:31.906067+00:00",
       "ticket_data": {
         "id": 37392,
         "source_id": "django",
@@ -2159,7 +2159,7 @@
         "status": "assigned",
         "resolution": "",
         "created_at": "Oct 2, 2026, 12:23:48 PM",
-        "updated_at": "Oct 10, 2026, 12:22:10 AM",
+        "updated_at": "Oct 16, 2026, 2:51:45 PM",
         "reporter": "Robert Raposa",
         "owner": "Vaibhav Pant",
         "component": "Documentation",
@@ -2167,11 +2167,12 @@
         "severity": "Normal",
         "triage_stage": "Accepted",
         "labels": [
-          "Accepted"
+          "Accepted",
+          "has-patch"
         ],
         "url": "https://code.djangoproject.com/ticket/37392",
-        "pr_url": null,
-        "pr_status": null,
+        "pr_url": "https://github.com/django/django/pull/22159",
+        "pr_status": "open",
         "raw_data": {
           "id": "37392",
           "Summary": "Clarify the role of get_internal_type() when overriding db_type()",
@@ -2181,11 +2182,11 @@
           "Severity": "Normal",
           "Resolution": "",
           "Created": "Oct 2, 2026, 12:23:48 PM",
-          "Modified": "Oct 10, 2026, 12:22:10 AM",
+          "Modified": "Oct 16, 2026, 2:51:45 PM",
           "Reporter": "Robert Raposa",
           "Owner": "Vaibhav Pant",
           "Triage Stage": "Accepted",
-          "Has patch": "0",
+          "Has patch": "1",
           "Needs tests": "0",
           "Needs documentation": "0",
           "UI/UX": "0",
@@ -2199,7 +2200,7 @@
       "watcher_issue_number": 67,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-03T04:01:44.733449+00:00",
       "ticket_data": {
         "id": 37393,
@@ -2250,8 +2251,8 @@
       "watcher_issue_number": 68,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
-      "last_updated": "2026-10-07T04:35:37.911519+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
+      "last_updated": "2026-10-17T03:12:31.906067+00:00",
       "ticket_data": {
         "id": 37394,
         "source_id": "django",
@@ -2260,9 +2261,9 @@
         "status": "assigned",
         "resolution": "",
         "created_at": "Oct 3, 2026, 1:48:07 PM",
-        "updated_at": "Oct 6, 2026, 6:06:57 AM",
+        "updated_at": "Oct 16, 2026, 5:09:00 PM",
         "reporter": "venkatchalla06",
-        "owner": "Farhan Ali",
+        "owner": "Jico",
         "component": "Core (System checks)",
         "priority": "Normal",
         "severity": "Normal",
@@ -2282,9 +2283,9 @@
           "Severity": "Normal",
           "Resolution": "",
           "Created": "Oct 3, 2026, 1:48:07 PM",
-          "Modified": "Oct 6, 2026, 6:06:57 AM",
+          "Modified": "Oct 16, 2026, 5:09:00 PM",
           "Reporter": "venkatchalla06",
-          "Owner": "Farhan Ali",
+          "Owner": "Jico",
           "Triage Stage": "Accepted",
           "Has patch": "0",
           "Needs tests": "0",
@@ -2300,7 +2301,7 @@
       "watcher_issue_number": 69,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-03T19:34:27.574565+00:00",
       "ticket_data": {
         "id": 37395,
@@ -2350,7 +2351,7 @@
       "watcher_issue_number": 71,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-13T05:41:53.628303+00:00",
       "ticket_data": {
         "id": 37397,
@@ -2382,7 +2383,7 @@
       "watcher_issue_number": 72,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-15T03:26:50.698069+00:00",
       "ticket_data": {
         "id": 37399,
@@ -2433,7 +2434,7 @@
       "watcher_issue_number": 73,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-10T04:34:41.916876+00:00",
       "ticket_data": {
         "id": 37400,
@@ -2484,7 +2485,7 @@
       "watcher_issue_number": 74,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-09T04:49:21.496537+00:00",
       "ticket_data": {
         "id": 37401,
@@ -2535,7 +2536,7 @@
       "watcher_issue_number": 75,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-13T05:41:53.628303+00:00",
       "ticket_data": {
         "id": 37402,
@@ -2585,7 +2586,7 @@
       "watcher_issue_number": 76,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-09T04:49:21.496537+00:00",
       "ticket_data": {
         "id": 37403,
@@ -2617,7 +2618,7 @@
       "watcher_issue_number": 77,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-10T04:34:41.916876+00:00",
       "ticket_data": {
         "id": 37404,
@@ -2649,7 +2650,7 @@
       "watcher_issue_number": 79,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-10T04:34:41.916876+00:00",
       "ticket_data": {
         "id": 37406,
@@ -2699,7 +2700,7 @@
       "watcher_issue_number": 80,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-07T17:28:56.197549+00:00",
       "ticket_data": {
         "id": 37407,
@@ -2750,7 +2751,7 @@
       "watcher_issue_number": 81,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-10T04:34:41.916876+00:00",
       "ticket_data": {
         "id": 37408,
@@ -2801,7 +2802,7 @@
       "watcher_issue_number": 82,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-15T03:26:50.698069+00:00",
       "ticket_data": {
         "id": 37409,
@@ -2833,7 +2834,7 @@
       "watcher_issue_number": 83,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-09T04:49:21.496537+00:00",
       "ticket_data": {
         "id": 37410,
@@ -2883,7 +2884,7 @@
       "watcher_issue_number": 86,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-10T04:34:41.916876+00:00",
       "ticket_data": {
         "id": 37413,
@@ -2933,7 +2934,7 @@
       "watcher_issue_number": 87,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-11T04:19:26.362245+00:00",
       "ticket_data": {
         "id": 37414,
@@ -2984,7 +2985,7 @@
       "watcher_issue_number": 88,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-12T04:35:50.824103+00:00",
       "ticket_data": {
         "id": 37415,
@@ -3035,7 +3036,7 @@
       "watcher_issue_number": 89,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-13T05:41:53.628303+00:00",
       "ticket_data": {
         "id": 37416,
@@ -3085,7 +3086,7 @@
       "watcher_issue_number": 90,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-14T03:45:32.680091+00:00",
       "ticket_data": {
         "id": 37417,
@@ -3136,7 +3137,7 @@
       "watcher_issue_number": 91,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-14T03:45:32.680091+00:00",
       "ticket_data": {
         "id": 37418,
@@ -3168,7 +3169,7 @@
       "watcher_issue_number": 92,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-16T03:22:33.887886+00:00",
       "ticket_data": {
         "id": 37419,
@@ -3219,7 +3220,7 @@
       "watcher_issue_number": 93,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-13T05:41:53.628303+00:00",
       "ticket_data": {
         "id": 37420,
@@ -3270,7 +3271,7 @@
       "watcher_issue_number": 94,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-14T03:45:32.680091+00:00",
       "ticket_data": {
         "id": 37422,
@@ -3302,7 +3303,7 @@
       "watcher_issue_number": 95,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-13T17:12:53.602566+00:00",
       "ticket_data": {
         "id": 37423,
@@ -3353,7 +3354,7 @@
       "watcher_issue_number": 97,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-15T03:26:50.698069+00:00",
       "ticket_data": {
         "id": 37425,
@@ -3404,7 +3405,7 @@
       "watcher_issue_number": 98,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-16T03:22:33.887886+00:00",
       "ticket_data": {
         "id": 37426,
@@ -3454,7 +3455,7 @@
       "watcher_issue_number": 99,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-16T03:22:33.887886+00:00",
       "ticket_data": {
         "id": 37427,
@@ -3505,7 +3506,7 @@
       "watcher_issue_number": 100,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-15T15:53:51.858529+00:00",
       "ticket_data": {
         "id": 37428,
@@ -3555,7 +3556,7 @@
       "watcher_issue_number": 101,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-15T19:32:20.338334+00:00",
       "ticket_data": {
         "id": 37429,
@@ -3605,7 +3606,7 @@
       "watcher_issue_number": 102,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T03:22:33.887886+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-15T22:45:01.331784+00:00",
       "ticket_data": {
         "id": 37430,
@@ -3653,27 +3654,27 @@
       "source": "django",
       "ticket_id": 37431,
       "watcher_issue_number": 103,
-      "status": "new",
+      "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T05:14:50.581917+00:00",
-      "last_updated": "2026-10-16T05:14:50.581917+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
+      "last_updated": "2026-10-17T03:12:31.906067+00:00",
       "ticket_data": {
         "id": 37431,
         "source_id": "django",
         "title": "MigrationWriter silently serializes Python 3.15 frozendict values as tuples of keys",
         "description": "On Python 3.15.0, Django's migration serializer treats built-in frozendict instances as generic iterables, preserving only their keys and silently discarding their values.\r\n\r\nReproduced against Django main at d430084791.\r\n\r\nMinimal reproducer:\r\n\r\n{{{#!python\r\nfrom django.db.migrations.writer import MigrationWriter\r\n\r\nMigrationWriter.serialize(frozendict(answer=42))\r\n}}}\r\n\r\nActual result:\r\n\r\n{{{#!python\r\n(\"('answer',)\", set())\r\n}}}\r\n\r\nExpected behavior: preserve the mapping's keys and values instead of serializing it as a tuple of keys.\r\n\r\nThis affects field defaults:\r\n\r\n{{{#!python\r\nmodels.JSONField(default=frozendict(answer=42))\r\n}}}\r\n\r\nThe generated migration contains:\r\n\r\n{{{#!python\r\nmodels.JSONField(default=('answer',))\r\n}}}\r\n\r\nThe database consequence was reproduced on SQLite: executing a generated AddField migration against an existing row stores {{{[\"answer\"]}}} instead of {{{{\"answer\": 42}}}}.\r\n\r\nThe serializer registry handles dict explicitly, but frozendict is not a dict subclass and falls through to IterableSerializer.\r\n\r\nA proposed patch adds a dedicated serializer, regression tests in the migration writer and operation suites, and documentation noting that generated migrations containing frozendict require Python 3.15+.\r\n\r\nValidation:\r\n * Python 3.15: 75 writer/regression tests passed.\r\n * Python 3.15: 181 migration operation tests ran successfully, with 2 skipped.\r\n * Python 3.14: 75 writer/regression tests ran successfully, with 3 skipped.\r\n * Formatting and whitespace checks passed.\r\n * The full Django test suite has not been run.\r\n\r\nAI disclosure: OpenAI Codex (GPT-6) assisted with investigation, implementation, regression tests, documentation, and commit preparation.",
-        "status": "new",
+        "status": "assigned",
         "resolution": "",
         "created_at": "Oct 15, 2026, 9:06:32 PM",
-        "updated_at": "Oct 15, 2026, 9:16:29 PM",
+        "updated_at": "Oct 16, 2026, 11:52:34 AM",
         "reporter": "amanjain",
-        "owner": "",
+        "owner": "amanjain",
         "component": "Migrations",
-        "priority": "Normal",
-        "severity": "Normal",
-        "triage_stage": "Unreviewed",
+        "priority": "Release blocker",
+        "severity": "Release blocker",
+        "triage_stage": "Accepted",
         "labels": [
-          "Unreviewed",
+          "Accepted",
           "has-patch"
         ],
         "url": "https://code.djangoproject.com/ticket/37431",
@@ -3682,16 +3683,16 @@
         "raw_data": {
           "id": "37431",
           "Summary": "MigrationWriter silently serializes Python 3.15 frozendict values as tuples of keys",
-          "Type": "Uncategorized",
-          "Status": "new",
+          "Type": "Bug",
+          "Status": "assigned",
           "Component": "Migrations",
-          "Severity": "Normal",
+          "Severity": "Release blocker",
           "Resolution": "",
           "Created": "Oct 15, 2026, 9:06:32 PM",
-          "Modified": "Oct 15, 2026, 9:16:29 PM",
+          "Modified": "Oct 16, 2026, 11:52:34 AM",
           "Reporter": "amanjain",
-          "Owner": "",
-          "Triage Stage": "Unreviewed",
+          "Owner": "amanjain",
+          "Triage Stage": "Accepted",
           "Has patch": "1",
           "Needs tests": "0",
           "Needs documentation": "0",
@@ -3706,8 +3707,8 @@
       "watcher_issue_number": 104,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T09:58:31.131204+00:00",
-      "last_updated": "2026-10-16T09:58:31.131204+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
+      "last_updated": "2026-10-17T03:12:31.906067+00:00",
       "ticket_data": {
         "id": 37432,
         "source_id": "django",
@@ -3716,19 +3717,19 @@
         "status": "new",
         "resolution": "",
         "created_at": "Oct 16, 2026, 4:41:13 AM",
-        "updated_at": "Oct 16, 2026, 4:41:13 AM",
+        "updated_at": "Oct 16, 2026, 6:14:46 PM",
         "reporter": "Alex Henman",
         "owner": "",
         "component": "Database layer (models, ORM)",
         "priority": "Normal",
         "severity": "Normal",
-        "triage_stage": "Unreviewed",
+        "triage_stage": "Accepted",
         "labels": [
-          "Unreviewed"
+          "Accepted"
         ],
         "url": "https://code.djangoproject.com/ticket/37432",
-        "pr_url": null,
-        "pr_status": null,
+        "pr_url": "https://github.com/django/django/pull/22160",
+        "pr_status": "closed",
         "raw_data": {
           "id": "37432",
           "Summary": "QuerySet.select_for_update() after union() and friends is silently ignored",
@@ -3738,10 +3739,10 @@
           "Severity": "Normal",
           "Resolution": "",
           "Created": "Oct 16, 2026, 4:41:13 AM",
-          "Modified": "Oct 16, 2026, 4:41:13 AM",
+          "Modified": "Oct 16, 2026, 6:14:46 PM",
           "Reporter": "Alex Henman",
           "Owner": "",
-          "Triage Stage": "Unreviewed",
+          "Triage Stage": "Accepted",
           "Has patch": "0",
           "Needs tests": "0",
           "Needs documentation": "0",
@@ -3756,7 +3757,7 @@
       "watcher_issue_number": 105,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T14:31:14.917352+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
       "last_updated": "2026-10-16T14:31:14.917352+00:00",
       "ticket_data": {
         "id": 37433,
@@ -3804,49 +3805,31 @@
       "source": "django",
       "ticket_id": 37434,
       "watcher_issue_number": 106,
-      "status": "new",
+      "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-16T18:29:44.453874+00:00",
-      "last_updated": "2026-10-16T18:29:44.453874+00:00",
+      "last_checked": "2026-10-17T03:12:31.906067+00:00",
+      "last_updated": "2026-10-17T03:12:31.906067+00:00",
       "ticket_data": {
         "id": 37434,
         "source_id": "django",
-        "title": "Speed up post-commit callback dispatch",
-        "description": "Summary:\r\nSpeed up post-commit callback dispatch\r\n\r\nDescription:\r\n\r\nBaseDatabaseWrapper.run_and_clear_commit_hooks() drains its detached callback list with pop(0). Each removal shifts the remaining entries, so queue-management overhead is O(N\u00b2) in the number of callbacks.\r\n\r\nThis can matter for bulk work that registers a post-commit callback per item, such as deferred cache updates. Callback work itself may dominate in applications that make network or task-broker calls; those costs are not part of the queue-complexity claim.\r\n\r\nA local patch keeps the existing list-detachment step and visits each entry once, clearing its slot before calling it. This makes queue-management overhead O(N), without allocating another queue. Clearing the slot prevents completed callbacks from being retained by the detached list or a saved traceback from a later callback failure.\r\n\r\nThe existing robust/nonrobust handling stays unchanged. The list allocation still lasts until the frame is released, and failing or unrun callbacks can still be retained by a saved traceback. An external alias to this private list would see None slots instead of a shrinking list, so private-list inspection and direct mutation are not claimed to be identical.\r\n\r\nReproduction and measurements:\r\n\r\nChecked against d430084791a61b31cecec132bce3dca19194f7f2 on Python 3.14.5, Windows, SQLite.\r\n\r\nThe runner compiles the original method from that commit in memory and compares it with the changed method. Its benchmarks include transaction begin/commit, callback registration and callbacks updating an in-memory dictionary. Two workloads give callbacks separately captured bytearrays to check retained state. These are controlled workloads, not production traffic, model writes or broker calls.\r\n\r\nThere are 48 rows: 12 workloads measured separately on each of four CPU pairs. Each row has five paired timing samples per implementation and five separate tracemalloc measurements. Only two physical cores are allowed at a time, with one process and rotating CPU pairs. All rows, including slower cases, are retained. Different CPU pairs are not pooled. Peaks describe newly traced Python allocations, not total process RAM.\r\n\r\nVerification:\r\n\r\n- The same 195 focused tests ran on the original and changed methods, with no failures and the same 10 SQLite skips.\r\n- Five regression tests cover exceptions, execution ordering and callback lifetimes, including retained tracebacks and error logs.\r\n- 468 before/after comparisons matched callback order, error/log outcomes, queue state and transaction state.\r\n- Black, isort, flake8 and git diff --check passed for the changed files.\r\n\r\nThe full Django suite and other database backends have not been run. The benchmark runner, raw samples and full result table are available to attach for reproduction.\r\n\r\nWould this slot-clearing approach be acceptable, particularly the retained list allocation and the change visible through aliases to the private queue?\r\n\r\nAssistance disclosure:\r\n\r\nCodex helped run benchmarks, and draft the description and submission helper.\r\n",
-        "status": "new",
+        "title": "Ticket #37434",
+        "description": "",
+        "status": "unknown",
         "resolution": "",
-        "created_at": "Oct 16, 2026, 12:57:46 PM",
-        "updated_at": "Oct 16, 2026, 12:57:46 PM",
-        "reporter": "harshit gupta",
+        "created_at": "",
+        "updated_at": "",
+        "reporter": "",
         "owner": "",
-        "component": "Database layer (models, ORM)",
-        "priority": "Normal",
-        "severity": "Normal",
-        "triage_stage": "Unreviewed",
-        "labels": [
-          "Unreviewed"
-        ],
+        "component": "",
+        "priority": "",
+        "severity": "",
+        "triage_stage": "",
+        "labels": [],
         "url": "https://code.djangoproject.com/ticket/37434",
         "pr_url": null,
         "pr_status": null,
         "raw_data": {
-          "id": "37434",
-          "Summary": "Speed up post-commit callback dispatch",
-          "Type": "Cleanup/optimization",
-          "Status": "new",
-          "Component": "Database layer (models, ORM)",
-          "Severity": "Normal",
-          "Resolution": "",
-          "Created": "Oct 16, 2026, 12:57:46 PM",
-          "Modified": "Oct 16, 2026, 12:57:46 PM",
-          "Reporter": "harshit gupta",
-          "Owner": "",
-          "Triage Stage": "Unreviewed",
-          "Has patch": "0",
-          "Needs tests": "0",
-          "Needs documentation": "0",
-          "UI/UX": "0",
-          "Description": "Summary:\r\nSpeed up post-commit callback dispatch\r\n\r\nDescription:\r\n\r\nBaseDatabaseWrapper.run_and_clear_commit_hooks() drains its detached callback list with pop(0). Each removal shifts the remaining entries, so queue-management overhead is O(N\u00b2) in the number of callbacks.\r\n\r\nThis can matter for bulk work that registers a post-commit callback per item, such as deferred cache updates. Callback work itself may dominate in applications that make network or task-broker calls; those costs are not part of the queue-complexity claim.\r\n\r\nA local patch keeps the existing list-detachment step and visits each entry once, clearing its slot before calling it. This makes queue-management overhead O(N), without allocating another queue. Clearing the slot prevents completed callbacks from being retained by the detached list or a saved traceback from a later callback failure.\r\n\r\nThe existing robust/nonrobust handling stays unchanged. The list allocation still lasts until the frame is released, and failing or unrun callbacks can still be retained by a saved traceback. An external alias to this private list would see None slots instead of a shrinking list, so private-list inspection and direct mutation are not claimed to be identical.\r\n\r\nReproduction and measurements:\r\n\r\nChecked against d430084791a61b31cecec132bce3dca19194f7f2 on Python 3.14.5, Windows, SQLite.\r\n\r\nThe runner compiles the original method from that commit in memory and compares it with the changed method. Its benchmarks include transaction begin/commit, callback registration and callbacks updating an in-memory dictionary. Two workloads give callbacks separately captured bytearrays to check retained state. These are controlled workloads, not production traffic, model writes or broker calls.\r\n\r\nThere are 48 rows: 12 workloads measured separately on each of four CPU pairs. Each row has five paired timing samples per implementation and five separate tracemalloc measurements. Only two physical cores are allowed at a time, with one process and rotating CPU pairs. All rows, including slower cases, are retained. Different CPU pairs are not pooled. Peaks describe newly traced Python allocations, not total process RAM.\r\n\r\nVerification:\r\n\r\n- The same 195 focused tests ran on the original and changed methods, with no failures and the same 10 SQLite skips.\r\n- Five regression tests cover exceptions, execution ordering and callback lifetimes, including retained tracebacks and error logs.\r\n- 468 before/after comparisons matched callback order, error/log outcomes, queue state and transaction state.\r\n- Black, isort, flake8 and git diff --check passed for the changed files.\r\n\r\nThe full Django suite and other database backends have not been run. The benchmark runner, raw samples and full result table are available to attach for reproduction.\r\n\r\nWould this slot-clearing approach be acceptable, particularly the retained list allocation and the change visible through aliases to the private queue?\r\n\r\nAssistance disclosure:\r\n\r\nCodex helped run benchmarks, and draft the description and submission helper.\r\n"
+          "id": "37434"
         }
       }
     }
