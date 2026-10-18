@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37436
+      "last_seen_id": 37437
     }
   },
   "tracked": {
@@ -3931,6 +3931,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "When using FETCH_PEERS with deferred fields, DeferredAttribute.fetch_many() does not correctly handle peer instances whose state has changed since the queryset was evaluated.\r\n\r\nThere are two related problems.\r\n\r\n1. Locally assigned values can be overwritten\r\n\r\nConsider two objects loaded with a deferred field using FETCH_PEERS:\r\n\r\nclass Author(models.Model):\r\nname = models.CharField(max_length=100)\r\n\r\nauthors = list(\r\nAuthor.objects.defer(\"name\").fetch_mode(FETCH_PEERS)\r\n)\r\n\r\nauthors[0].name = \"locally changed\"\r\n\r\n# Fetch the deferred field for another peer.\r\n\r\n_ = authors[1].name\r\n\r\nFetching authors[1].name causes fetch_many() to populate the field on all peers. This also replaces authors[0].name with the value currently stored in the database.\r\n\r\nThe locally assigned value is therefore silently lost.\r\n\r\nThis does not happen with FETCH_ONE, where the locally assigned value is preserved.\r\n\r\n2. A deleted peer can cause KeyError\r\n\r\nA second problem occurs when one of the peer rows is deleted after the queryset has been evaluated.\r\n\r\nfetch_many() uses in_bulk() to retrieve the deferred values and then indexes the returned dictionary for every peer:\r\n\r\nvalue_by_pk = (\r\nself.field.model._base_manager.using(db)\r\n.values_list(attname, flat=True)\r\n.in_bulk({instance.pk for instance in instances})\r\n)\r\n\r\nfor instance in instances:\r\nsetattr(instance, attname, value_by_pk[instance.pk])\r\n\r\nin_bulk() does not include primary keys for rows that no longer exist. Consequently, if one peer has been deleted, accessing the deferred field on another existing peer can raise KeyError.\r\n\r\nThe missing peer should not cause an unrelated peer's deferred-field access to fail.\r\n\r\nIf the instance being accessed itself has been deleted, its behavior should remain consistent with FETCH_ONE rather than producing a KeyError caused by another peer.\r\n\r\nExpected behavior:\r\n\r\nFETCH_PEERS should not overwrite a peer's field if that value has already been assigned locally.\r\n\r\nA peer whose database row no longer exists should not cause deferred-field access on other existing peers to fail.\r\n\r\nThe behavior for the instance whose own row has been deleted should remain consistent with FETCH_ONE.\r\n\r\nI reproduced both behaviors against Django 6.1. The corresponding FETCH_ONE cases behave correctly.\r\n\r\nThis appears to be a missing state check in DeferredAttribute.fetch_many(): it unconditionally assigns the fetched value to every peer and assumes that every requested primary key is present in the result returned by in_bulk().\r\n"
+        }
+      }
+    },
+    "django:37437": {
+      "source": "django",
+      "ticket_id": 37437,
+      "watcher_issue_number": 109,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-18T11:26:41.380198+00:00",
+      "last_updated": "2026-10-18T11:26:41.380198+00:00",
+      "ticket_data": {
+        "id": 37437,
+        "source_id": "django",
+        "title": "PostgreSQL connection pool deadlocks (PoolTimeout) when OPTIONS[\"assume_role\"] is set",
+        "description": "When both `assume_role` and `pool` are set in a PostgreSQL database's OPTIONS,\r\nno connection can ever be obtained: every checkout fails with `PoolTimeout: couldn't get a connection after N sec`.\r\n\r\nReproduced with Django 6.0.7, psycopg 3.3.4, psycopg_pool 3.3.3,\r\nPostgreSQL 17/18. \r\n\r\nMinimal reproduction (role `app_role` exists and is granted to `owner`):\r\n\r\n```python\r\nimport django\r\nfrom django.conf import settings\r\n\r\nsettings.configure(DATABASES={\"default\": {\r\n    \"ENGINE\": \"django.db.backends.postgresql\",\r\n    \"NAME\": \"db\", \"USER\": \"owner\", \"PASSWORD\": \"...\", \"HOST\": \"127.0.0.1\",\r\n    \"OPTIONS\": {\"assume_role\": \"app_role\", \"pool\": {\"min_size\": 1, \"timeout\": 5}},\r\n}})\r\ndjango.setup()\r\n\r\nfrom django.db import connection\r\nwith connection.cursor() as c:  # OperationalError: couldn't get a connection after 5.00 sec\r\n    c.execute(\"SELECT current_user\")\r\n```\r\n\r\nRemoving `assume_role` (keeping `pool`) works. Removing `pool` (keeping\r\n`assume_role`) works.\r\n\r\nCause\r\n-----\r\nThe pool is created with `configure=self._configure_connection`. For a new\r\nconnection, `_configure_role(connection)` builds the statement with\r\n`self.ops.compose_sql(\"SET ROLE %s\", [new_role])`, which calls\r\n`mogrify(sql, params, self.connection)`. With psycopg 3, `mogrify()` does\r\n`with connection.cursor()` on the *DatabaseWrapper*, which calls\r\n`ensure_connection()` -> `get_new_connection()` -> `pool.getconn()`.\r\n\r\nSo the configure callback, while running inside the pool for a connection that\r\nis not yet in the pool, asks the same pool for a connection. It waits until\r\n`timeout` and raises `PoolTimeout`. The pool logs\r\n`error connecting in 'pool-1': couldn't get a connection after N sec` and\r\nretries forever.\r\n\r\n`_configure_timezone()` is not affected because it uses the raw `connection`\r\nargument. Only the role path goes through `self.ops`. The original 5.1 code\r\nhad a comment in `_configure_connection` warning that it must not access\r\nanything on `self` because it runs inside the pool. The role path breaks that\r\nrule.\r\n\r\nThe test suite does not catch this because `test_connect_role` runs under\r\n`no_pool_connection()`.\r\n\r\nImpact\r\n------\r\n- With pooling enabled, the database is unusable as soon as `assume_role` is set.\r\n- In addition, psycopg_pool does not close the connection when `configure`\r\n  raises, so every retry leaks an idle server session. In production this\r\n  eventually exhausts `max_connections` (\"too many clients\"). I observed\r\n  7 -> 19 idle sessions in 80 s with 2 processes.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 18, 2026, 4:59:13 AM",
+        "updated_at": "Oct 18, 2026, 4:59:13 AM",
+        "reporter": "moas",
+        "owner": "",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37437",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37437",
+          "Summary": "PostgreSQL connection pool deadlocks (PoolTimeout) when OPTIONS[\"assume_role\"] is set",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 18, 2026, 4:59:13 AM",
+          "Modified": "Oct 18, 2026, 4:59:13 AM",
+          "Reporter": "moas",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "When both `assume_role` and `pool` are set in a PostgreSQL database's OPTIONS,\r\nno connection can ever be obtained: every checkout fails with `PoolTimeout: couldn't get a connection after N sec`.\r\n\r\nReproduced with Django 6.0.7, psycopg 3.3.4, psycopg_pool 3.3.3,\r\nPostgreSQL 17/18. \r\n\r\nMinimal reproduction (role `app_role` exists and is granted to `owner`):\r\n\r\n```python\r\nimport django\r\nfrom django.conf import settings\r\n\r\nsettings.configure(DATABASES={\"default\": {\r\n    \"ENGINE\": \"django.db.backends.postgresql\",\r\n    \"NAME\": \"db\", \"USER\": \"owner\", \"PASSWORD\": \"...\", \"HOST\": \"127.0.0.1\",\r\n    \"OPTIONS\": {\"assume_role\": \"app_role\", \"pool\": {\"min_size\": 1, \"timeout\": 5}},\r\n}})\r\ndjango.setup()\r\n\r\nfrom django.db import connection\r\nwith connection.cursor() as c:  # OperationalError: couldn't get a connection after 5.00 sec\r\n    c.execute(\"SELECT current_user\")\r\n```\r\n\r\nRemoving `assume_role` (keeping `pool`) works. Removing `pool` (keeping\r\n`assume_role`) works.\r\n\r\nCause\r\n-----\r\nThe pool is created with `configure=self._configure_connection`. For a new\r\nconnection, `_configure_role(connection)` builds the statement with\r\n`self.ops.compose_sql(\"SET ROLE %s\", [new_role])`, which calls\r\n`mogrify(sql, params, self.connection)`. With psycopg 3, `mogrify()` does\r\n`with connection.cursor()` on the *DatabaseWrapper*, which calls\r\n`ensure_connection()` -> `get_new_connection()` -> `pool.getconn()`.\r\n\r\nSo the configure callback, while running inside the pool for a connection that\r\nis not yet in the pool, asks the same pool for a connection. It waits until\r\n`timeout` and raises `PoolTimeout`. The pool logs\r\n`error connecting in 'pool-1': couldn't get a connection after N sec` and\r\nretries forever.\r\n\r\n`_configure_timezone()` is not affected because it uses the raw `connection`\r\nargument. Only the role path goes through `self.ops`. The original 5.1 code\r\nhad a comment in `_configure_connection` warning that it must not access\r\nanything on `self` because it runs inside the pool. The role path breaks that\r\nrule.\r\n\r\nThe test suite does not catch this because `test_connect_role` runs under\r\n`no_pool_connection()`.\r\n\r\nImpact\r\n------\r\n- With pooling enabled, the database is unusable as soon as `assume_role` is set.\r\n- In addition, psycopg_pool does not close the connection when `configure`\r\n  raises, so every retry leaks an idle server session. In production this\r\n  eventually exhausts `max_connections` (\"too many clients\"). I observed\r\n  7 -> 19 idle sessions in 80 s with 2 processes."
         }
       }
     }
