@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37437
+      "last_seen_id": 37438
     }
   },
   "tracked": {
@@ -3981,6 +3981,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "When both `assume_role` and `pool` are set in a PostgreSQL database's OPTIONS,\r\nno connection can ever be obtained: every checkout fails with `PoolTimeout: couldn't get a connection after N sec`.\r\n\r\nReproduced with Django 6.0.7, psycopg 3.3.4, psycopg_pool 3.3.3,\r\nPostgreSQL 17/18. \r\n\r\nMinimal reproduction (role `app_role` exists and is granted to `owner`):\r\n\r\n```python\r\nimport django\r\nfrom django.conf import settings\r\n\r\nsettings.configure(DATABASES={\"default\": {\r\n    \"ENGINE\": \"django.db.backends.postgresql\",\r\n    \"NAME\": \"db\", \"USER\": \"owner\", \"PASSWORD\": \"...\", \"HOST\": \"127.0.0.1\",\r\n    \"OPTIONS\": {\"assume_role\": \"app_role\", \"pool\": {\"min_size\": 1, \"timeout\": 5}},\r\n}})\r\ndjango.setup()\r\n\r\nfrom django.db import connection\r\nwith connection.cursor() as c:  # OperationalError: couldn't get a connection after 5.00 sec\r\n    c.execute(\"SELECT current_user\")\r\n```\r\n\r\nRemoving `assume_role` (keeping `pool`) works. Removing `pool` (keeping\r\n`assume_role`) works.\r\n\r\nCause\r\n-----\r\nThe pool is created with `configure=self._configure_connection`. For a new\r\nconnection, `_configure_role(connection)` builds the statement with\r\n`self.ops.compose_sql(\"SET ROLE %s\", [new_role])`, which calls\r\n`mogrify(sql, params, self.connection)`. With psycopg 3, `mogrify()` does\r\n`with connection.cursor()` on the *DatabaseWrapper*, which calls\r\n`ensure_connection()` -> `get_new_connection()` -> `pool.getconn()`.\r\n\r\nSo the configure callback, while running inside the pool for a connection that\r\nis not yet in the pool, asks the same pool for a connection. It waits until\r\n`timeout` and raises `PoolTimeout`. The pool logs\r\n`error connecting in 'pool-1': couldn't get a connection after N sec` and\r\nretries forever.\r\n\r\n`_configure_timezone()` is not affected because it uses the raw `connection`\r\nargument. Only the role path goes through `self.ops`. The original 5.1 code\r\nhad a comment in `_configure_connection` warning that it must not access\r\nanything on `self` because it runs inside the pool. The role path breaks that\r\nrule.\r\n\r\nThe test suite does not catch this because `test_connect_role` runs under\r\n`no_pool_connection()`.\r\n\r\nImpact\r\n------\r\n- With pooling enabled, the database is unusable as soon as `assume_role` is set.\r\n- In addition, psycopg_pool does not close the connection when `configure`\r\n  raises, so every retry leaks an idle server session. In production this\r\n  eventually exhausts `max_connections` (\"too many clients\"). I observed\r\n  7 -> 19 idle sessions in 80 s with 2 processes."
+        }
+      }
+    },
+    "django:37438": {
+      "source": "django",
+      "ticket_id": 37438,
+      "watcher_issue_number": 110,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-18T14:42:56.400372+00:00",
+      "last_updated": "2026-10-18T14:42:56.400372+00:00",
+      "ticket_data": {
+        "id": 37438,
+        "source_id": "django",
+        "title": "Negated XOR conditions incorrectly use INNER JOIN for nullable relations",
+        "description": "Given the following models:\r\n\r\n{{{\r\nclass Detail(models.Model):\r\n    first = models.CharField(max_length=20)\r\n\r\n\r\nclass Item(models.Model):\r\n    detail = models.ForeignKey(\r\n        Detail,\r\n        models.CASCADE,\r\n        null=True,\r\n    )\r\n}}}\r\n\r\nThe following query should return both items:\r\n\r\n{{{\r\nfrom django.db.models import Q\r\n\r\ndetail = Detail.objects.create(first=\"match\")\r\nwith_detail = Item.objects.create(detail=detail)\r\nwithout_detail = Item.objects.create()\r\n\r\nitems = Item.objects.filter(\r\n    ~(\r\n        Q(detail__first__isnull=True)\r\n        ^ Q(pk=without_detail.pk)\r\n    )\r\n).order_by(\"pk\")\r\n\r\nprint(list(items.values_list(\"pk\", flat=True)))\r\n}}}\r\n\r\nFor {{{with_detail}}}, {{{detail__first__isnull}}} and\r\n{{{pk=without_detail.pk}}} are both false.\r\n\r\nFor {{{without_detail}}}, the missing {{{detail}}} produces a {{{NULL}}}\r\nvalue and its primary key matches {{{without_detail.pk}}}, so both conditions\r\nare true.\r\n\r\nA negated XOR matches when both conditions have the same result. Therefore,\r\nboth items should be returned.\r\n\r\nExpected result:\r\n\r\n{{{\r\n[with_detail.pk, without_detail.pk]\r\n}}}\r\n\r\nActual result:\r\n\r\n{{{\r\n[with_detail.pk]\r\n}}}\r\n\r\n{{{JoinPromoter}}} doesn't handle {{{XOR}}} separately. For join promotion,\r\na negated XOR is treated as an {{{AND}}}, so an {{{INNER JOIN}}} is considered\r\nsafe. The inner join removes {{{without_detail}}} before the conditions are\r\nevaluated.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 18, 2026, 8:44:54 AM",
+        "updated_at": "Oct 18, 2026, 8:44:54 AM",
+        "reporter": "Pravin",
+        "owner": "Pravin",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37438",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37438",
+          "Summary": "Negated XOR conditions incorrectly use INNER JOIN for nullable relations",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 18, 2026, 8:44:54 AM",
+          "Modified": "Oct 18, 2026, 8:44:54 AM",
+          "Reporter": "Pravin",
+          "Owner": "Pravin",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Given the following models:\r\n\r\n{{{\r\nclass Detail(models.Model):\r\n    first = models.CharField(max_length=20)\r\n\r\n\r\nclass Item(models.Model):\r\n    detail = models.ForeignKey(\r\n        Detail,\r\n        models.CASCADE,\r\n        null=True,\r\n    )\r\n}}}\r\n\r\nThe following query should return both items:\r\n\r\n{{{\r\nfrom django.db.models import Q\r\n\r\ndetail = Detail.objects.create(first=\"match\")\r\nwith_detail = Item.objects.create(detail=detail)\r\nwithout_detail = Item.objects.create()\r\n\r\nitems = Item.objects.filter(\r\n    ~(\r\n        Q(detail__first__isnull=True)\r\n        ^ Q(pk=without_detail.pk)\r\n    )\r\n).order_by(\"pk\")\r\n\r\nprint(list(items.values_list(\"pk\", flat=True)))\r\n}}}\r\n\r\nFor {{{with_detail}}}, {{{detail__first__isnull}}} and\r\n{{{pk=without_detail.pk}}} are both false.\r\n\r\nFor {{{without_detail}}}, the missing {{{detail}}} produces a {{{NULL}}}\r\nvalue and its primary key matches {{{without_detail.pk}}}, so both conditions\r\nare true.\r\n\r\nA negated XOR matches when both conditions have the same result. Therefore,\r\nboth items should be returned.\r\n\r\nExpected result:\r\n\r\n{{{\r\n[with_detail.pk, without_detail.pk]\r\n}}}\r\n\r\nActual result:\r\n\r\n{{{\r\n[with_detail.pk]\r\n}}}\r\n\r\n{{{JoinPromoter}}} doesn't handle {{{XOR}}} separately. For join promotion,\r\na negated XOR is treated as an {{{AND}}}, so an {{{INNER JOIN}}} is considered\r\nsafe. The inner join removes {{{without_detail}}} before the conditions are\r\nevaluated."
         }
       }
     }
