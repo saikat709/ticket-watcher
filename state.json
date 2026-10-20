@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37442
+      "last_seen_id": 37443
     }
   },
   "tracked": {
@@ -4188,6 +4188,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "The JSONL deserializer incorrectly uses `str.splitlines()` to split string and bytes input into records. `splitlines()` treats U+2028 (LINE SEPARATOR), U+2029 (PARAGRAPH SEPARATOR), and U+0085 (NEXT LINE) as line boundaries, even though these characters can occur unescaped inside JSON strings.\r\n\r\nThe JSONL serializer uses `ensure_ascii=False`, so these characters can be emitted directly in serialized JSON. As a result, data produced by Django's JSONL serializer cannot always be deserialized again when a serialized value contains one of these characters.\r\n\r\nFor example:\r\n\r\n{{{\r\nfrom django.core import serializers\r\nfrom myapp.models import Author\r\n\r\nauthor = Author(pk=1, name=\"Jane\\u2028Doe\")\r\ndata = serializers.serialize(\"jsonl\", [author])\r\nlist(serializers.deserialize(\"jsonl\", data))\r\n}}}\r\n\r\nThis raises `DeserializationError` because the record is split at U+2028 instead of only at the JSONL record delimiter.\r\n\r\nThe same behavior occurs with U+2029 and U+0085, and with both `str` and `bytes` input.\r\n\r\nThe JSONL serializer uses `\\n` as the record separator, so the deserializer should split only on `\\n` rather than using `splitlines()`.\r\n\r\nA possible fix is:\r\n\r\n{{{\r\nstream_or_string = stream_or_string.split(\"\\n\")\r\n}}}\r\n\r\nThis continues to support CRLF input because the resulting line retains a trailing `\\r`, which is valid JSON whitespace.\r\n\r\nI have added regression tests covering U+2028, U+2029, and U+0085 with both `str` and `bytes` input, as well as a test confirming that CRLF line endings continue to work.\r\n\r\nThe issue does not affect loading JSONL from a file object in the same way, since file iteration uses the actual newline delimiter. However, it affects callers passing serialized JSONL as a string or bytes object to `serializers.deserialize()`.\r\n\r\nI have reproduced the issue against Django's current development version."
+        }
+      }
+    },
+    "django:37443": {
+      "source": "django",
+      "ticket_id": 37443,
+      "watcher_issue_number": 114,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-20T22:27:09.665031+00:00",
+      "last_updated": "2026-10-20T22:27:09.665031+00:00",
+      "ticket_data": {
+        "id": 37443,
+        "source_id": "django",
+        "title": "Add support for email delivery using Django's Tasks framework.",
+        "description": "The PasswordResetView [https://docs.djangoproject.com/en/6.1/topics/auth/default/#django.contrib.auth.views.PasswordResetView docs] includes a warning that sending emails during a request can expose an email address enumeration timing attack. The recommendation is to send emails asynchronously with a link to [https://pypi.org/project/django-mailer/ django-mailer]. At the time of writing django-mailer last saw a release on PyPI in 2024 (~2.5 years ago). \r\n\r\nGiven that Django now has an inbuilt [https://docs.djangoproject.com/en/6.1/topics/tasks/ tasks framework] I propose that we use this to provide built-in integration for sending emails in the background. \r\n\r\nVery broadly, Django would provide a way to opt-in to sending emails using django.tasks. It would be possible to create a task which sends an email using one of the configured [https://docs.djangoproject.com/en/dev/topics/email/#multiple-mailers mailers]. This would allow existing code which sends emails, including the password reset view, to use the tasks framework to send emails. Production setups with a django tasks backend with a worker process would then be able to send emails in the background. \r\n\r\nThe django tasks framework would seem suited to this, with the first example in the docs being a task that sends an email. See [https://docs.djangoproject.com/en/6.1/topics/tasks/#defining-tasks docs].",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 20, 2026, 3:42:44 PM",
+        "updated_at": "Oct 20, 2026, 3:42:44 PM",
+        "reporter": "David Smith",
+        "owner": "",
+        "component": "Core (Mail)",
+        "priority": "Low",
+        "severity": "Low",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37443",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37443",
+          "Summary": "Add support for email delivery using Django's Tasks framework.",
+          "Type": "New feature",
+          "Status": "new",
+          "Component": "Core (Mail)",
+          "Severity": "Low",
+          "Resolution": "",
+          "Created": "Oct 20, 2026, 3:42:44 PM",
+          "Modified": "Oct 20, 2026, 3:42:44 PM",
+          "Reporter": "David Smith",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "The PasswordResetView [https://docs.djangoproject.com/en/6.1/topics/auth/default/#django.contrib.auth.views.PasswordResetView docs] includes a warning that sending emails during a request can expose an email address enumeration timing attack. The recommendation is to send emails asynchronously with a link to [https://pypi.org/project/django-mailer/ django-mailer]. At the time of writing django-mailer last saw a release on PyPI in 2024 (~2.5 years ago). \r\n\r\nGiven that Django now has an inbuilt [https://docs.djangoproject.com/en/6.1/topics/tasks/ tasks framework] I propose that we use this to provide built-in integration for sending emails in the background. \r\n\r\nVery broadly, Django would provide a way to opt-in to sending emails using django.tasks. It would be possible to create a task which sends an email using one of the configured [https://docs.djangoproject.com/en/dev/topics/email/#multiple-mailers mailers]. This would allow existing code which sends emails, including the password reset view, to use the tasks framework to send emails. Production setups with a django tasks backend with a worker process would then be able to send emails in the background. \r\n\r\nThe django tasks framework would seem suited to this, with the first example in the docs being a task that sends an email. See [https://docs.djangoproject.com/en/6.1/topics/tasks/#defining-tasks docs]."
         }
       }
     }
