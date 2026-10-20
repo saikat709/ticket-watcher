@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37438
+      "last_seen_id": 37440
     }
   },
   "tracked": {
@@ -4036,6 +4036,107 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Given the following models:\r\n\r\n{{{\r\nclass Detail(models.Model):\r\n    first = models.CharField(max_length=20)\r\n\r\n\r\nclass Item(models.Model):\r\n    detail = models.ForeignKey(\r\n        Detail,\r\n        models.CASCADE,\r\n        null=True,\r\n    )\r\n}}}\r\n\r\nThe following query should return both items:\r\n\r\n{{{\r\nfrom django.db.models import Q\r\n\r\ndetail = Detail.objects.create(first=\"match\")\r\nwith_detail = Item.objects.create(detail=detail)\r\nwithout_detail = Item.objects.create()\r\n\r\nitems = Item.objects.filter(\r\n    ~(\r\n        Q(detail__first__isnull=True)\r\n        ^ Q(pk=without_detail.pk)\r\n    )\r\n).order_by(\"pk\")\r\n\r\nprint(list(items.values_list(\"pk\", flat=True)))\r\n}}}\r\n\r\nFor {{{with_detail}}}, {{{detail__first__isnull}}} and\r\n{{{pk=without_detail.pk}}} are both false.\r\n\r\nFor {{{without_detail}}}, the missing {{{detail}}} produces a {{{NULL}}}\r\nvalue and its primary key matches {{{without_detail.pk}}}, so both conditions\r\nare true.\r\n\r\nA negated XOR matches when both conditions have the same result. Therefore,\r\nboth items should be returned.\r\n\r\nExpected result:\r\n\r\n{{{\r\n[with_detail.pk, without_detail.pk]\r\n}}}\r\n\r\nActual result:\r\n\r\n{{{\r\n[with_detail.pk]\r\n}}}\r\n\r\n{{{JoinPromoter}}} doesn't handle {{{XOR}}} separately. For join promotion,\r\na negated XOR is treated as an {{{AND}}}, so an {{{INNER JOIN}}} is considered\r\nsafe. The inner join removes {{{without_detail}}} before the conditions are\r\nevaluated."
+        }
+      }
+    },
+    "django:37439": {
+      "source": "django",
+      "ticket_id": 37439,
+      "watcher_issue_number": 111,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-20T10:13:13.839877+00:00",
+      "last_updated": "2026-10-20T10:13:13.839877+00:00",
+      "ticket_data": {
+        "id": 37439,
+        "source_id": "django",
+        "title": "DatabaseCache.touch() can revive expired cache entries",
+        "description": "`DatabaseCache.touch()` can successfully extend the expiry of a cache entry that has already expired, as long as its database row has not yet been culled.\r\n\r\nThis is inconsistent with the behavior of the other built-in cache backends, where `touch()` returns `False` for an expired entry.\r\n\r\n== Steps to reproduce ==\r\n\r\nUsing `DatabaseCache`:\r\n\r\n{{{\r\nfrom django.core.cache import caches\r\nimport time\r\n\r\ncache = caches[\"default\"]\r\n\r\ncache.set(\"expired-key\", \"stale-value\", timeout=1)\r\ntime.sleep(2)\r\n\r\nprint(cache.touch(\"expired-key\", timeout=60))\r\nprint(cache.get(\"expired-key\"))\r\n}}}\r\n\r\nThis currently produces:\r\n\r\n{{{\r\nTrue\r\n\"stale-value\"\r\n}}}\r\n\r\nFor comparison, `LocMemCache` returns:\r\n\r\n{{{\r\nFalse\r\nNone\r\n}}}\r\n\r\nThe important part of the reproduction is that `touch()` must be called before `get()`. `DatabaseCache.get()` removes expired rows, so calling `get()` first would remove the row and hide the issue.\r\n\r\n== Actual behavior ==\r\n\r\nIf a cache entry has expired but its row is still present in the database, `DatabaseCache.touch()` updates the expiry time and returns `True`.\r\n\r\nThe previously expired value can then be retrieved again with `get()`.\r\n\r\nThe database cache does not immediately remove every expired row. Expired rows can therefore remain in the database until they are encountered by an operation that removes them.\r\n\r\n== Expected behavior ==\r\n\r\n`DatabaseCache.touch()` should return `False` when the cache entry has already expired and should not extend its expiry.\r\n\r\nThis is consistent with the behavior of the other built-in cache backends.\r\n\r\n== Cause ==\r\n\r\n`DatabaseCache._base_set()` already checks the expiry time for the `add` operation, but the `touch` branch only checks whether the database row exists.\r\n\r\nIt does not check whether `current_expires` is already in the past.\r\n\r\nAs a result, an expired database row is treated as a live cache entry by `touch()`.\r\n\r\n== Regression test ==\r\n\r\nA regression assertion has been added to `BaseCacheTests.test_touch` to verify that an expired entry cannot be touched.\r\n\r\nThe test checks that:\r\n\r\n{{{\r\ncache.touch(expired_key) == False\r\n}}}\r\n\r\nand that the expired value is not subsequently available:\r\n\r\n{{{\r\ncache.get(expired_key) == None\r\n}}}\r\n\r\nThe test calls `touch()` before `get()` because `DatabaseCache.get()` removes expired rows.\r\n\r\n== Proposed fix ==\r\n\r\nThe `touch` path in `DatabaseCache._base_set()` can reuse the existing expiry comparison used by the `add` path and return `False` when `current_expires < now`.\r\n\r\nThe change is limited to expired entries and does not change the behavior of `touch()` for non-expired entries.\r\n\r\n== Testing ==\r\n\r\nThe regression test passes for the database, locmem, and file-based cache backends with the fix applied.\r\n\r\nThe behavior was reproduced using SQLite.\r\n\r\nThe existing cache test suite passes successfully on the current codebase.\r\n\r\n{{{\r\npython tests/runtests.py cache\r\n}}}\r\n\r\nResult:\r\n\r\n* 696 tests passed.\r\n* 211 tests were skipped, primarily due to unavailable optional dependencies.\r\n* No tests failed.\r\n\r\nThis confirms that the existing cache test suite is passing before applying the fix.\r\n\r\nThe existing `BaseCacheTests.test_touch` does not currently cover touching an already-expired key, so this behavior is not detected by the existing test suite.\r\n",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 20, 2026, 1:19:32 AM",
+        "updated_at": "Oct 20, 2026, 1:36:03 AM",
+        "reporter": "Patel Namraa",
+        "owner": "Patel Namraa",
+        "component": "Core (Cache system)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37439",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37439",
+          "Summary": "DatabaseCache.touch() can revive expired cache entries",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Core (Cache system)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 20, 2026, 1:19:32 AM",
+          "Modified": "Oct 20, 2026, 1:36:03 AM",
+          "Reporter": "Patel Namraa",
+          "Owner": "Patel Namraa",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "`DatabaseCache.touch()` can successfully extend the expiry of a cache entry that has already expired, as long as its database row has not yet been culled.\r\n\r\nThis is inconsistent with the behavior of the other built-in cache backends, where `touch()` returns `False` for an expired entry.\r\n\r\n== Steps to reproduce ==\r\n\r\nUsing `DatabaseCache`:\r\n\r\n{{{\r\nfrom django.core.cache import caches\r\nimport time\r\n\r\ncache = caches[\"default\"]\r\n\r\ncache.set(\"expired-key\", \"stale-value\", timeout=1)\r\ntime.sleep(2)\r\n\r\nprint(cache.touch(\"expired-key\", timeout=60))\r\nprint(cache.get(\"expired-key\"))\r\n}}}\r\n\r\nThis currently produces:\r\n\r\n{{{\r\nTrue\r\n\"stale-value\"\r\n}}}\r\n\r\nFor comparison, `LocMemCache` returns:\r\n\r\n{{{\r\nFalse\r\nNone\r\n}}}\r\n\r\nThe important part of the reproduction is that `touch()` must be called before `get()`. `DatabaseCache.get()` removes expired rows, so calling `get()` first would remove the row and hide the issue.\r\n\r\n== Actual behavior ==\r\n\r\nIf a cache entry has expired but its row is still present in the database, `DatabaseCache.touch()` updates the expiry time and returns `True`.\r\n\r\nThe previously expired value can then be retrieved again with `get()`.\r\n\r\nThe database cache does not immediately remove every expired row. Expired rows can therefore remain in the database until they are encountered by an operation that removes them.\r\n\r\n== Expected behavior ==\r\n\r\n`DatabaseCache.touch()` should return `False` when the cache entry has already expired and should not extend its expiry.\r\n\r\nThis is consistent with the behavior of the other built-in cache backends.\r\n\r\n== Cause ==\r\n\r\n`DatabaseCache._base_set()` already checks the expiry time for the `add` operation, but the `touch` branch only checks whether the database row exists.\r\n\r\nIt does not check whether `current_expires` is already in the past.\r\n\r\nAs a result, an expired database row is treated as a live cache entry by `touch()`.\r\n\r\n== Regression test ==\r\n\r\nA regression assertion has been added to `BaseCacheTests.test_touch` to verify that an expired entry cannot be touched.\r\n\r\nThe test checks that:\r\n\r\n{{{\r\ncache.touch(expired_key) == False\r\n}}}\r\n\r\nand that the expired value is not subsequently available:\r\n\r\n{{{\r\ncache.get(expired_key) == None\r\n}}}\r\n\r\nThe test calls `touch()` before `get()` because `DatabaseCache.get()` removes expired rows.\r\n\r\n== Proposed fix ==\r\n\r\nThe `touch` path in `DatabaseCache._base_set()` can reuse the existing expiry comparison used by the `add` path and return `False` when `current_expires < now`.\r\n\r\nThe change is limited to expired entries and does not change the behavior of `touch()` for non-expired entries.\r\n\r\n== Testing ==\r\n\r\nThe regression test passes for the database, locmem, and file-based cache backends with the fix applied.\r\n\r\nThe behavior was reproduced using SQLite.\r\n\r\nThe existing cache test suite passes successfully on the current codebase.\r\n\r\n{{{\r\npython tests/runtests.py cache\r\n}}}\r\n\r\nResult:\r\n\r\n* 696 tests passed.\r\n* 211 tests were skipped, primarily due to unavailable optional dependencies.\r\n* No tests failed.\r\n\r\nThis confirms that the existing cache test suite is passing before applying the fix.\r\n\r\nThe existing `BaseCacheTests.test_touch` does not currently cover touching an already-expired key, so this behavior is not detected by the existing test suite.\r\n"
+        }
+      }
+    },
+    "django:37440": {
+      "source": "django",
+      "ticket_id": 37440,
+      "watcher_issue_number": 112,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-20T10:13:15.477763+00:00",
+      "last_updated": "2026-10-20T10:13:15.477763+00:00",
+      "ticket_data": {
+        "id": 37440,
+        "source_id": "django",
+        "title": "Clarify directory permission requirements for file-based sessions",
+        "description": "The file-based session backend includes the session ID in each session filename.\r\nHence, local users who can list the session directory can recover session IDs and could hijack authenticated sessions, even if they cannot read the files.\r\nWhen `SESSION_FILE_PATH` is unset, Django uses the system\u2019s temporary directory, which may be accessible to other local users.\r\n\r\nThe documentation currently mentions ensuring that the web server can read and write to the directory, but does not explain the need to restrict access by other users. The following docs should/could be updated to highlight this:\r\n* https://docs.djangoproject.com/en/6.1/topics/http/sessions/#using-file-based-sessions\r\n* https://docs.djangoproject.com/en/6.1/ref/settings/#std-setting-SESSION_FILE_PATH\r\n\r\nNote that Django treats session storage as a trusted component, similar to the database and cache storage. Restricting access to that storage by untrusted local users is the deployer\u2019s responsibility. Thank you \"you yang\" for the report.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 20, 2026, 1:27:46 AM",
+        "updated_at": "Oct 20, 2026, 1:27:46 AM",
+        "reporter": "Sarah Boyce",
+        "owner": "",
+        "component": "contrib.sessions",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37440",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37440",
+          "Summary": "Clarify directory permission requirements for file-based sessions",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "contrib.sessions",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 20, 2026, 1:27:46 AM",
+          "Modified": "Oct 20, 2026, 1:27:46 AM",
+          "Reporter": "Sarah Boyce",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "The file-based session backend includes the session ID in each session filename.\r\nHence, local users who can list the session directory can recover session IDs and could hijack authenticated sessions, even if they cannot read the files.\r\nWhen `SESSION_FILE_PATH` is unset, Django uses the system\u2019s temporary directory, which may be accessible to other local users.\r\n\r\nThe documentation currently mentions ensuring that the web server can read and write to the directory, but does not explain the need to restrict access by other users. The following docs should/could be updated to highlight this:\r\n* https://docs.djangoproject.com/en/6.1/topics/http/sessions/#using-file-based-sessions\r\n* https://docs.djangoproject.com/en/6.1/ref/settings/#std-setting-SESSION_FILE_PATH\r\n\r\nNote that Django treats session storage as a trusted component, similar to the database and cache storage. Restricting access to that storage by untrusted local users is the deployer\u2019s responsibility. Thank you \"you yang\" for the report."
         }
       }
     }
