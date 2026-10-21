@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37445
+      "last_seen_id": 37447
     }
   },
   "tracked": {
@@ -4265,6 +4265,106 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "#36991 made `HttpRequest._set_content_type_params()` raise `BadRequest` for an invalid `Content-Type` header; before it was `LookupError`. \r\n\r\n**But** according to the [https://docs.djangoproject.com/en/dev/ref/exceptions/#django.core.exceptions.BadRequest docs], the behavior and intention of the change was to my understanding to get a 400 response, but current main still responds with a 500, e.g. just with\r\n\r\n{{{\r\ncurl -i -X POST http://127.0.0.1:8000/ -H \"Content-Type: text/plain; charset*=BOGUS''%20\"\r\n}}}\r\n\r\nThis isn't really a regression, more like an incomplete fix.\r\n\r\nBasically the exceptions are raised when the request is created and not inside the `get_response()`, so it slips by before the aptly named `convert_exception_to_response()` is used. \r\n\r\nI'm intending to open a pull request shortly after this.\r\n\r\n\r\n'Disclaimer'\r\nI used Claude Code to investigate this bug. I saw this (super rare) error in our production env, probably coming from a security scanner. Mostly harmless, but also thought I could contribute here with a quick fix."
+        }
+      }
+    },
+    "django:37446": {
+      "source": "django",
+      "ticket_id": 37446,
+      "watcher_issue_number": 117,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-21T22:34:29.031266+00:00",
+      "last_updated": "2026-10-21T22:34:29.031266+00:00",
+      "ticket_data": {
+        "id": 37446,
+        "source_id": "django",
+        "title": "DatabaseError ignored in Q.check() during validate_constraints()",
+        "description": "A pragmatic compromise was done in 5d91dc8ee3ff7e2230cfacf41005f61b8efbf057 (#35081) to log and swallow a `DatabaseError` that arises during constraint validation, to support the case where a `RawSQL` expression in a constraint cannot be translated to SQL.\r\n\r\nStill, there are cases like this reproducer without `RawSQL` ([https://dryorm.xterm.info/database-error-logged-and-ignored dry ORM fiddle]) where I would expect an error:\r\n{{{#!py\r\nfrom django.db import models\r\nfrom django.db.models.functions import Cast\r\nfrom django.db.models import CheckConstraint\r\nfrom django.db.models.lookups import GreaterThan\r\nfrom django.db.models.fields.json import KT\r\n\r\n\r\nclass Order(models.Model):\r\n    data = models.JSONField()\r\n\r\n    class Meta:\r\n        constraints = [\r\n            models.CheckConstraint(\r\n                condition=GreaterThan(\r\n                    Cast(KT(\"data__quantity\"), models.IntegerField()),\r\n                    0\r\n                ),\r\n                name=\"positive_quantity\",\r\n            )\r\n        ]\r\n\r\n\r\ndef run():\r\n    instance = Order(data={\"quantity\": \"not an int\"})\r\n    instance.validate_constraints()\r\n    assert False, \"see logged content above\"\r\n}}}\r\n\r\nThe above snippet should have failed validation, but it succeeds, and then fails on `assert False` where you can see this logged output in the fiddle:\r\n\r\n{{{\r\nGot a database error calling check() on <Q: (AND: Coalesce(GreaterThan(Cast(KeyTextTransform(F(data))), 0), Value(True)))>: invalid input syntax for type integer: \"not an int\"\r\n}}}\r\n----\r\nSwallowing the error was questioned later during triage of #34840, and in ticket:34840#comment:19, Simon asked that we \"not forget\" about coming back to this.\r\n\r\nI think we should avoid swallowing the error, while still being lenient for `RawSQL`. Maybe something like this, although I'm sure there are interesting nested cases to check:\r\n\r\n{{{#!diff\r\ndiff --git a/django/db/models/query_utils.py b/django/db/models/query_utils.py\r\nindex 279e153ac1..931f15a182 100644\r\n--- a/django/db/models/query_utils.py\r\n+++ b/django/db/models/query_utils.py\r\n@@ -175,8 +175,10 @@ class Q(tree.Node):\r\n         \"\"\"\r\n         # Avoid circular imports.\r\n         from django.db.models import Value\r\n+        from django.db.models.expressions import RawSQL\r\n         from django.db.models.sql import Query\r\n         from django.db.models.sql.constants import SINGLE\r\n \r\n         query = Query(None)\r\n         for name, value in against.items():\r\n@@ -198,7 +200,14 @@ class Q(tree.Node):\r\n                 return compiler.execute_sql(SINGLE) is not None\r\n         except DatabaseError as e:\r\n             logger.warning(\"Got a database error calling check() on %r: %s\", self, e)\r\n-            return True\r\n+            # Be lenient: if any WHERE clause contained RawSQL, return True.\r\n+            if any(\r\n+                isinstance(ref, RawSQL)\r\n+                for leaf in query.where.leaves()\r\n+                for ref in leaf.flatten()\r\n+            ):\r\n+                return True\r\n+            return False\r\n \r\n     def deconstruct(self):\r\n         path = \"%s.%s\" % (self.__class__.__module__, self.__class__.__name__)\r\n}}}",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 21, 2026, 4:23:44 PM",
+        "updated_at": "Oct 21, 2026, 4:23:44 PM",
+        "reporter": "Jacob Walls",
+        "owner": "",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37446",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37446",
+          "Summary": "DatabaseError ignored in Q.check() during validate_constraints()",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 21, 2026, 4:23:44 PM",
+          "Modified": "Oct 21, 2026, 4:23:44 PM",
+          "Reporter": "Jacob Walls",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "A pragmatic compromise was done in 5d91dc8ee3ff7e2230cfacf41005f61b8efbf057 (#35081) to log and swallow a `DatabaseError` that arises during constraint validation, to support the case where a `RawSQL` expression in a constraint cannot be translated to SQL.\r\n\r\nStill, there are cases like this reproducer without `RawSQL` ([https://dryorm.xterm.info/database-error-logged-and-ignored dry ORM fiddle]) where I would expect an error:\r\n{{{#!py\r\nfrom django.db import models\r\nfrom django.db.models.functions import Cast\r\nfrom django.db.models import CheckConstraint\r\nfrom django.db.models.lookups import GreaterThan\r\nfrom django.db.models.fields.json import KT\r\n\r\n\r\nclass Order(models.Model):\r\n    data = models.JSONField()\r\n\r\n    class Meta:\r\n        constraints = [\r\n            models.CheckConstraint(\r\n                condition=GreaterThan(\r\n                    Cast(KT(\"data__quantity\"), models.IntegerField()),\r\n                    0\r\n                ),\r\n                name=\"positive_quantity\",\r\n            )\r\n        ]\r\n\r\n\r\ndef run():\r\n    instance = Order(data={\"quantity\": \"not an int\"})\r\n    instance.validate_constraints()\r\n    assert False, \"see logged content above\"\r\n}}}\r\n\r\nThe above snippet should have failed validation, but it succeeds, and then fails on `assert False` where you can see this logged output in the fiddle:\r\n\r\n{{{\r\nGot a database error calling check() on <Q: (AND: Coalesce(GreaterThan(Cast(KeyTextTransform(F(data))), 0), Value(True)))>: invalid input syntax for type integer: \"not an int\"\r\n}}}\r\n----\r\nSwallowing the error was questioned later during triage of #34840, and in ticket:34840#comment:19, Simon asked that we \"not forget\" about coming back to this.\r\n\r\nI think we should avoid swallowing the error, while still being lenient for `RawSQL`. Maybe something like this, although I'm sure there are interesting nested cases to check:\r\n\r\n{{{#!diff\r\ndiff --git a/django/db/models/query_utils.py b/django/db/models/query_utils.py\r\nindex 279e153ac1..931f15a182 100644\r\n--- a/django/db/models/query_utils.py\r\n+++ b/django/db/models/query_utils.py\r\n@@ -175,8 +175,10 @@ class Q(tree.Node):\r\n         \"\"\"\r\n         # Avoid circular imports.\r\n         from django.db.models import Value\r\n+        from django.db.models.expressions import RawSQL\r\n         from django.db.models.sql import Query\r\n         from django.db.models.sql.constants import SINGLE\r\n \r\n         query = Query(None)\r\n         for name, value in against.items():\r\n@@ -198,7 +200,14 @@ class Q(tree.Node):\r\n                 return compiler.execute_sql(SINGLE) is not None\r\n         except DatabaseError as e:\r\n             logger.warning(\"Got a database error calling check() on %r: %s\", self, e)\r\n-            return True\r\n+            # Be lenient: if any WHERE clause contained RawSQL, return True.\r\n+            if any(\r\n+                isinstance(ref, RawSQL)\r\n+                for leaf in query.where.leaves()\r\n+                for ref in leaf.flatten()\r\n+            ):\r\n+                return True\r\n+            return False\r\n \r\n     def deconstruct(self):\r\n         path = \"%s.%s\" % (self.__class__.__module__, self.__class__.__name__)\r\n}}}"
+        }
+      }
+    },
+    "django:37447": {
+      "source": "django",
+      "ticket_id": 37447,
+      "watcher_issue_number": 118,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-21T22:34:30.855108+00:00",
+      "last_updated": "2026-10-21T22:34:30.855108+00:00",
+      "ticket_data": {
+        "id": 37447,
+        "source_id": "django",
+        "title": "makemessages fails in UTF-8 mode when processing non-UTF-8 filenames",
+        "description": "Surfaced on CI just now after bumping Windows jobs to Python 3.15, now that UTF-8 mode is the [https://docs.python.org/3/whatsnew/3.15.html#whatsnew315-utf8-default default].\r\n\r\n{{{#!py\r\nERROR: test_unicode_file_name (i18n.test_extraction.BasicExtractorTests.test_unicode_file_name)\r\n----------------------------------------------------------------------\r\nTraceback (most recent call last):\r\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.15.1\\x64\\Lib\\unittest\\case.py\", line 58, in testPartExecutor\r\n    yield\r\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.15.1\\x64\\Lib\\unittest\\case.py\", line 691, in run\r\n    self._callTestMethod(testMethod)\r\n    \r\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.15.1\\x64\\Lib\\unittest\\case.py\", line 637, in _callTestMethod\r\n    result = method()\r\n    ^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\tests\\i18n\\test_extraction.py\", line 372, in test_unicode_file_name\r\n    management.call_command(\"makemessages\", locale=[LOCALE], verbosity=0)\r\n    ^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\__init__.py\", line 195, in call_command\r\n    return command.execute(*args, **defaults)\r\n      ^^^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\base.py\", line 471, in execute\r\n    output = self.handle(*args, **options)\r\n    ^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\commands\\makemessages.py\", line 423, in handle\r\n    potfiles = self.build_potfiles()\r\n    ^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\commands\\makemessages.py\", line 504, in build_potfiles\r\n    self.process_files(file_list)\r\n    ^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\commands\\makemessages.py\", line 596, in process_files\r\n    self.process_locale_dir(locale_dir, files)\r\n    ^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\commands\\makemessages.py\", line 677, in process_locale_dir\r\n    raise CommandError(\r\n    ^^^^^^^\r\ndjango.core.management.base.CommandError: errors happened while running xgettext on .\\__init__.py\r\n.\\ignore_dir\\ignored.html.py\r\n.\\media_root\\media_ignored.html.py\r\n.\\static\\static_ignored.html.py\r\n.\\templates\\empty.html.py\r\n.\\templates\\subdir\\ignored.html.py\r\n.\\templates\\test.html.py\r\n.\\templates\\xxx_ignored.html.py\r\n.\\vid\u00e9o.txt.py\r\nxgettext: error while opening \".\\vid\u00c3\u00a9o.txt.py\" for reading: No such file or directory\r\n}}}\r\n\r\nI believe the fix is to write using the system locale, which we should have been doing all along ([https://docs.astral.sh/ruff/rules/unspecified-encoding/#why-is-this-bad linter rule on this topic])\r\n\r\n{{{#!diff\r\ndiff --git a/django/core/management/commands/makemessages.py b/django/core/management/commands/makemessages.py\r\nindex 5a4bd55bb8..9db5a6ef2a 100644\r\n--- a/django/core/management/commands/makemessages.py\r\n+++ b/django/core/management/commands/makemessages.py\r\n@@ -663,8 +663,10 @@ class Command(BaseCommand):\r\n             return\r\n \r\n         input_files = [bf.work_path for bf in build_files]\r\n-        with NamedTemporaryFile(mode=\"w+\") as input_files_list:\r\n-            input_files_list.write(\"\\n\".join(input_files))\r\n+        with NamedTemporaryFile(mode=\"w+b\") as input_files_list:\r\n+            input_files_list.write(\r\n+                \"\\n\".join(input_files).encode(DEFAULT_LOCALE_ENCODING)\r\n+            )\r\n             input_files_list.flush()\r\n             args.extend([\"--files-from\", input_files_list.name])\r\n             args.extend(self.xgettext_options)\r\n}}}\r\n\r\nIf a triager confirms the approach, I can open the PR. I propose backporting to 6.1 as part of 3.15 support, but with a release note, since it affects released behavior and would have been visible on prior Python versions when running in UTF-8 mode.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 21, 2026, 4:45:02 PM",
+        "updated_at": "Oct 21, 2026, 4:45:02 PM",
+        "reporter": "Jacob Walls",
+        "owner": "Jacob Walls",
+        "component": "Internationalization",
+        "priority": "Release blocker",
+        "severity": "Release blocker",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37447",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37447",
+          "Summary": "makemessages fails in UTF-8 mode when processing non-UTF-8 filenames",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Internationalization",
+          "Severity": "Release blocker",
+          "Resolution": "",
+          "Created": "Oct 21, 2026, 4:45:02 PM",
+          "Modified": "Oct 21, 2026, 4:45:02 PM",
+          "Reporter": "Jacob Walls",
+          "Owner": "Jacob Walls",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Surfaced on CI just now after bumping Windows jobs to Python 3.15, now that UTF-8 mode is the [https://docs.python.org/3/whatsnew/3.15.html#whatsnew315-utf8-default default].\r\n\r\n{{{#!py\r\nERROR: test_unicode_file_name (i18n.test_extraction.BasicExtractorTests.test_unicode_file_name)\r\n----------------------------------------------------------------------\r\nTraceback (most recent call last):\r\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.15.1\\x64\\Lib\\unittest\\case.py\", line 58, in testPartExecutor\r\n    yield\r\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.15.1\\x64\\Lib\\unittest\\case.py\", line 691, in run\r\n    self._callTestMethod(testMethod)\r\n    \r\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.15.1\\x64\\Lib\\unittest\\case.py\", line 637, in _callTestMethod\r\n    result = method()\r\n    ^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\tests\\i18n\\test_extraction.py\", line 372, in test_unicode_file_name\r\n    management.call_command(\"makemessages\", locale=[LOCALE], verbosity=0)\r\n    ^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\__init__.py\", line 195, in call_command\r\n    return command.execute(*args, **defaults)\r\n      ^^^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\base.py\", line 471, in execute\r\n    output = self.handle(*args, **options)\r\n    ^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\commands\\makemessages.py\", line 423, in handle\r\n    potfiles = self.build_potfiles()\r\n    ^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\commands\\makemessages.py\", line 504, in build_potfiles\r\n    self.process_files(file_list)\r\n    ^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\commands\\makemessages.py\", line 596, in process_files\r\n    self.process_locale_dir(locale_dir, files)\r\n    ^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\commands\\makemessages.py\", line 677, in process_locale_dir\r\n    raise CommandError(\r\n    ^^^^^^^\r\ndjango.core.management.base.CommandError: errors happened while running xgettext on .\\__init__.py\r\n.\\ignore_dir\\ignored.html.py\r\n.\\media_root\\media_ignored.html.py\r\n.\\static\\static_ignored.html.py\r\n.\\templates\\empty.html.py\r\n.\\templates\\subdir\\ignored.html.py\r\n.\\templates\\test.html.py\r\n.\\templates\\xxx_ignored.html.py\r\n.\\vid\u00e9o.txt.py\r\nxgettext: error while opening \".\\vid\u00c3\u00a9o.txt.py\" for reading: No such file or directory\r\n}}}\r\n\r\nI believe the fix is to write using the system locale, which we should have been doing all along ([https://docs.astral.sh/ruff/rules/unspecified-encoding/#why-is-this-bad linter rule on this topic])\r\n\r\n{{{#!diff\r\ndiff --git a/django/core/management/commands/makemessages.py b/django/core/management/commands/makemessages.py\r\nindex 5a4bd55bb8..9db5a6ef2a 100644\r\n--- a/django/core/management/commands/makemessages.py\r\n+++ b/django/core/management/commands/makemessages.py\r\n@@ -663,8 +663,10 @@ class Command(BaseCommand):\r\n             return\r\n \r\n         input_files = [bf.work_path for bf in build_files]\r\n-        with NamedTemporaryFile(mode=\"w+\") as input_files_list:\r\n-            input_files_list.write(\"\\n\".join(input_files))\r\n+        with NamedTemporaryFile(mode=\"w+b\") as input_files_list:\r\n+            input_files_list.write(\r\n+                \"\\n\".join(input_files).encode(DEFAULT_LOCALE_ENCODING)\r\n+            )\r\n             input_files_list.flush()\r\n             args.extend([\"--files-from\", input_files_list.name])\r\n             args.extend(self.xgettext_options)\r\n}}}\r\n\r\nIf a triager confirms the approach, I can open the PR. I propose backporting to 6.1 as part of 3.15 support, but with a release note, since it affects released behavior and would have been visible on prior Python versions when running in UTF-8 mode."
         }
       }
     }
