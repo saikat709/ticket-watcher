@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37443
+      "last_seen_id": 37444
     }
   },
   "tracked": {
@@ -4164,6 +4164,57 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "The PasswordResetView [https://docs.djangoproject.com/en/6.1/topics/auth/default/#django.contrib.auth.views.PasswordResetView docs] includes a warning that sending emails during a request can expose an email address enumeration timing attack. The recommendation is to send emails asynchronously with a link to [https://pypi.org/project/django-mailer/ django-mailer]. At the time of writing django-mailer last saw a release on PyPI in 2024 (~2.5 years ago). \r\n\r\nGiven that Django now has an inbuilt [https://docs.djangoproject.com/en/6.1/topics/tasks/ tasks framework] I propose that we use this to provide built-in integration for sending emails in the background. \r\n\r\nVery broadly, Django would provide a way to opt-in to sending emails using django.tasks. It would be possible to create a task which sends an email using one of the configured [https://docs.djangoproject.com/en/dev/topics/email/#multiple-mailers mailers]. This would allow existing code which sends emails, including the password reset view, to use the tasks framework to send emails. Production setups with a django tasks backend with a worker process would then be able to send emails in the background. \r\n\r\nThe django tasks framework would seem suited to this, with the first example in the docs being a task that sends an email. See [https://docs.djangoproject.com/en/6.1/topics/tasks/#defining-tasks docs]."
+        }
+      }
+    },
+    "django:37444": {
+      "source": "django",
+      "ticket_id": 37444,
+      "watcher_issue_number": 115,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-21T10:28:28.696284+00:00",
+      "last_updated": "2026-10-21T10:28:28.696284+00:00",
+      "ticket_data": {
+        "id": 37444,
+        "source_id": "django",
+        "title": "Prevent overly broad destination permissions during file_move_safe() fallback copying",
+        "description": "When `django.core.files.move.file_move_safe()` cannot use `os.rename()`, for example when moving across filesystems, it falls back to copying the file contents. See https://github.com/django/django/blob/3d3d943b7442f1f5278ed876331a06047fa96ea8/django/core/files/move.py#L52\r\n\r\nThe fallback creates the destination using `os.open()` with `O_CREAT` but without an explicit mode. This defaults to `0o777`, subject to the process umask. The source permissions are applied using `copystat()` only after copying completes.\r\n\r\nAs a consequence, a source file with permissions of `0o600` (owner read/write only) can have a destination with permissions of `0o755` (owner read/write/execute; group and others read/execute) during copying when the process umask is `0o022` (removing write permission for group and others).\r\n\r\nThe destination should be created with permissions that do not expose the source contents more broadly during copying.\r\n\r\nSee test for behavior demonstration:\r\n{{{#!diff\r\n--- a/tests/files/tests.py\r\n+++ b/tests/files/tests.py\r\n@@ -1,6 +1,7 @@\r\n import errno\r\n import gzip\r\n import os\r\n+import stat\r\n import struct\r\n import tempfile\r\n import unittest\r\n@@ -520,6 +521,49 @@ class FileMoveSafeTests(unittest.TestCase):\r\n \r\n         self.assertEqual(content, b\"content\")\r\n \r\n+    @unittest.skipUnless(os.name == \"posix\", \"Requires POSIX permissions.\")\r\n+    def test_file_move_preserves_private_permissions_during_copy(self):\r\n+        real_write = os.write\r\n+\r\n+        def recording_write(fd, content):\r\n+            written = real_write(fd, content)\r\n+            if written:\r\n+                observed_modes.append(stat.S_IMODE(os.fstat(fd).st_mode))\r\n+            return written\r\n+\r\n+        # umask() returns the current mask, so it'll be restored on cleanup.\r\n+        self.addCleanup(os.umask, os.umask(0o000))\r\n+        destination_creation_mode = 0o600\r\n+\r\n+        for source_mode in (0o600, 0o640):\r\n+            with (\r\n+                self.subTest(source_mode=source_mode),\r\n+                tempfile.TemporaryDirectory() as temp_dir,\r\n+            ):\r\n+                observed_modes = []\r\n+                source = Path(temp_dir) / \"source\"\r\n+                destination = Path(temp_dir) / \"destination\"\r\n+                source.write_bytes(b\"private content\")\r\n+                source.chmod(source_mode)\r\n+\r\n+                with (\r\n+                    mock.patch(\r\n+                        \"django.core.files.move.os.rename\",\r\n+                        side_effect=OSError(errno.EXDEV),\r\n+                    ),\r\n+                    mock.patch(\r\n+                        \"django.core.files.move.os.write\",\r\n+                        side_effect=recording_write,\r\n+                    ),\r\n+                ):\r\n+                    file_move_safe(source, destination)\r\n+\r\n+                # Keep contents private until copying has finished.\r\n+                self.assertEqual(set(observed_modes), {destination_creation_mode})\r\n+                self.assertEqual(stat.S_IMODE(destination.stat().st_mode), source_mode)\r\n+                self.assertEqual(destination.read_bytes(), b\"private content\")\r\n+                self.assertFalse(source.exists())\r\n+\r\n \r\n class SpooledTempTests(unittest.TestCase):\r\n}}}\r\n\r\nThis was reported privately to the Django security team by \"Squirt1e, Atum, N0b0dy, Gh0u1L5 Please credit Squirt1e, Atum, N0b0dy, and Gh0u1L5\", which assessed it as a bug suitable for public hardening.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 21, 2026, 4:57:12 AM",
+        "updated_at": "Oct 21, 2026, 4:58:48 AM",
+        "reporter": "Sarah Boyce",
+        "owner": "Sarah Boyce",
+        "component": "File uploads/storage",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37444",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37444",
+          "Summary": "Prevent overly broad destination permissions during file_move_safe() fallback copying",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "File uploads/storage",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 21, 2026, 4:57:12 AM",
+          "Modified": "Oct 21, 2026, 4:58:48 AM",
+          "Reporter": "Sarah Boyce",
+          "Owner": "Sarah Boyce",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "When `django.core.files.move.file_move_safe()` cannot use `os.rename()`, for example when moving across filesystems, it falls back to copying the file contents. See https://github.com/django/django/blob/3d3d943b7442f1f5278ed876331a06047fa96ea8/django/core/files/move.py#L52\r\n\r\nThe fallback creates the destination using `os.open()` with `O_CREAT` but without an explicit mode. This defaults to `0o777`, subject to the process umask. The source permissions are applied using `copystat()` only after copying completes.\r\n\r\nAs a consequence, a source file with permissions of `0o600` (owner read/write only) can have a destination with permissions of `0o755` (owner read/write/execute; group and others read/execute) during copying when the process umask is `0o022` (removing write permission for group and others).\r\n\r\nThe destination should be created with permissions that do not expose the source contents more broadly during copying.\r\n\r\nSee test for behavior demonstration:\r\n{{{#!diff\r\n--- a/tests/files/tests.py\r\n+++ b/tests/files/tests.py\r\n@@ -1,6 +1,7 @@\r\n import errno\r\n import gzip\r\n import os\r\n+import stat\r\n import struct\r\n import tempfile\r\n import unittest\r\n@@ -520,6 +521,49 @@ class FileMoveSafeTests(unittest.TestCase):\r\n \r\n         self.assertEqual(content, b\"content\")\r\n \r\n+    @unittest.skipUnless(os.name == \"posix\", \"Requires POSIX permissions.\")\r\n+    def test_file_move_preserves_private_permissions_during_copy(self):\r\n+        real_write = os.write\r\n+\r\n+        def recording_write(fd, content):\r\n+            written = real_write(fd, content)\r\n+            if written:\r\n+                observed_modes.append(stat.S_IMODE(os.fstat(fd).st_mode))\r\n+            return written\r\n+\r\n+        # umask() returns the current mask, so it'll be restored on cleanup.\r\n+        self.addCleanup(os.umask, os.umask(0o000))\r\n+        destination_creation_mode = 0o600\r\n+\r\n+        for source_mode in (0o600, 0o640):\r\n+            with (\r\n+                self.subTest(source_mode=source_mode),\r\n+                tempfile.TemporaryDirectory() as temp_dir,\r\n+            ):\r\n+                observed_modes = []\r\n+                source = Path(temp_dir) / \"source\"\r\n+                destination = Path(temp_dir) / \"destination\"\r\n+                source.write_bytes(b\"private content\")\r\n+                source.chmod(source_mode)\r\n+\r\n+                with (\r\n+                    mock.patch(\r\n+                        \"django.core.files.move.os.rename\",\r\n+                        side_effect=OSError(errno.EXDEV),\r\n+                    ),\r\n+                    mock.patch(\r\n+                        \"django.core.files.move.os.write\",\r\n+                        side_effect=recording_write,\r\n+                    ),\r\n+                ):\r\n+                    file_move_safe(source, destination)\r\n+\r\n+                # Keep contents private until copying has finished.\r\n+                self.assertEqual(set(observed_modes), {destination_creation_mode})\r\n+                self.assertEqual(stat.S_IMODE(destination.stat().st_mode), source_mode)\r\n+                self.assertEqual(destination.read_bytes(), b\"private content\")\r\n+                self.assertFalse(source.exists())\r\n+\r\n \r\n class SpooledTempTests(unittest.TestCase):\r\n}}}\r\n\r\nThis was reported privately to the Django security team by \"Squirt1e, Atum, N0b0dy, Gh0u1L5 Please credit Squirt1e, Atum, N0b0dy, and Gh0u1L5\", which assessed it as a bug suitable for public hardening."
         }
       }
     }
