@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37450
+      "last_seen_id": 37451
     }
   },
   "tracked": {
@@ -4479,6 +4479,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Since 1a9fba7a6c2a0acead19bbb45c25ceb0fdcca7c8 (#23424), `_comment_end_re` and `_verbatim_end_re` in `django/template/base.py` require whitespace after `{%`, so `{%endcomment%}` and `{%endverbatim%}` never close a raw block. `_raw_start_re` requires it too, so with `debug=False` a `{%verbatim%}` block is not lexed as raw text. Django 6.1.2 accepts these tags without the spaces.\r\n\r\nOn main (3d3d943b74):\r\n\r\n{{{#!python\r\nfrom django.template import Context, Engine\r\n\r\nEngine(debug=True).from_string(\"{%comment%}hidden{%endcomment%}visible\").render(Context())\r\n# TemplateSyntaxError: Unclosed tag on line 1: 'comment'. Looking for one of: endcomment.\r\n\r\nEngine().from_string(\"{% comment %}hidden{%endcomment%}visible\").render(Context())\r\n# TemplateSyntaxError: Unclosed tag on line 1: 'comment'. Looking for one of: endcomment.\r\n\r\nEngine().from_string(\"{%verbatim%}{{ x }}{%endverbatim%}\").render(Context({\"x\": 1}))\r\n# AttributeError: 'NoneType' object has no attribute 'engine'\r\n}}}\r\n\r\nOn 6.1.2 these render `visible`, `visible` and `{{ x }}`. With `debug=False`, `{%comment%}\u2026{%endcomment%}` alone still renders, but it fails as soon as the template also contains `{% comment` anywhere, even inside a `{# #}` comment.\r\n\r\nTemplates in the wild use this form, for example `templates/releasetext.html` in postgres/pgweb (`{%comment%}\u2026{%endcomment%}`): on main, `DebugLexer` finds no `endcomment` token in it, while 6.1.2 finds one.\r\n\r\n`makemessages` is affected as well: with `{% comment %}note{%endcomment%}` before `{% translate \"Welcome\" %}`, `templatize()` no longer outputs `\"Welcome\"`, so the string is left out of the .po file without an error.\r\n\r\nAllowing zero whitespace in the three patterns restores the 6.1.2 behaviour; I have a patch with tests and will open a PR. Open [https://github.com/django/django/pull/21982 PR #21982] changes `_comment_end_re` and `_verbatim_end_re` to `\\s+endcomment\\s+` / `\\s+endverbatim\\s+`, which keeps this problem and would also require a space before `%}`.\r\n"
+        }
+      }
+    },
+    "django:37451": {
+      "source": "django",
+      "ticket_id": 37451,
+      "watcher_issue_number": 122,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-22T20:39:03.391278+00:00",
+      "last_updated": "2026-10-22T20:39:03.391278+00:00",
+      "ticket_data": {
+        "id": 37451,
+        "source_id": "django",
+        "title": "`QuerySet.get()` must not pull more than 2 rows with `DEBUG=False`",
+        "description": "Refs https://code.djangoproject.com/ticket/6785\r\n\r\nSource:\r\n- https://github.com/django/django/blob/8e4e95da9b5b751923cd80989d9ece4b6c6fb1a3/django/db/models/query.py#L58-L59\r\n- https://github.com/django/django/blob/8e4e95da9b5b751923cd80989d9ece4b6c6fb1a3/django/db/models/query.py#L741-L746\r\n\r\nWhile this is helpful for debug inforation, it can potentially slow down production requests. With fetching 19 more entries.\r\nThis can be especially slow in cases when `full-scan` is used.\r\n\r\nI propose limitting this value to `2` with `DEBUG=False`. This keeps the best of two worlds:\r\n- Better debug inforation in `DEBUG` mode\r\n- Faster code in production",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 22, 2026, 1:08:05 PM",
+        "updated_at": "Oct 22, 2026, 1:08:05 PM",
+        "reporter": "Sobolev Nikita",
+        "owner": "",
+        "component": "Database layer (models, ORM)",
+        "priority": "Low",
+        "severity": "Low",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37451",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37451",
+          "Summary": "`QuerySet.get()` must not pull more than 2 rows with `DEBUG=False`",
+          "Type": "Uncategorized",
+          "Status": "new",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Low",
+          "Resolution": "",
+          "Created": "Oct 22, 2026, 1:08:05 PM",
+          "Modified": "Oct 22, 2026, 1:08:05 PM",
+          "Reporter": "Sobolev Nikita",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Refs https://code.djangoproject.com/ticket/6785\r\n\r\nSource:\r\n- https://github.com/django/django/blob/8e4e95da9b5b751923cd80989d9ece4b6c6fb1a3/django/db/models/query.py#L58-L59\r\n- https://github.com/django/django/blob/8e4e95da9b5b751923cd80989d9ece4b6c6fb1a3/django/db/models/query.py#L741-L746\r\n\r\nWhile this is helpful for debug inforation, it can potentially slow down production requests. With fetching 19 more entries.\r\nThis can be especially slow in cases when `full-scan` is used.\r\n\r\nI propose limitting this value to `2` with `DEBUG=False`. This keeps the best of two worlds:\r\n- Better debug inforation in `DEBUG` mode\r\n- Faster code in production"
         }
       }
     }
