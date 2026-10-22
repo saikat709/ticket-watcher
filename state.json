@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37447
+      "last_seen_id": 37450
     }
   },
   "tracked": {
@@ -4327,6 +4327,158 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Surfaced on CI just now after bumping Windows jobs to Python 3.15, now that UTF-8 mode is the [https://docs.python.org/3/whatsnew/3.15.html#whatsnew315-utf8-default default].\r\n\r\n{{{#!py\r\nERROR: test_unicode_file_name (i18n.test_extraction.BasicExtractorTests.test_unicode_file_name)\r\n----------------------------------------------------------------------\r\nTraceback (most recent call last):\r\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.15.1\\x64\\Lib\\unittest\\case.py\", line 58, in testPartExecutor\r\n    yield\r\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.15.1\\x64\\Lib\\unittest\\case.py\", line 691, in run\r\n    self._callTestMethod(testMethod)\r\n    \r\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.15.1\\x64\\Lib\\unittest\\case.py\", line 637, in _callTestMethod\r\n    result = method()\r\n    ^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\tests\\i18n\\test_extraction.py\", line 372, in test_unicode_file_name\r\n    management.call_command(\"makemessages\", locale=[LOCALE], verbosity=0)\r\n    ^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\__init__.py\", line 195, in call_command\r\n    return command.execute(*args, **defaults)\r\n      ^^^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\base.py\", line 471, in execute\r\n    output = self.handle(*args, **options)\r\n    ^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\commands\\makemessages.py\", line 423, in handle\r\n    potfiles = self.build_potfiles()\r\n    ^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\commands\\makemessages.py\", line 504, in build_potfiles\r\n    self.process_files(file_list)\r\n    ^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\commands\\makemessages.py\", line 596, in process_files\r\n    self.process_locale_dir(locale_dir, files)\r\n    ^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\commands\\makemessages.py\", line 677, in process_locale_dir\r\n    raise CommandError(\r\n    ^^^^^^^\r\ndjango.core.management.base.CommandError: errors happened while running xgettext on .\\__init__.py\r\n.\\ignore_dir\\ignored.html.py\r\n.\\media_root\\media_ignored.html.py\r\n.\\static\\static_ignored.html.py\r\n.\\templates\\empty.html.py\r\n.\\templates\\subdir\\ignored.html.py\r\n.\\templates\\test.html.py\r\n.\\templates\\xxx_ignored.html.py\r\n.\\vid\u00e9o.txt.py\r\nxgettext: error while opening \".\\vid\u00c3\u00a9o.txt.py\" for reading: No such file or directory\r\n}}}\r\n\r\nI believe the fix is to write using the system locale, which we should have been doing all along ([https://docs.astral.sh/ruff/rules/unspecified-encoding/#why-is-this-bad linter rule on this topic])\r\n\r\n{{{#!diff\r\ndiff --git a/django/core/management/commands/makemessages.py b/django/core/management/commands/makemessages.py\r\nindex 5a4bd55bb8..9db5a6ef2a 100644\r\n--- a/django/core/management/commands/makemessages.py\r\n+++ b/django/core/management/commands/makemessages.py\r\n@@ -663,8 +663,10 @@ class Command(BaseCommand):\r\n             return\r\n \r\n         input_files = [bf.work_path for bf in build_files]\r\n-        with NamedTemporaryFile(mode=\"w+\") as input_files_list:\r\n-            input_files_list.write(\"\\n\".join(input_files))\r\n+        with NamedTemporaryFile(mode=\"w+b\") as input_files_list:\r\n+            input_files_list.write(\r\n+                \"\\n\".join(input_files).encode(DEFAULT_LOCALE_ENCODING)\r\n+            )\r\n             input_files_list.flush()\r\n             args.extend([\"--files-from\", input_files_list.name])\r\n             args.extend(self.xgettext_options)\r\n}}}\r\n\r\nIf a triager confirms the approach, I can open the PR. I propose backporting to 6.1 as part of 3.15 support, but with a release note, since it affects released behavior and would have been visible on prior Python versions when running in UTF-8 mode."
+        }
+      }
+    },
+    "django:37448": {
+      "source": "django",
+      "ticket_id": 37448,
+      "watcher_issue_number": 119,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-22T17:23:48.803980+00:00",
+      "last_updated": "2026-10-22T17:23:48.803980+00:00",
+      "ticket_data": {
+        "id": 37448,
+        "source_id": "django",
+        "title": "Performance issue in Async Middleware handling",
+        "description": "Follow-up to #37177, for the part that was deferred there.\r\n\r\n#37177 fixed per-hook context switching by setting `async_capable = False` on Django's built-in middleware. The cause is still in `MiddlewareMixin`: it declares `async_capable = True` by default, so any subclass with sync hooks goes through `__acall__()`, which wraps each hook in its own `sync_to_async()`.\r\n\r\nThis defeats `load_middleware()`, which is designed to adapt once per contiguous block of sync middleware.\r\n\r\nSo every user and third-party middleware written the documented way (subclass `MiddlewareMixin`, implement sync `process_request` / `process_response`) still has the problem #37177 measured. A default project that adds one or two such middleware between the built-in ones also splits the sync block, adding more switches around them.\r\n\r\nA side effect: these switches are invisible. `__acall__()` calls `sync_to_async()` itself, so `adapt_method_mode()` never logs \"Asynchronous handler adapted for middleware ...\", which is the tool the docs point users to for finding this.\r\n\r\n== Proposal ==\r\n\r\nhttps://code.djangoproject.com/ticket/37177#comment:7\r\n\r\nDeprecate the default `MiddlewareMixin.__acall__()` implementation: raise a deprecation warning when a subclass ends up using it with sync hooks (i.e. sets `async_capable = True` explicitly but doesn't override `__acall__()`). After the deprecation period, remove it and make `async_capable = False` the default.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 22, 2026, 9:47:08 AM",
+        "updated_at": "Oct 22, 2026, 9:47:08 AM",
+        "reporter": "Mykhailo Havelia",
+        "owner": "",
+        "component": "HTTP handling",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37448",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37448",
+          "Summary": "Performance issue in Async Middleware handling",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "HTTP handling",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 22, 2026, 9:47:08 AM",
+          "Modified": "Oct 22, 2026, 9:47:08 AM",
+          "Reporter": "Mykhailo Havelia",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Follow-up to #37177, for the part that was deferred there.\r\n\r\n#37177 fixed per-hook context switching by setting `async_capable = False` on Django's built-in middleware. The cause is still in `MiddlewareMixin`: it declares `async_capable = True` by default, so any subclass with sync hooks goes through `__acall__()`, which wraps each hook in its own `sync_to_async()`.\r\n\r\nThis defeats `load_middleware()`, which is designed to adapt once per contiguous block of sync middleware.\r\n\r\nSo every user and third-party middleware written the documented way (subclass `MiddlewareMixin`, implement sync `process_request` / `process_response`) still has the problem #37177 measured. A default project that adds one or two such middleware between the built-in ones also splits the sync block, adding more switches around them.\r\n\r\nA side effect: these switches are invisible. `__acall__()` calls `sync_to_async()` itself, so `adapt_method_mode()` never logs \"Asynchronous handler adapted for middleware ...\", which is the tool the docs point users to for finding this.\r\n\r\n== Proposal ==\r\n\r\nhttps://code.djangoproject.com/ticket/37177#comment:7\r\n\r\nDeprecate the default `MiddlewareMixin.__acall__()` implementation: raise a deprecation warning when a subclass ends up using it with sync hooks (i.e. sets `async_capable = True` explicitly but doesn't override `__acall__()`). After the deprecation period, remove it and make `async_capable = False` the default."
+        }
+      }
+    },
+    "django:37449": {
+      "source": "django",
+      "ticket_id": 37449,
+      "watcher_issue_number": 120,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-22T17:23:50.617963+00:00",
+      "last_updated": "2026-10-22T17:23:50.617963+00:00",
+      "ticket_data": {
+        "id": 37449,
+        "source_id": "django",
+        "title": "Update Punjabi (pa) name_local to use its native script",
+        "description": "Punjabi is currently set to \"Punjabi\" in LANG_INFO instead of the native \"\u0a2a\u0a70\u0a1c\u0a3e\u0a2c\u0a40\"",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 22, 2026, 11:08:43 AM",
+        "updated_at": "Oct 22, 2026, 11:20:45 AM",
+        "reporter": "gerry132",
+        "owner": "gerry132",
+        "component": "Uncategorized",
+        "priority": "Low",
+        "severity": "Low",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37449",
+        "pr_url": "https://github.com/django/django/pull/22187",
+        "pr_status": "open",
+        "raw_data": {
+          "id": "37449",
+          "Summary": "Update Punjabi (pa) name_local to use its native script",
+          "Type": "Uncategorized",
+          "Status": "assigned",
+          "Component": "Uncategorized",
+          "Severity": "Low",
+          "Resolution": "",
+          "Created": "Oct 22, 2026, 11:08:43 AM",
+          "Modified": "Oct 22, 2026, 11:20:45 AM",
+          "Reporter": "gerry132",
+          "Owner": "gerry132",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Punjabi is currently set to \"Punjabi\" in LANG_INFO instead of the native \"\u0a2a\u0a70\u0a1c\u0a3e\u0a2c\u0a40\""
+        }
+      }
+    },
+    "django:37450": {
+      "source": "django",
+      "ticket_id": 37450,
+      "watcher_issue_number": 121,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-22T17:23:52.774862+00:00",
+      "last_updated": "2026-10-22T17:23:52.774862+00:00",
+      "ticket_data": {
+        "id": 37450,
+        "source_id": "django",
+        "title": "Template lexer fails on comment/verbatim tags without whitespace after {%",
+        "description": "Since 1a9fba7a6c2a0acead19bbb45c25ceb0fdcca7c8 (#23424), `_comment_end_re` and `_verbatim_end_re` in `django/template/base.py` require whitespace after `{%`, so `{%endcomment%}` and `{%endverbatim%}` never close a raw block. `_raw_start_re` requires it too, so with `debug=False` a `{%verbatim%}` block is not lexed as raw text. Django 6.1.2 accepts these tags without the spaces.\r\n\r\nOn main (3d3d943b74):\r\n\r\n{{{#!python\r\nfrom django.template import Context, Engine\r\n\r\nEngine(debug=True).from_string(\"{%comment%}hidden{%endcomment%}visible\").render(Context())\r\n# TemplateSyntaxError: Unclosed tag on line 1: 'comment'. Looking for one of: endcomment.\r\n\r\nEngine().from_string(\"{% comment %}hidden{%endcomment%}visible\").render(Context())\r\n# TemplateSyntaxError: Unclosed tag on line 1: 'comment'. Looking for one of: endcomment.\r\n\r\nEngine().from_string(\"{%verbatim%}{{ x }}{%endverbatim%}\").render(Context({\"x\": 1}))\r\n# AttributeError: 'NoneType' object has no attribute 'engine'\r\n}}}\r\n\r\nOn 6.1.2 these render `visible`, `visible` and `{{ x }}`. With `debug=False`, `{%comment%}\u2026{%endcomment%}` alone still renders, but it fails as soon as the template also contains `{% comment` anywhere, even inside a `{# #}` comment.\r\n\r\nTemplates in the wild use this form, for example `templates/releasetext.html` in postgres/pgweb (`{%comment%}\u2026{%endcomment%}`): on main, `DebugLexer` finds no `endcomment` token in it, while 6.1.2 finds one.\r\n\r\n`makemessages` is affected as well: with `{% comment %}note{%endcomment%}` before `{% translate \"Welcome\" %}`, `templatize()` no longer outputs `\"Welcome\"`, so the string is left out of the .po file without an error.\r\n\r\nAllowing zero whitespace in the three patterns restores the 6.1.2 behaviour; I have a patch with tests and will open a PR. Open [https://github.com/django/django/pull/21982 PR #21982] changes `_comment_end_re` and `_verbatim_end_re` to `\\s+endcomment\\s+` / `\\s+endverbatim\\s+`, which keeps this problem and would also require a space before `%}`.\r\n",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 22, 2026, 11:22:07 AM",
+        "updated_at": "Oct 22, 2026, 11:32:49 AM",
+        "reporter": "Spoko Dev",
+        "owner": "Spoko Dev",
+        "component": "Template system",
+        "priority": "Release blocker",
+        "severity": "Release blocker",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37450",
+        "pr_url": "https://github.com/django/django/pull/21982",
+        "pr_status": "open",
+        "raw_data": {
+          "id": "37450",
+          "Summary": "Template lexer fails on comment/verbatim tags without whitespace after {%",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Template system",
+          "Severity": "Release blocker",
+          "Resolution": "",
+          "Created": "Oct 22, 2026, 11:22:07 AM",
+          "Modified": "Oct 22, 2026, 11:32:49 AM",
+          "Reporter": "Spoko Dev",
+          "Owner": "Spoko Dev",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Since 1a9fba7a6c2a0acead19bbb45c25ceb0fdcca7c8 (#23424), `_comment_end_re` and `_verbatim_end_re` in `django/template/base.py` require whitespace after `{%`, so `{%endcomment%}` and `{%endverbatim%}` never close a raw block. `_raw_start_re` requires it too, so with `debug=False` a `{%verbatim%}` block is not lexed as raw text. Django 6.1.2 accepts these tags without the spaces.\r\n\r\nOn main (3d3d943b74):\r\n\r\n{{{#!python\r\nfrom django.template import Context, Engine\r\n\r\nEngine(debug=True).from_string(\"{%comment%}hidden{%endcomment%}visible\").render(Context())\r\n# TemplateSyntaxError: Unclosed tag on line 1: 'comment'. Looking for one of: endcomment.\r\n\r\nEngine().from_string(\"{% comment %}hidden{%endcomment%}visible\").render(Context())\r\n# TemplateSyntaxError: Unclosed tag on line 1: 'comment'. Looking for one of: endcomment.\r\n\r\nEngine().from_string(\"{%verbatim%}{{ x }}{%endverbatim%}\").render(Context({\"x\": 1}))\r\n# AttributeError: 'NoneType' object has no attribute 'engine'\r\n}}}\r\n\r\nOn 6.1.2 these render `visible`, `visible` and `{{ x }}`. With `debug=False`, `{%comment%}\u2026{%endcomment%}` alone still renders, but it fails as soon as the template also contains `{% comment` anywhere, even inside a `{# #}` comment.\r\n\r\nTemplates in the wild use this form, for example `templates/releasetext.html` in postgres/pgweb (`{%comment%}\u2026{%endcomment%}`): on main, `DebugLexer` finds no `endcomment` token in it, while 6.1.2 finds one.\r\n\r\n`makemessages` is affected as well: with `{% comment %}note{%endcomment%}` before `{% translate \"Welcome\" %}`, `templatize()` no longer outputs `\"Welcome\"`, so the string is left out of the .po file without an error.\r\n\r\nAllowing zero whitespace in the three patterns restores the 6.1.2 behaviour; I have a patch with tests and will open a PR. Open [https://github.com/django/django/pull/21982 PR #21982] changes `_comment_end_re` and `_verbatim_end_re` to `\\s+endcomment\\s+` / `\\s+endverbatim\\s+`, which keeps this problem and would also require a space before `%}`.\r\n"
         }
       }
     }
