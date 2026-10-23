@@ -11,7 +11,7 @@
       "watcher_issue_number": 2,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-06T03:12:14.317214+00:00",
       "ticket_data": {
         "id": 37326,
@@ -61,7 +61,7 @@
       "watcher_issue_number": 3,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-21T03:35:42.784530+00:00",
       "ticket_data": {
         "id": 37327,
@@ -113,7 +113,7 @@
       "watcher_issue_number": 4,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-06T03:12:14.317214+00:00",
       "ticket_data": {
         "id": 37328,
@@ -164,7 +164,7 @@
       "watcher_issue_number": 5,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-09T03:21:47.477014+00:00",
       "ticket_data": {
         "id": 37329,
@@ -216,7 +216,7 @@
       "watcher_issue_number": 6,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-15T03:26:50.698069+00:00",
       "ticket_data": {
         "id": 37330,
@@ -267,7 +267,7 @@
       "watcher_issue_number": 8,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-08T15:33:33.254698+00:00",
       "ticket_data": {
         "id": 37332,
@@ -319,7 +319,7 @@
       "watcher_issue_number": 9,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-18T03:27:08.576198+00:00",
       "ticket_data": {
         "id": 37333,
@@ -351,7 +351,7 @@
       "watcher_issue_number": 10,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-09T16:47:31.184624+00:00",
       "ticket_data": {
         "id": 37334,
@@ -402,7 +402,7 @@
       "watcher_issue_number": 11,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-11T03:17:00.522062+00:00",
       "ticket_data": {
         "id": 37335,
@@ -453,7 +453,7 @@
       "watcher_issue_number": 12,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-10T03:20:41.354089+00:00",
       "ticket_data": {
         "id": 37336,
@@ -485,7 +485,7 @@
       "watcher_issue_number": 13,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-12T03:22:11.526262+00:00",
       "ticket_data": {
         "id": 37337,
@@ -517,7 +517,7 @@
       "watcher_issue_number": 14,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-11T03:17:00.522062+00:00",
       "ticket_data": {
         "id": 37338,
@@ -549,7 +549,7 @@
       "watcher_issue_number": 15,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-19T03:23:35.576632+00:00",
       "ticket_data": {
         "id": 37339,
@@ -581,7 +581,7 @@
       "watcher_issue_number": 16,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-08T04:46:15.889621+00:00",
       "ticket_data": {
         "id": 37340,
@@ -632,7 +632,7 @@
       "watcher_issue_number": 17,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-15T03:39:13.000729+00:00",
       "ticket_data": {
         "id": 37342,
@@ -664,7 +664,7 @@
       "watcher_issue_number": 18,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-15T03:39:13.000729+00:00",
       "ticket_data": {
         "id": 37343,
@@ -715,7 +715,7 @@
       "watcher_issue_number": 19,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-19T03:23:35.576632+00:00",
       "ticket_data": {
         "id": 37344,
@@ -747,7 +747,7 @@
       "watcher_issue_number": 20,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-15T03:39:13.000729+00:00",
       "ticket_data": {
         "id": 37345,
@@ -779,7 +779,7 @@
       "watcher_issue_number": 21,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-30T04:15:04.028013+00:00",
       "ticket_data": {
         "id": 37346,
@@ -811,7 +811,7 @@
       "watcher_issue_number": 22,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-17T03:40:54.179611+00:00",
       "ticket_data": {
         "id": 37347,
@@ -843,7 +843,7 @@
       "watcher_issue_number": 23,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-26T03:48:05.396110+00:00",
       "ticket_data": {
         "id": 37348,
@@ -875,7 +875,7 @@
       "watcher_issue_number": 24,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-18T03:27:08.576198+00:00",
       "ticket_data": {
         "id": 37349,
@@ -926,7 +926,7 @@
       "watcher_issue_number": 26,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-19T03:23:35.576632+00:00",
       "ticket_data": {
         "id": 37351,
@@ -978,7 +978,7 @@
       "watcher_issue_number": 27,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-29T04:32:09.237316+00:00",
       "ticket_data": {
         "id": 37352,
@@ -1030,7 +1030,7 @@
       "watcher_issue_number": 33,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-26T03:48:05.396110+00:00",
       "ticket_data": {
         "id": 37359,
@@ -1081,7 +1081,7 @@
       "watcher_issue_number": 34,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-21T03:35:42.784530+00:00",
       "ticket_data": {
         "id": 37360,
@@ -1113,7 +1113,7 @@
       "watcher_issue_number": 36,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-09T04:49:21.496537+00:00",
       "ticket_data": {
         "id": 37362,
@@ -1145,7 +1145,7 @@
       "watcher_issue_number": 38,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-27T03:57:25.777724+00:00",
       "ticket_data": {
         "id": 37364,
@@ -1177,7 +1177,7 @@
       "watcher_issue_number": 39,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-23T03:34:31.376133+00:00",
       "ticket_data": {
         "id": 37365,
@@ -1228,7 +1228,7 @@
       "watcher_issue_number": 40,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-29T04:32:09.237316+00:00",
       "ticket_data": {
         "id": 37366,
@@ -1279,7 +1279,7 @@
       "watcher_issue_number": 41,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-25T03:42:01.987134+00:00",
       "ticket_data": {
         "id": 37367,
@@ -1331,7 +1331,7 @@
       "watcher_issue_number": 42,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-10T04:34:41.916876+00:00",
       "ticket_data": {
         "id": 37368,
@@ -1382,7 +1382,7 @@
       "watcher_issue_number": 43,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-25T03:42:01.987134+00:00",
       "ticket_data": {
         "id": 37369,
@@ -1432,8 +1432,8 @@
       "watcher_issue_number": 44,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
-      "last_updated": "2026-09-30T04:15:04.028013+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
+      "last_updated": "2026-10-23T03:36:05.324720+00:00",
       "ticket_data": {
         "id": 37370,
         "source_id": "django",
@@ -1442,15 +1442,15 @@
         "status": "assigned",
         "resolution": "",
         "created_at": "Sep 24, 2026, 8:34:31 AM",
-        "updated_at": "Sep 29, 2026, 3:36:46 PM",
+        "updated_at": "Oct 22, 2026, 10:50:36 AM",
         "reporter": "Sarah Boyce",
         "owner": "OsmnvAslan",
         "component": "Documentation",
         "priority": "Normal",
         "severity": "Normal",
-        "triage_stage": "Accepted",
+        "triage_stage": "Ready for checkin",
         "labels": [
-          "Accepted",
+          "Ready for checkin",
           "has-patch"
         ],
         "url": "https://code.djangoproject.com/ticket/37370",
@@ -1465,10 +1465,10 @@
           "Severity": "Normal",
           "Resolution": "",
           "Created": "Sep 24, 2026, 8:34:31 AM",
-          "Modified": "Sep 29, 2026, 3:36:46 PM",
+          "Modified": "Oct 22, 2026, 10:50:36 AM",
           "Reporter": "Sarah Boyce",
           "Owner": "OsmnvAslan",
-          "Triage Stage": "Accepted",
+          "Triage Stage": "Ready for checkin",
           "Has patch": "1",
           "Needs tests": "0",
           "Needs documentation": "0",
@@ -1483,7 +1483,7 @@
       "watcher_issue_number": 45,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-26T03:48:05.396110+00:00",
       "ticket_data": {
         "id": 37371,
@@ -1533,7 +1533,7 @@
       "watcher_issue_number": 46,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-16T03:22:33.887886+00:00",
       "ticket_data": {
         "id": 37372,
@@ -1584,7 +1584,7 @@
       "watcher_issue_number": 47,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-28T03:57:29.708006+00:00",
       "ticket_data": {
         "id": 37373,
@@ -1635,7 +1635,7 @@
       "watcher_issue_number": 48,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-30T04:15:04.028013+00:00",
       "ticket_data": {
         "id": 37374,
@@ -1667,7 +1667,7 @@
       "watcher_issue_number": 49,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-10T04:34:41.916876+00:00",
       "ticket_data": {
         "id": 37375,
@@ -1699,7 +1699,7 @@
       "watcher_issue_number": 51,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-06T05:08:46.120988+00:00",
       "ticket_data": {
         "id": 37377,
@@ -1731,7 +1731,7 @@
       "watcher_issue_number": 52,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-01T04:26:53.488557+00:00",
       "ticket_data": {
         "id": 37378,
@@ -1763,7 +1763,7 @@
       "watcher_issue_number": 53,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-09-30T04:15:04.028013+00:00",
       "ticket_data": {
         "id": 37379,
@@ -1814,7 +1814,7 @@
       "watcher_issue_number": 56,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-10T04:34:41.916876+00:00",
       "ticket_data": {
         "id": 37382,
@@ -1846,7 +1846,7 @@
       "watcher_issue_number": 57,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-03T04:01:44.733449+00:00",
       "ticket_data": {
         "id": 37383,
@@ -1896,7 +1896,7 @@
       "watcher_issue_number": 58,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-06T05:08:46.120988+00:00",
       "ticket_data": {
         "id": 37384,
@@ -1946,7 +1946,7 @@
       "watcher_issue_number": 62,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-08T04:46:15.889621+00:00",
       "ticket_data": {
         "id": 37388,
@@ -1997,7 +1997,7 @@
       "watcher_issue_number": 63,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-03T04:01:44.733449+00:00",
       "ticket_data": {
         "id": 37389,
@@ -2048,7 +2048,7 @@
       "watcher_issue_number": 64,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-10T04:34:41.916876+00:00",
       "ticket_data": {
         "id": 37390,
@@ -2099,7 +2099,7 @@
       "watcher_issue_number": 65,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-02T18:57:57.137467+00:00",
       "ticket_data": {
         "id": 37391,
@@ -2149,7 +2149,7 @@
       "watcher_issue_number": 66,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-17T03:12:31.906067+00:00",
       "ticket_data": {
         "id": 37392,
@@ -2200,7 +2200,7 @@
       "watcher_issue_number": 67,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-03T04:01:44.733449+00:00",
       "ticket_data": {
         "id": 37393,
@@ -2251,7 +2251,7 @@
       "watcher_issue_number": 68,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-17T03:12:31.906067+00:00",
       "ticket_data": {
         "id": 37394,
@@ -2295,64 +2295,13 @@
         }
       }
     },
-    "django:37395": {
-      "source": "django",
-      "ticket_id": 37395,
-      "watcher_issue_number": 69,
-      "status": "assigned",
-      "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
-      "last_updated": "2026-10-21T03:31:44.109280+00:00",
-      "ticket_data": {
-        "id": 37395,
-        "source_id": "django",
-        "title": "Nonce-only CSP directives are omitted when the nonce is unused",
-        "description": "Django 6.0 added built-in CSP. In `django.utils.csp.build_policy()`, when a directive's only source is `CSP.NONCE` and the per-request nonce was never accessed (the `LazyNonce` stays falsy because the response rendered no `{{ csp_nonce }}`), the sentinel is stripped, the directive becomes empty, and the directive is dropped from the header entirely. For the same configuration, the emitted policy then depends on whether the nonce happened to be used:\r\n\r\n * `{\"default-src\": [\"*\"], \"script-src\": [CSP.NONCE]}` \u2014 nonce used: `default-src *; script-src 'nonce-...'`; nonce unused: `default-src *` (script-src removed, scripts fall back to `*`).\r\n * `{\"script-src\": [CSP.NONCE]}` \u2014 nonce unused: an empty `Content-Security-Policy` header (no policy at all).\r\n * `{\"script-src\": [CSP.SELF, CSP.NONCE]}` (recommended) \u2014 nonce unused: `script-src 'self'` (fails closed, unaffected).\r\n\r\nSo a nonce-only directive silently degrades to its `default-src` fallback (possibly permissive) or to no policy, on exactly the responses most likely to carry injected markup (error pages, views with no inline nonce'd element). The recommended form \u2014 pairing `CSP.NONCE` with an explicit fallback \u2014 already fails closed.\r\n\r\nProposed: a new system check, `security.W028`, that warns when any `SECURE_CSP` or `SECURE_CSP_REPORT_ONLY` directive's only source is `CSP.NONCE`, hinting to add `CSP.SELF`, `CSP.STRICT_DYNAMIC`, or `CSP.NONE`. It mirrors the existing `security.W027` and makes no runtime behavior change. A patch with tests and docs is ready.\r\n\r\nAn alternative would be to make `build_policy()` fail closed (keep the directive present as block-all when the nonce is unused), but that changes documented output and would need a release note; a check seems the lower-risk fix.",
-        "status": "assigned",
-        "resolution": "",
-        "created_at": "Oct 3, 2026, 1:49:40 PM",
-        "updated_at": "Oct 20, 2026, 1:27:53 PM",
-        "reporter": "venkatchalla06",
-        "owner": "Sanskar Kharya",
-        "component": "CSP",
-        "priority": "Normal",
-        "severity": "Normal",
-        "triage_stage": "Accepted",
-        "labels": [
-          "Accepted",
-          "has-patch"
-        ],
-        "url": "https://code.djangoproject.com/ticket/37395",
-        "pr_url": "https://github.com/django/django/pull/22179",
-        "pr_status": "open",
-        "raw_data": {
-          "id": "37395",
-          "Summary": "Nonce-only CSP directives are omitted when the nonce is unused",
-          "Type": "Bug",
-          "Status": "assigned",
-          "Component": "CSP",
-          "Severity": "Normal",
-          "Resolution": "",
-          "Created": "Oct 3, 2026, 1:49:40 PM",
-          "Modified": "Oct 20, 2026, 1:27:53 PM",
-          "Reporter": "venkatchalla06",
-          "Owner": "Sanskar Kharya",
-          "Triage Stage": "Accepted",
-          "Has patch": "1",
-          "Needs tests": "0",
-          "Needs documentation": "0",
-          "UI/UX": "0",
-          "Description": "Django 6.0 added built-in CSP. In `django.utils.csp.build_policy()`, when a directive's only source is `CSP.NONCE` and the per-request nonce was never accessed (the `LazyNonce` stays falsy because the response rendered no `{{ csp_nonce }}`), the sentinel is stripped, the directive becomes empty, and the directive is dropped from the header entirely. For the same configuration, the emitted policy then depends on whether the nonce happened to be used:\r\n\r\n * `{\"default-src\": [\"*\"], \"script-src\": [CSP.NONCE]}` \u2014 nonce used: `default-src *; script-src 'nonce-...'`; nonce unused: `default-src *` (script-src removed, scripts fall back to `*`).\r\n * `{\"script-src\": [CSP.NONCE]}` \u2014 nonce unused: an empty `Content-Security-Policy` header (no policy at all).\r\n * `{\"script-src\": [CSP.SELF, CSP.NONCE]}` (recommended) \u2014 nonce unused: `script-src 'self'` (fails closed, unaffected).\r\n\r\nSo a nonce-only directive silently degrades to its `default-src` fallback (possibly permissive) or to no policy, on exactly the responses most likely to carry injected markup (error pages, views with no inline nonce'd element). The recommended form \u2014 pairing `CSP.NONCE` with an explicit fallback \u2014 already fails closed.\r\n\r\nProposed: a new system check, `security.W028`, that warns when any `SECURE_CSP` or `SECURE_CSP_REPORT_ONLY` directive's only source is `CSP.NONCE`, hinting to add `CSP.SELF`, `CSP.STRICT_DYNAMIC`, or `CSP.NONE`. It mirrors the existing `security.W027` and makes no runtime behavior change. A patch with tests and docs is ready.\r\n\r\nAn alternative would be to make `build_policy()` fail closed (keep the directive present as block-all when the nonce is unused), but that changes documented output and would need a release note; a check seems the lower-risk fix."
-        }
-      }
-    },
     "django:37397": {
       "source": "django",
       "ticket_id": 37397,
       "watcher_issue_number": 71,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-13T05:41:53.628303+00:00",
       "ticket_data": {
         "id": 37397,
@@ -2384,7 +2333,7 @@
       "watcher_issue_number": 72,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-15T03:26:50.698069+00:00",
       "ticket_data": {
         "id": 37399,
@@ -2435,7 +2384,7 @@
       "watcher_issue_number": 73,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-10T04:34:41.916876+00:00",
       "ticket_data": {
         "id": 37400,
@@ -2480,64 +2429,13 @@
         }
       }
     },
-    "django:37401": {
-      "source": "django",
-      "ticket_id": 37401,
-      "watcher_issue_number": 74,
-      "status": "assigned",
-      "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
-      "last_updated": "2026-10-09T04:49:21.496537+00:00",
-      "ticket_data": {
-        "id": 37401,
-        "source_id": "django",
-        "title": "Made `FILE_UPLOAD_DIRECTORY_PERMISSIONS` respect the process umask to remove vendored `makedirs`",
-        "description": "Following the [https://forum.djangoproject.com/t/proposal-make-file-upload-permissions-respect-umask/45022/ forum discussion] and agreement from the Steering Council and the Security Team, directories created via `django.utils._os.safe_makedirs()` should be subject to the process umask, matching the semantics of `os.mkdir()` and `os.makedirs()`. This affects `FileSystemStorage` when `FILE_UPLOAD_DIRECTORY_PERMISSIONS` (or `directory_permissions_mode`) is set, and `FileBasedCache` (which uses a fixed `0o700`).\r\n\r\nCurrently, the vendored `makedirs()` added in the fix for [https://github.com/django/django/commit/019e44f67a8dace67b786e2818938c8691132988 CVE-2026-25674] calls `os.chmod()` after each `os.mkdir()` to force the exact mode, ignoring the umask (a behavior dating back to #13518). Since the umask can only remove bits, resulting permissions may be more restrictive than configured, never more permissive. Common combinations such as `0o755` with a `0o022` umask are unchanged, and existing directories remain untouched.\r\n\r\nPython 3.15 added `parent_mode` to `os.makedirs()` ([https://github.com/python/cpython/issues/86533 python/cpython#86533]), so `safe_makedirs()` can use it directly on 3.15+, keeping the vendored implementation (without the extra `chmod()`) for older Python versions until they are dropped.\r\n\r\nThe change applies on Django 6.2+ for all supported Python versions and will be documented as a backwards incompatible change in the 6.2 release notes, with updates to the `FILE_UPLOAD_DIRECTORY_PERMISSIONS` and `FileSystemStorage.directory_permissions_mode` docs. `FILE_UPLOAD_PERMISSIONS` is out of scope: it is applied via `os.chmod()` after writing and remains exact.",
-        "status": "assigned",
-        "resolution": "",
-        "created_at": "Oct 5, 2026, 4:35:32 PM",
-        "updated_at": "Oct 19, 2026, 8:15:46 PM",
-        "reporter": "Natalia Bidart",
-        "owner": "Natalia Bidart",
-        "component": "File uploads/storage",
-        "priority": "Normal",
-        "severity": "Normal",
-        "triage_stage": "Accepted",
-        "labels": [
-          "Accepted",
-          "has-patch"
-        ],
-        "url": "https://code.djangoproject.com/ticket/37401",
-        "pr_url": "https://github.com/django/django/pull/22095",
-        "pr_status": "open",
-        "raw_data": {
-          "id": "37401",
-          "Summary": "Made `FILE_UPLOAD_DIRECTORY_PERMISSIONS` respect the process umask to remove vendored `makedirs`",
-          "Type": "Cleanup/optimization",
-          "Status": "assigned",
-          "Component": "File uploads/storage",
-          "Severity": "Normal",
-          "Resolution": "",
-          "Created": "Oct 5, 2026, 4:35:32 PM",
-          "Modified": "Oct 19, 2026, 8:15:46 PM",
-          "Reporter": "Natalia Bidart",
-          "Owner": "Natalia Bidart",
-          "Triage Stage": "Accepted",
-          "Has patch": "1",
-          "Needs tests": "0",
-          "Needs documentation": "0",
-          "UI/UX": "0",
-          "Description": "Following the [https://forum.djangoproject.com/t/proposal-make-file-upload-permissions-respect-umask/45022/ forum discussion] and agreement from the Steering Council and the Security Team, directories created via `django.utils._os.safe_makedirs()` should be subject to the process umask, matching the semantics of `os.mkdir()` and `os.makedirs()`. This affects `FileSystemStorage` when `FILE_UPLOAD_DIRECTORY_PERMISSIONS` (or `directory_permissions_mode`) is set, and `FileBasedCache` (which uses a fixed `0o700`).\r\n\r\nCurrently, the vendored `makedirs()` added in the fix for [https://github.com/django/django/commit/019e44f67a8dace67b786e2818938c8691132988 CVE-2026-25674] calls `os.chmod()` after each `os.mkdir()` to force the exact mode, ignoring the umask (a behavior dating back to #13518). Since the umask can only remove bits, resulting permissions may be more restrictive than configured, never more permissive. Common combinations such as `0o755` with a `0o022` umask are unchanged, and existing directories remain untouched.\r\n\r\nPython 3.15 added `parent_mode` to `os.makedirs()` ([https://github.com/python/cpython/issues/86533 python/cpython#86533]), so `safe_makedirs()` can use it directly on 3.15+, keeping the vendored implementation (without the extra `chmod()`) for older Python versions until they are dropped.\r\n\r\nThe change applies on Django 6.2+ for all supported Python versions and will be documented as a backwards incompatible change in the 6.2 release notes, with updates to the `FILE_UPLOAD_DIRECTORY_PERMISSIONS` and `FileSystemStorage.directory_permissions_mode` docs. `FILE_UPLOAD_PERMISSIONS` is out of scope: it is applied via `os.chmod()` after writing and remains exact."
-        }
-      }
-    },
     "django:37402": {
       "source": "django",
       "ticket_id": 37402,
       "watcher_issue_number": 75,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-13T05:41:53.628303+00:00",
       "ticket_data": {
         "id": 37402,
@@ -2587,7 +2485,7 @@
       "watcher_issue_number": 76,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-09T04:49:21.496537+00:00",
       "ticket_data": {
         "id": 37403,
@@ -2619,7 +2517,7 @@
       "watcher_issue_number": 77,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-10T04:34:41.916876+00:00",
       "ticket_data": {
         "id": 37404,
@@ -2651,7 +2549,7 @@
       "watcher_issue_number": 79,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-20T03:39:14.410538+00:00",
       "ticket_data": {
         "id": 37406,
@@ -2702,7 +2600,7 @@
       "watcher_issue_number": 80,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-22T03:31:00.800740+00:00",
       "ticket_data": {
         "id": 37407,
@@ -2734,7 +2632,7 @@
       "watcher_issue_number": 81,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-10T04:34:41.916876+00:00",
       "ticket_data": {
         "id": 37408,
@@ -2785,7 +2683,7 @@
       "watcher_issue_number": 82,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-15T03:26:50.698069+00:00",
       "ticket_data": {
         "id": 37409,
@@ -2817,7 +2715,7 @@
       "watcher_issue_number": 83,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-09T04:49:21.496537+00:00",
       "ticket_data": {
         "id": 37410,
@@ -2867,7 +2765,7 @@
       "watcher_issue_number": 86,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-10T04:34:41.916876+00:00",
       "ticket_data": {
         "id": 37413,
@@ -2917,7 +2815,7 @@
       "watcher_issue_number": 87,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-11T04:19:26.362245+00:00",
       "ticket_data": {
         "id": 37414,
@@ -2968,7 +2866,7 @@
       "watcher_issue_number": 88,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-12T04:35:50.824103+00:00",
       "ticket_data": {
         "id": 37415,
@@ -3019,7 +2917,7 @@
       "watcher_issue_number": 89,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-21T03:31:44.109280+00:00",
       "ticket_data": {
         "id": 37416,
@@ -3069,7 +2967,7 @@
       "watcher_issue_number": 90,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-14T03:45:32.680091+00:00",
       "ticket_data": {
         "id": 37417,
@@ -3120,7 +3018,7 @@
       "watcher_issue_number": 91,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-14T03:45:32.680091+00:00",
       "ticket_data": {
         "id": 37418,
@@ -3152,7 +3050,7 @@
       "watcher_issue_number": 92,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-22T03:31:00.800740+00:00",
       "ticket_data": {
         "id": 37419,
@@ -3184,7 +3082,7 @@
       "watcher_issue_number": 93,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-13T05:41:53.628303+00:00",
       "ticket_data": {
         "id": 37420,
@@ -3235,7 +3133,7 @@
       "watcher_issue_number": 94,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-14T03:45:32.680091+00:00",
       "ticket_data": {
         "id": 37422,
@@ -3267,7 +3165,7 @@
       "watcher_issue_number": 95,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-19T03:29:12.989106+00:00",
       "ticket_data": {
         "id": 37423,
@@ -3318,7 +3216,7 @@
       "watcher_issue_number": 97,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-15T03:26:50.698069+00:00",
       "ticket_data": {
         "id": 37425,
@@ -3369,7 +3267,7 @@
       "watcher_issue_number": 98,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-21T03:31:44.109280+00:00",
       "ticket_data": {
         "id": 37426,
@@ -3401,7 +3299,7 @@
       "watcher_issue_number": 99,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-16T03:22:33.887886+00:00",
       "ticket_data": {
         "id": 37427,
@@ -3452,7 +3350,7 @@
       "watcher_issue_number": 100,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-21T03:31:44.109280+00:00",
       "ticket_data": {
         "id": 37428,
@@ -3502,7 +3400,7 @@
       "watcher_issue_number": 101,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-21T03:31:44.109280+00:00",
       "ticket_data": {
         "id": 37429,
@@ -3534,7 +3432,7 @@
       "watcher_issue_number": 102,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-15T22:45:01.331784+00:00",
       "ticket_data": {
         "id": 37430,
@@ -3584,7 +3482,7 @@
       "watcher_issue_number": 103,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-21T03:31:44.109280+00:00",
       "ticket_data": {
         "id": 37431,
@@ -3616,7 +3514,7 @@
       "watcher_issue_number": 104,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-20T03:39:14.410538+00:00",
       "ticket_data": {
         "id": 37432,
@@ -3661,64 +3559,13 @@
         }
       }
     },
-    "django:37433": {
-      "source": "django",
-      "ticket_id": 37433,
-      "watcher_issue_number": 105,
-      "status": "assigned",
-      "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
-      "last_updated": "2026-10-20T03:39:14.410538+00:00",
-      "ticket_data": {
-        "id": 37433,
-        "source_id": "django",
-        "title": "Escaped database error messages logged by `Q.check()`",
-        "description": "`Q.check()`, used by `CheckConstraint.validate()` and by `UniqueConstraint.validate()` with a `condition`, catches `DatabaseError` and logs it to the `django.db.models` logger:\r\n\r\n{{{#!python\r\nlogger.warning(\"Got a database error calling check() on %r: %s\", self, e)\r\n}}}\r\n\r\nDatabase error messages can include the values being validated, which may originate from user input (for example through `ModelForm` validation). These messages are currently logged as-is. For defense in depth, and for consistency with other logging call sites, `Q.check()` should log the message through `django.utils.log.log_message()` so that its content is escaped, and trim it to a reasonable length.\r\n\r\nThe trimming logic for large values is currently duplicated in `django/views/debug.py` and `django/contrib/gis/gdal/raster/source.py`. A small `trim_value()` helper in `django.utils.text` could be shared by those two places and by `Q.check()`.\r\n\r\nSeparately, the fact that `BaseConstraint.validate()` treats a constraint as satisfied when evaluating it raises a database error (logging a warning and leaving the error to surface on `save()`) is not documented. A short note in the constraints reference would help developers understand why a condition that can fail to evaluate does not act as validation.",
-        "status": "assigned",
-        "resolution": "",
-        "created_at": "Oct 16, 2026, 7:33:25 AM",
-        "updated_at": "Oct 19, 2026, 9:19:06 PM",
-        "reporter": "Natalia Bidart",
-        "owner": "Natalia Bidart",
-        "component": "Database layer (models, ORM)",
-        "priority": "Normal",
-        "severity": "Normal",
-        "triage_stage": "Accepted",
-        "labels": [
-          "Accepted",
-          "has-patch"
-        ],
-        "url": "https://code.djangoproject.com/ticket/37433",
-        "pr_url": "https://github.com/django/django/pull/22176",
-        "pr_status": "open",
-        "raw_data": {
-          "id": "37433",
-          "Summary": "Escaped database error messages logged by `Q.check()`",
-          "Type": "Cleanup/optimization",
-          "Status": "assigned",
-          "Component": "Database layer (models, ORM)",
-          "Severity": "Normal",
-          "Resolution": "",
-          "Created": "Oct 16, 2026, 7:33:25 AM",
-          "Modified": "Oct 19, 2026, 9:19:06 PM",
-          "Reporter": "Natalia Bidart",
-          "Owner": "Natalia Bidart",
-          "Triage Stage": "Accepted",
-          "Has patch": "1",
-          "Needs tests": "0",
-          "Needs documentation": "0",
-          "UI/UX": "0",
-          "Description": "`Q.check()`, used by `CheckConstraint.validate()` and by `UniqueConstraint.validate()` with a `condition`, catches `DatabaseError` and logs it to the `django.db.models` logger:\r\n\r\n{{{#!python\r\nlogger.warning(\"Got a database error calling check() on %r: %s\", self, e)\r\n}}}\r\n\r\nDatabase error messages can include the values being validated, which may originate from user input (for example through `ModelForm` validation). These messages are currently logged as-is. For defense in depth, and for consistency with other logging call sites, `Q.check()` should log the message through `django.utils.log.log_message()` so that its content is escaped, and trim it to a reasonable length.\r\n\r\nThe trimming logic for large values is currently duplicated in `django/views/debug.py` and `django/contrib/gis/gdal/raster/source.py`. A small `trim_value()` helper in `django.utils.text` could be shared by those two places and by `Q.check()`.\r\n\r\nSeparately, the fact that `BaseConstraint.validate()` treats a constraint as satisfied when evaluating it raises a database error (logging a warning and leaving the error to surface on `save()`) is not documented. A short note in the constraints reference would help developers understand why a condition that can fail to evaluate does not act as validation."
-        }
-      }
-    },
     "django:37434": {
       "source": "django",
       "ticket_id": 37434,
       "watcher_issue_number": 106,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-17T03:12:31.906067+00:00",
       "ticket_data": {
         "id": 37434,
@@ -3750,7 +3597,7 @@
       "watcher_issue_number": 107,
       "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-21T03:31:44.109280+00:00",
       "ticket_data": {
         "id": 37435,
@@ -3782,22 +3629,22 @@
       "watcher_issue_number": 108,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-21T03:31:44.109280+00:00",
       "ticket_data": {
         "id": 37436,
         "source_id": "django",
         "title": "FETCH_PEERS can overwrite deferred-field changes and raise KeyError for deleted peers",
-        "description": "When using FETCH_PEERS with deferred fields, DeferredAttribute.fetch_many() does not correctly handle peer instances whose state has changed since the queryset was evaluated.\r\n\r\nThere are two related problems.\r\n\r\n1. Locally assigned values can be overwritten\r\n\r\nConsider two objects loaded with a deferred field using FETCH_PEERS:\r\n\r\nclass Author(models.Model):\r\nname = models.CharField(max_length=100)\r\n\r\nauthors = list(\r\nAuthor.objects.defer(\"name\").fetch_mode(FETCH_PEERS)\r\n)\r\n\r\nauthors[0].name = \"locally changed\"\r\n\r\n# Fetch the deferred field for another peer.\r\n\r\n_ = authors[1].name\r\n\r\nFetching authors[1].name causes fetch_many() to populate the field on all peers. This also replaces authors[0].name with the value currently stored in the database.\r\n\r\nThe locally assigned value is therefore silently lost.\r\n\r\nThis does not happen with FETCH_ONE, where the locally assigned value is preserved.\r\n\r\n2. A deleted peer can cause KeyError\r\n\r\nA second problem occurs when one of the peer rows is deleted after the queryset has been evaluated.\r\n\r\nfetch_many() uses in_bulk() to retrieve the deferred values and then indexes the returned dictionary for every peer:\r\n\r\nvalue_by_pk = (\r\nself.field.model._base_manager.using(db)\r\n.values_list(attname, flat=True)\r\n.in_bulk({instance.pk for instance in instances})\r\n)\r\n\r\nfor instance in instances:\r\nsetattr(instance, attname, value_by_pk[instance.pk])\r\n\r\nin_bulk() does not include primary keys for rows that no longer exist. Consequently, if one peer has been deleted, accessing the deferred field on another existing peer can raise KeyError.\r\n\r\nThe missing peer should not cause an unrelated peer's deferred-field access to fail.\r\n\r\nIf the instance being accessed itself has been deleted, its behavior should remain consistent with FETCH_ONE rather than producing a KeyError caused by another peer.\r\n\r\nExpected behavior:\r\n\r\nFETCH_PEERS should not overwrite a peer's field if that value has already been assigned locally.\r\n\r\nA peer whose database row no longer exists should not cause deferred-field access on other existing peers to fail.\r\n\r\nThe behavior for the instance whose own row has been deleted should remain consistent with FETCH_ONE.\r\n\r\nI reproduced both behaviors against Django 6.1. The corresponding FETCH_ONE cases behave correctly.\r\n\r\nThis appears to be a missing state check in DeferredAttribute.fetch_many(): it unconditionally assigns the fetched value to every peer and assumes that every requested primary key is present in the result returned by in_bulk().\r\n",
+        "description": "When using FETCH_PEERS with deferred fields, DeferredAttribute.fetch_many() does not correctly handle peer instances whose state has changed since the queryset was evaluated.\r\n\r\nThere are two related problems.\r\n\r\n1. Locally assigned values can be overwritten\r\n\r\nConsider two objects loaded with a deferred field using FETCH_PEERS:\r\n{{{#!py\r\nclass Author(models.Model):\r\nname = models.CharField(max_length=100)\r\n\r\nauthors = list(\r\nAuthor.objects.defer(\"name\").fetch_mode(FETCH_PEERS)\r\n)\r\n\r\nauthors[0].name = \"locally changed\"\r\n\r\n# Fetch the deferred field for another peer.\r\n\r\n_ = authors[1].name\r\n}}}\r\nFetching authors[1].name causes fetch_many() to populate the field on all peers. This also replaces authors[0].name with the value currently stored in the database.\r\n\r\nThe locally assigned value is therefore silently lost.\r\n\r\nThis does not happen with FETCH_ONE, where the locally assigned value is preserved.\r\n\r\n2. A deleted peer can cause KeyError\r\n\r\nA second problem occurs when one of the peer rows is deleted after the queryset has been evaluated.\r\n\r\nfetch_many() uses in_bulk() to retrieve the deferred values and then indexes the returned dictionary for every peer:\r\n{{{#!py\r\nvalue_by_pk = (\r\nself.field.model._base_manager.using(db)\r\n.values_list(attname, flat=True)\r\n.in_bulk({instance.pk for instance in instances})\r\n)\r\n\r\nfor instance in instances:\r\n    setattr(instance, attname, value_by_pk[instance.pk])\r\n}}}\r\nin_bulk() does not include primary keys for rows that no longer exist. Consequently, if one peer has been deleted, accessing the deferred field on another existing peer can raise KeyError.\r\n\r\nThe missing peer should not cause an unrelated peer's deferred-field access to fail.\r\n\r\nIf the instance being accessed itself has been deleted, its behavior should remain consistent with FETCH_ONE rather than producing a KeyError caused by another peer.\r\n\r\nExpected behavior:\r\n\r\nFETCH_PEERS should not overwrite a peer's field if that value has already been assigned locally.\r\n\r\nA peer whose database row no longer exists should not cause deferred-field access on other existing peers to fail.\r\n\r\nThe behavior for the instance whose own row has been deleted should remain consistent with FETCH_ONE.\r\n\r\nI reproduced both behaviors against Django 6.1. The corresponding FETCH_ONE cases behave correctly.\r\n\r\nThis appears to be a missing state check in DeferredAttribute.fetch_many(): it unconditionally assigns the fetched value to every peer and assumes that every requested primary key is present in the result returned by in_bulk().\r\n",
         "status": "assigned",
         "resolution": "",
         "created_at": "Oct 18, 2026, 12:30:20 AM",
-        "updated_at": "Oct 20, 2026, 12:11:43 AM",
+        "updated_at": "Oct 22, 2026, 5:09:22 PM",
         "reporter": "Patel Namraa",
         "owner": "Patel Namraa",
         "component": "Database layer (models, ORM)",
-        "priority": "Normal",
-        "severity": "Normal",
+        "priority": "Release blocker",
+        "severity": "Release blocker",
         "triage_stage": "Accepted",
         "labels": [
           "Accepted",
@@ -3812,10 +3659,10 @@
           "Type": "Bug",
           "Status": "assigned",
           "Component": "Database layer (models, ORM)",
-          "Severity": "Normal",
+          "Severity": "Release blocker",
           "Resolution": "",
           "Created": "Oct 18, 2026, 12:30:20 AM",
-          "Modified": "Oct 20, 2026, 12:11:43 AM",
+          "Modified": "Oct 22, 2026, 5:09:22 PM",
           "Reporter": "Patel Namraa",
           "Owner": "Patel Namraa",
           "Triage Stage": "Accepted",
@@ -3823,7 +3670,7 @@
           "Needs tests": "0",
           "Needs documentation": "0",
           "UI/UX": "0",
-          "Description": "When using FETCH_PEERS with deferred fields, DeferredAttribute.fetch_many() does not correctly handle peer instances whose state has changed since the queryset was evaluated.\r\n\r\nThere are two related problems.\r\n\r\n1. Locally assigned values can be overwritten\r\n\r\nConsider two objects loaded with a deferred field using FETCH_PEERS:\r\n\r\nclass Author(models.Model):\r\nname = models.CharField(max_length=100)\r\n\r\nauthors = list(\r\nAuthor.objects.defer(\"name\").fetch_mode(FETCH_PEERS)\r\n)\r\n\r\nauthors[0].name = \"locally changed\"\r\n\r\n# Fetch the deferred field for another peer.\r\n\r\n_ = authors[1].name\r\n\r\nFetching authors[1].name causes fetch_many() to populate the field on all peers. This also replaces authors[0].name with the value currently stored in the database.\r\n\r\nThe locally assigned value is therefore silently lost.\r\n\r\nThis does not happen with FETCH_ONE, where the locally assigned value is preserved.\r\n\r\n2. A deleted peer can cause KeyError\r\n\r\nA second problem occurs when one of the peer rows is deleted after the queryset has been evaluated.\r\n\r\nfetch_many() uses in_bulk() to retrieve the deferred values and then indexes the returned dictionary for every peer:\r\n\r\nvalue_by_pk = (\r\nself.field.model._base_manager.using(db)\r\n.values_list(attname, flat=True)\r\n.in_bulk({instance.pk for instance in instances})\r\n)\r\n\r\nfor instance in instances:\r\nsetattr(instance, attname, value_by_pk[instance.pk])\r\n\r\nin_bulk() does not include primary keys for rows that no longer exist. Consequently, if one peer has been deleted, accessing the deferred field on another existing peer can raise KeyError.\r\n\r\nThe missing peer should not cause an unrelated peer's deferred-field access to fail.\r\n\r\nIf the instance being accessed itself has been deleted, its behavior should remain consistent with FETCH_ONE rather than producing a KeyError caused by another peer.\r\n\r\nExpected behavior:\r\n\r\nFETCH_PEERS should not overwrite a peer's field if that value has already been assigned locally.\r\n\r\nA peer whose database row no longer exists should not cause deferred-field access on other existing peers to fail.\r\n\r\nThe behavior for the instance whose own row has been deleted should remain consistent with FETCH_ONE.\r\n\r\nI reproduced both behaviors against Django 6.1. The corresponding FETCH_ONE cases behave correctly.\r\n\r\nThis appears to be a missing state check in DeferredAttribute.fetch_many(): it unconditionally assigns the fetched value to every peer and assumes that every requested primary key is present in the result returned by in_bulk().\r\n"
+          "Description": "When using FETCH_PEERS with deferred fields, DeferredAttribute.fetch_many() does not correctly handle peer instances whose state has changed since the queryset was evaluated.\r\n\r\nThere are two related problems.\r\n\r\n1. Locally assigned values can be overwritten\r\n\r\nConsider two objects loaded with a deferred field using FETCH_PEERS:\r\n{{{#!py\r\nclass Author(models.Model):\r\nname = models.CharField(max_length=100)\r\n\r\nauthors = list(\r\nAuthor.objects.defer(\"name\").fetch_mode(FETCH_PEERS)\r\n)\r\n\r\nauthors[0].name = \"locally changed\"\r\n\r\n# Fetch the deferred field for another peer.\r\n\r\n_ = authors[1].name\r\n}}}\r\nFetching authors[1].name causes fetch_many() to populate the field on all peers. This also replaces authors[0].name with the value currently stored in the database.\r\n\r\nThe locally assigned value is therefore silently lost.\r\n\r\nThis does not happen with FETCH_ONE, where the locally assigned value is preserved.\r\n\r\n2. A deleted peer can cause KeyError\r\n\r\nA second problem occurs when one of the peer rows is deleted after the queryset has been evaluated.\r\n\r\nfetch_many() uses in_bulk() to retrieve the deferred values and then indexes the returned dictionary for every peer:\r\n{{{#!py\r\nvalue_by_pk = (\r\nself.field.model._base_manager.using(db)\r\n.values_list(attname, flat=True)\r\n.in_bulk({instance.pk for instance in instances})\r\n)\r\n\r\nfor instance in instances:\r\n    setattr(instance, attname, value_by_pk[instance.pk])\r\n}}}\r\nin_bulk() does not include primary keys for rows that no longer exist. Consequently, if one peer has been deleted, accessing the deferred field on another existing peer can raise KeyError.\r\n\r\nThe missing peer should not cause an unrelated peer's deferred-field access to fail.\r\n\r\nIf the instance being accessed itself has been deleted, its behavior should remain consistent with FETCH_ONE rather than producing a KeyError caused by another peer.\r\n\r\nExpected behavior:\r\n\r\nFETCH_PEERS should not overwrite a peer's field if that value has already been assigned locally.\r\n\r\nA peer whose database row no longer exists should not cause deferred-field access on other existing peers to fail.\r\n\r\nThe behavior for the instance whose own row has been deleted should remain consistent with FETCH_ONE.\r\n\r\nI reproduced both behaviors against Django 6.1. The corresponding FETCH_ONE cases behave correctly.\r\n\r\nThis appears to be a missing state check in DeferredAttribute.fetch_many(): it unconditionally assigns the fetched value to every peer and assumes that every requested primary key is present in the result returned by in_bulk().\r\n"
         }
       }
     },
@@ -3833,7 +3680,7 @@
       "watcher_issue_number": 109,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-21T03:31:44.109280+00:00",
       "ticket_data": {
         "id": 37437,
@@ -3883,7 +3730,7 @@
       "watcher_issue_number": 110,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-20T03:39:14.410538+00:00",
       "ticket_data": {
         "id": 37438,
@@ -3934,7 +3781,7 @@
       "watcher_issue_number": 111,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-20T10:13:13.839877+00:00",
       "ticket_data": {
         "id": 37439,
@@ -3985,7 +3832,7 @@
       "watcher_issue_number": 112,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-20T10:13:15.477763+00:00",
       "ticket_data": {
         "id": 37440,
@@ -4035,7 +3882,7 @@
       "watcher_issue_number": 113,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-21T03:31:44.109280+00:00",
       "ticket_data": {
         "id": 37442,
@@ -4045,7 +3892,7 @@
         "status": "assigned",
         "resolution": "",
         "created_at": "Oct 20, 2026, 12:45:31 PM",
-        "updated_at": "Oct 20, 2026, 4:21:35 PM",
+        "updated_at": "Oct 22, 2026, 8:44:13 AM",
         "reporter": "Patel Namraa",
         "owner": "Patel Namraa",
         "component": "Core (Serialization)",
@@ -4067,7 +3914,7 @@
           "Severity": "Normal",
           "Resolution": "",
           "Created": "Oct 20, 2026, 12:45:31 PM",
-          "Modified": "Oct 20, 2026, 4:21:35 PM",
+          "Modified": "Oct 22, 2026, 8:44:13 AM",
           "Reporter": "Patel Namraa",
           "Owner": "Patel Namraa",
           "Triage Stage": "Accepted",
@@ -4085,7 +3932,7 @@
       "watcher_issue_number": 114,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-21T03:31:44.109280+00:00",
       "ticket_data": {
         "id": 37443,
@@ -4135,7 +3982,7 @@
       "watcher_issue_number": 115,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-21T10:28:28.696284+00:00",
       "ticket_data": {
         "id": 37444,
@@ -4186,42 +4033,42 @@
       "watcher_issue_number": 116,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
-      "last_updated": "2026-10-21T15:29:01.939152+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
+      "last_updated": "2026-10-23T03:36:05.324720+00:00",
       "ticket_data": {
         "id": 37445,
         "source_id": "django",
-        "title": "Invalid Content-Type header (still) returns HTTP 500 instead of 400",
+        "title": "Invalid Content-Type header returns HTTP 500 instead of 400",
         "description": "#36991 made `HttpRequest._set_content_type_params()` raise `BadRequest` for an invalid `Content-Type` header; before it was `LookupError`. \r\n\r\n**But** according to the [https://docs.djangoproject.com/en/dev/ref/exceptions/#django.core.exceptions.BadRequest docs], the behavior and intention of the change was to my understanding to get a 400 response, but current main still responds with a 500, e.g. just with\r\n\r\n{{{\r\ncurl -i -X POST http://127.0.0.1:8000/ -H \"Content-Type: text/plain; charset*=BOGUS''%20\"\r\n}}}\r\n\r\nThis isn't really a regression, more like an incomplete fix.\r\n\r\nBasically the exceptions are raised when the request is created and not inside the `get_response()`, so it slips by before the aptly named `convert_exception_to_response()` is used. \r\n\r\nI'm intending to open a pull request shortly after this.\r\n\r\n\r\n'Disclaimer'\r\nI used Claude Code to investigate this bug. I saw this (super rare) error in our production env, probably coming from a security scanner. Mostly harmless, but also thought I could contribute here with a quick fix.",
         "status": "assigned",
         "resolution": "",
         "created_at": "Oct 21, 2026, 5:54:29 AM",
-        "updated_at": "Oct 21, 2026, 5:54:29 AM",
+        "updated_at": "Oct 22, 2026, 7:36:30 AM",
         "reporter": "Oliver Haas",
         "owner": "Oliver Haas",
         "component": "HTTP handling",
         "priority": "Normal",
         "severity": "Normal",
-        "triage_stage": "Unreviewed",
+        "triage_stage": "Accepted",
         "labels": [
-          "Unreviewed"
+          "Accepted"
         ],
         "url": "https://code.djangoproject.com/ticket/37445",
         "pr_url": null,
         "pr_status": null,
         "raw_data": {
           "id": "37445",
-          "Summary": "Invalid Content-Type header (still) returns HTTP 500 instead of 400",
+          "Summary": "Invalid Content-Type header returns HTTP 500 instead of 400",
           "Type": "Bug",
           "Status": "assigned",
           "Component": "HTTP handling",
           "Severity": "Normal",
           "Resolution": "",
           "Created": "Oct 21, 2026, 5:54:29 AM",
-          "Modified": "Oct 21, 2026, 5:54:29 AM",
+          "Modified": "Oct 22, 2026, 7:36:30 AM",
           "Reporter": "Oliver Haas",
           "Owner": "Oliver Haas",
-          "Triage Stage": "Unreviewed",
+          "Triage Stage": "Accepted",
           "Has patch": "0",
           "Needs tests": "0",
           "Needs documentation": "0",
@@ -4236,7 +4083,7 @@
       "watcher_issue_number": 117,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-21T22:34:29.031266+00:00",
       "ticket_data": {
         "id": 37446,
@@ -4284,49 +4131,31 @@
       "source": "django",
       "ticket_id": 37447,
       "watcher_issue_number": 118,
-      "status": "assigned",
+      "status": "unknown",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T03:31:00.800740+00:00",
-      "last_updated": "2026-10-22T03:31:00.800740+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
+      "last_updated": "2026-10-23T03:36:05.324720+00:00",
       "ticket_data": {
         "id": 37447,
         "source_id": "django",
-        "title": "makemessages fails in UTF-8 mode when processing non-UTF-8 filenames",
-        "description": "Surfaced on CI just now after bumping Windows jobs to Python 3.15, now that UTF-8 mode is the [https://docs.python.org/3/whatsnew/3.15.html#whatsnew315-utf8-default default].\r\n\r\n{{{#!py\r\nERROR: test_unicode_file_name (i18n.test_extraction.BasicExtractorTests.test_unicode_file_name)\r\n----------------------------------------------------------------------\r\nTraceback (most recent call last):\r\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.15.1\\x64\\Lib\\unittest\\case.py\", line 58, in testPartExecutor\r\n    yield\r\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.15.1\\x64\\Lib\\unittest\\case.py\", line 691, in run\r\n    self._callTestMethod(testMethod)\r\n    \r\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.15.1\\x64\\Lib\\unittest\\case.py\", line 637, in _callTestMethod\r\n    result = method()\r\n    ^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\tests\\i18n\\test_extraction.py\", line 372, in test_unicode_file_name\r\n    management.call_command(\"makemessages\", locale=[LOCALE], verbosity=0)\r\n    ^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\__init__.py\", line 195, in call_command\r\n    return command.execute(*args, **defaults)\r\n      ^^^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\base.py\", line 471, in execute\r\n    output = self.handle(*args, **options)\r\n    ^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\commands\\makemessages.py\", line 423, in handle\r\n    potfiles = self.build_potfiles()\r\n    ^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\commands\\makemessages.py\", line 504, in build_potfiles\r\n    self.process_files(file_list)\r\n    ^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\commands\\makemessages.py\", line 596, in process_files\r\n    self.process_locale_dir(locale_dir, files)\r\n    ^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\commands\\makemessages.py\", line 677, in process_locale_dir\r\n    raise CommandError(\r\n    ^^^^^^^\r\ndjango.core.management.base.CommandError: errors happened while running xgettext on .\\__init__.py\r\n.\\ignore_dir\\ignored.html.py\r\n.\\media_root\\media_ignored.html.py\r\n.\\static\\static_ignored.html.py\r\n.\\templates\\empty.html.py\r\n.\\templates\\subdir\\ignored.html.py\r\n.\\templates\\test.html.py\r\n.\\templates\\xxx_ignored.html.py\r\n.\\vid\u00e9o.txt.py\r\nxgettext: error while opening \".\\vid\u00c3\u00a9o.txt.py\" for reading: No such file or directory\r\n}}}\r\n\r\nI believe the fix is to write using the system locale, which we should have been doing all along ([https://docs.astral.sh/ruff/rules/unspecified-encoding/#why-is-this-bad linter rule on this topic])\r\n\r\n{{{#!diff\r\ndiff --git a/django/core/management/commands/makemessages.py b/django/core/management/commands/makemessages.py\r\nindex 5a4bd55bb8..9db5a6ef2a 100644\r\n--- a/django/core/management/commands/makemessages.py\r\n+++ b/django/core/management/commands/makemessages.py\r\n@@ -663,8 +663,10 @@ class Command(BaseCommand):\r\n             return\r\n \r\n         input_files = [bf.work_path for bf in build_files]\r\n-        with NamedTemporaryFile(mode=\"w+\") as input_files_list:\r\n-            input_files_list.write(\"\\n\".join(input_files))\r\n+        with NamedTemporaryFile(mode=\"w+b\") as input_files_list:\r\n+            input_files_list.write(\r\n+                \"\\n\".join(input_files).encode(DEFAULT_LOCALE_ENCODING)\r\n+            )\r\n             input_files_list.flush()\r\n             args.extend([\"--files-from\", input_files_list.name])\r\n             args.extend(self.xgettext_options)\r\n}}}\r\n\r\nIf a triager confirms the approach, I can open the PR. I propose backporting to 6.1 as part of 3.15 support, but with a release note, since it affects released behavior and would have been visible on prior Python versions when running in UTF-8 mode.",
-        "status": "assigned",
+        "title": "Ticket #37447",
+        "description": "",
+        "status": "unknown",
         "resolution": "",
-        "created_at": "Oct 21, 2026, 4:45:02 PM",
-        "updated_at": "Oct 21, 2026, 8:29:14 PM",
-        "reporter": "Jacob Walls",
-        "owner": "Jacob Walls",
-        "component": "Internationalization",
-        "priority": "Release blocker",
-        "severity": "Release blocker",
-        "triage_stage": "Accepted",
-        "labels": [
-          "Accepted"
-        ],
+        "created_at": "",
+        "updated_at": "",
+        "reporter": "",
+        "owner": "",
+        "component": "",
+        "priority": "",
+        "severity": "",
+        "triage_stage": "",
+        "labels": [],
         "url": "https://code.djangoproject.com/ticket/37447",
         "pr_url": null,
         "pr_status": null,
         "raw_data": {
-          "id": "37447",
-          "Summary": "makemessages fails in UTF-8 mode when processing non-UTF-8 filenames",
-          "Type": "Bug",
-          "Status": "assigned",
-          "Component": "Internationalization",
-          "Severity": "Release blocker",
-          "Resolution": "",
-          "Created": "Oct 21, 2026, 4:45:02 PM",
-          "Modified": "Oct 21, 2026, 8:29:14 PM",
-          "Reporter": "Jacob Walls",
-          "Owner": "Jacob Walls",
-          "Triage Stage": "Accepted",
-          "Has patch": "0",
-          "Needs tests": "0",
-          "Needs documentation": "0",
-          "UI/UX": "0",
-          "Description": "Surfaced on CI just now after bumping Windows jobs to Python 3.15, now that UTF-8 mode is the [https://docs.python.org/3/whatsnew/3.15.html#whatsnew315-utf8-default default].\r\n\r\n{{{#!py\r\nERROR: test_unicode_file_name (i18n.test_extraction.BasicExtractorTests.test_unicode_file_name)\r\n----------------------------------------------------------------------\r\nTraceback (most recent call last):\r\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.15.1\\x64\\Lib\\unittest\\case.py\", line 58, in testPartExecutor\r\n    yield\r\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.15.1\\x64\\Lib\\unittest\\case.py\", line 691, in run\r\n    self._callTestMethod(testMethod)\r\n    \r\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.15.1\\x64\\Lib\\unittest\\case.py\", line 637, in _callTestMethod\r\n    result = method()\r\n    ^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\tests\\i18n\\test_extraction.py\", line 372, in test_unicode_file_name\r\n    management.call_command(\"makemessages\", locale=[LOCALE], verbosity=0)\r\n    ^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\__init__.py\", line 195, in call_command\r\n    return command.execute(*args, **defaults)\r\n      ^^^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\base.py\", line 471, in execute\r\n    output = self.handle(*args, **options)\r\n    ^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\commands\\makemessages.py\", line 423, in handle\r\n    potfiles = self.build_potfiles()\r\n    ^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\commands\\makemessages.py\", line 504, in build_potfiles\r\n    self.process_files(file_list)\r\n    ^^^^^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\commands\\makemessages.py\", line 596, in process_files\r\n    self.process_locale_dir(locale_dir, files)\r\n    ^^^^^^^^^^^\r\n  File \"D:\\a\\django\\django\\django\\core\\management\\commands\\makemessages.py\", line 677, in process_locale_dir\r\n    raise CommandError(\r\n    ^^^^^^^\r\ndjango.core.management.base.CommandError: errors happened while running xgettext on .\\__init__.py\r\n.\\ignore_dir\\ignored.html.py\r\n.\\media_root\\media_ignored.html.py\r\n.\\static\\static_ignored.html.py\r\n.\\templates\\empty.html.py\r\n.\\templates\\subdir\\ignored.html.py\r\n.\\templates\\test.html.py\r\n.\\templates\\xxx_ignored.html.py\r\n.\\vid\u00e9o.txt.py\r\nxgettext: error while opening \".\\vid\u00c3\u00a9o.txt.py\" for reading: No such file or directory\r\n}}}\r\n\r\nI believe the fix is to write using the system locale, which we should have been doing all along ([https://docs.astral.sh/ruff/rules/unspecified-encoding/#why-is-this-bad linter rule on this topic])\r\n\r\n{{{#!diff\r\ndiff --git a/django/core/management/commands/makemessages.py b/django/core/management/commands/makemessages.py\r\nindex 5a4bd55bb8..9db5a6ef2a 100644\r\n--- a/django/core/management/commands/makemessages.py\r\n+++ b/django/core/management/commands/makemessages.py\r\n@@ -663,8 +663,10 @@ class Command(BaseCommand):\r\n             return\r\n \r\n         input_files = [bf.work_path for bf in build_files]\r\n-        with NamedTemporaryFile(mode=\"w+\") as input_files_list:\r\n-            input_files_list.write(\"\\n\".join(input_files))\r\n+        with NamedTemporaryFile(mode=\"w+b\") as input_files_list:\r\n+            input_files_list.write(\r\n+                \"\\n\".join(input_files).encode(DEFAULT_LOCALE_ENCODING)\r\n+            )\r\n             input_files_list.flush()\r\n             args.extend([\"--files-from\", input_files_list.name])\r\n             args.extend(self.xgettext_options)\r\n}}}\r\n\r\nIf a triager confirms the approach, I can open the PR. I propose backporting to 6.1 as part of 3.15 support, but with a release note, since it affects released behavior and would have been visible on prior Python versions when running in UTF-8 mode."
+          "id": "37447"
         }
       }
     },
@@ -4336,7 +4165,7 @@
       "watcher_issue_number": 119,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T17:23:48.803980+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-22T17:23:48.803980+00:00",
       "ticket_data": {
         "id": 37448,
@@ -4386,7 +4215,7 @@
       "watcher_issue_number": 120,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T17:23:50.617963+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-22T17:23:50.617963+00:00",
       "ticket_data": {
         "id": 37449,
@@ -4437,7 +4266,7 @@
       "watcher_issue_number": 121,
       "status": "assigned",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T17:23:52.774862+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-22T17:23:52.774862+00:00",
       "ticket_data": {
         "id": 37450,
@@ -4488,7 +4317,7 @@
       "watcher_issue_number": 122,
       "status": "new",
       "notification_comment_created": true,
-      "last_checked": "2026-10-22T20:39:03.391278+00:00",
+      "last_checked": "2026-10-23T03:36:05.324720+00:00",
       "last_updated": "2026-10-22T20:39:03.391278+00:00",
       "ticket_data": {
         "id": 37451,
