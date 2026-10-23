@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37451
+      "last_seen_id": 37452
     }
   },
   "tracked": {
@@ -4358,6 +4358,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Refs https://code.djangoproject.com/ticket/6785\r\n\r\nSource:\r\n- https://github.com/django/django/blob/8e4e95da9b5b751923cd80989d9ece4b6c6fb1a3/django/db/models/query.py#L58-L59\r\n- https://github.com/django/django/blob/8e4e95da9b5b751923cd80989d9ece4b6c6fb1a3/django/db/models/query.py#L741-L746\r\n\r\nWhile this is helpful for debug inforation, it can potentially slow down production requests. With fetching 19 more entries.\r\nThis can be especially slow in cases when `full-scan` is used.\r\n\r\nI propose limitting this value to `2` with `DEBUG=False`. This keeps the best of two worlds:\r\n- Better debug inforation in `DEBUG` mode\r\n- Faster code in production"
+        }
+      }
+    },
+    "django:37452": {
+      "source": "django",
+      "ticket_id": 37452,
+      "watcher_issue_number": 123,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-23T07:45:50.639952+00:00",
+      "last_updated": "2026-10-23T07:45:50.639952+00:00",
+      "ticket_data": {
+        "id": 37452,
+        "source_id": "django",
+        "title": "Add PowerShell instructions in Windows How To",
+        "description": "Currently the How To for installing Django on Windows includes an instruction to activate the virtual environment with the batch script.\r\n{{{\r\n...\\> project-name\\Scripts\\activate.bat\r\n}}}\r\nhttps://docs.djangoproject.com/en/6.1/howto/windows/#setting-up-a-virtual-environment\r\n\r\nMany Windows users are likely to be using PowerShell, and instead they need to use:\r\n{{{\r\n...\\> project-name\\Scripts\\activate.ps1\r\n}}}\r\n\r\nLet's update the tutorial to include the instructions for PowerShell.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 23, 2026, 1:51:59 AM",
+        "updated_at": "Oct 23, 2026, 2:23:54 AM",
+        "reporter": "Jonathan Biemond",
+        "owner": "Shabir Ahmad Shaik",
+        "component": "Documentation",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37452",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37452",
+          "Summary": "Add PowerShell instructions in Windows How To",
+          "Type": "Cleanup/optimization",
+          "Status": "assigned",
+          "Component": "Documentation",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 23, 2026, 1:51:59 AM",
+          "Modified": "Oct 23, 2026, 2:23:54 AM",
+          "Reporter": "Jonathan Biemond",
+          "Owner": "Shabir Ahmad Shaik",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Currently the How To for installing Django on Windows includes an instruction to activate the virtual environment with the batch script.\r\n{{{\r\n...\\> project-name\\Scripts\\activate.bat\r\n}}}\r\nhttps://docs.djangoproject.com/en/6.1/howto/windows/#setting-up-a-virtual-environment\r\n\r\nMany Windows users are likely to be using PowerShell, and instead they need to use:\r\n{{{\r\n...\\> project-name\\Scripts\\activate.ps1\r\n}}}\r\n\r\nLet's update the tutorial to include the instructions for PowerShell."
         }
       }
     }
