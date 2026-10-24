@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37452
+      "last_seen_id": 37453
     }
   },
   "tracked": {
@@ -4308,6 +4308,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Currently the How To for installing Django on Windows includes an instruction to activate the virtual environment with the batch script.\r\n{{{\r\n...\\> project-name\\Scripts\\activate.bat\r\n}}}\r\nhttps://docs.djangoproject.com/en/6.1/howto/windows/#setting-up-a-virtual-environment\r\n\r\nMany Windows users are likely to be using PowerShell, and instead they need to use:\r\n{{{\r\n...\\> project-name\\Scripts\\activate.ps1\r\n}}}\r\n\r\nLet's update the tutorial to include the instructions for PowerShell."
+        }
+      }
+    },
+    "django:37453": {
+      "source": "django",
+      "ticket_id": 37453,
+      "watcher_issue_number": 124,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-24T18:53:10.731612+00:00",
+      "last_updated": "2026-10-24T18:53:10.731612+00:00",
+      "ticket_data": {
+        "id": 37453,
+        "source_id": "django",
+        "title": "Add useful links to the \"Writing your first contribution\" doc.",
+        "description": "There are certain useful links (primarily about vulture method) that exist in the [https://django--21338.org.readthedocs.build/en/21338/internals/contributing/sprint-quickstart.html quickstart guide] but are not the part of the official [https://docs.djangoproject.com/en/dev/intro/contributing/ \"Writing your first contribution for Django\"] documentation.\r\n\r\nSome of those links include:\r\n\r\n1. [https://youtube.com/shorts/D6QHet5U82U?si=j5M6sy0ufpeGy_iZ An intro to Vulture method]\r\n\r\n2. [https://code.djangoproject.com/query?stage=Accepted&changetime=5+years+ago..6+months+ago&needs_better_patch=1&status=assigned&status=new&time=5+years+ago..today&order=id&desc=1&col=id&col=summary&col=time&col=changetime&col=needs_better_patch&col=owner&col=type&col=component some vulture-able tickets]\r\n\r\nI find these links useful when conducting sprints in the discord server. Therefore, I think it would be nice to have them in the official docs too.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 24, 2026, 12:44:37 PM",
+        "updated_at": "Oct 24, 2026, 12:55:27 PM",
+        "reporter": "Wasif Shahzad",
+        "owner": "",
+        "component": "Documentation",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37453",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37453",
+          "Summary": "Add useful links to the \"Writing your first contribution\" doc.",
+          "Type": "Uncategorized",
+          "Status": "new",
+          "Component": "Documentation",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 24, 2026, 12:44:37 PM",
+          "Modified": "Oct 24, 2026, 12:55:27 PM",
+          "Reporter": "Wasif Shahzad",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "There are certain useful links (primarily about vulture method) that exist in the [https://django--21338.org.readthedocs.build/en/21338/internals/contributing/sprint-quickstart.html quickstart guide] but are not the part of the official [https://docs.djangoproject.com/en/dev/intro/contributing/ \"Writing your first contribution for Django\"] documentation.\r\n\r\nSome of those links include:\r\n\r\n1. [https://youtube.com/shorts/D6QHet5U82U?si=j5M6sy0ufpeGy_iZ An intro to Vulture method]\r\n\r\n2. [https://code.djangoproject.com/query?stage=Accepted&changetime=5+years+ago..6+months+ago&needs_better_patch=1&status=assigned&status=new&time=5+years+ago..today&order=id&desc=1&col=id&col=summary&col=time&col=changetime&col=needs_better_patch&col=owner&col=type&col=component some vulture-able tickets]\r\n\r\nI find these links useful when conducting sprints in the discord server. Therefore, I think it would be nice to have them in the official docs too."
         }
       }
     }
