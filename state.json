@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37454
+      "last_seen_id": 37455
     }
   },
   "tracked": {
@@ -4391,6 +4391,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Currently the DecimalField values are not adapted:\r\n\r\n{{{\r\n     def adapt_decimalfield_value(self, value, max_digits=None, decimal_places=None):\r\n        \"\"\"\r\n        Transform a decimal.Decimal value to an object compatible with what is\r\n        expected by the backend driver for decimal (numeric) columns.\r\n        \"\"\"\r\n        return value\r\n}}}\r\n\r\nSay I use:\r\n\r\n{{{\r\n    class Doh(models.Model):\r\n        cost = models.DecimalField(\"cost\", max_digits=9, decimal_places=3)\r\n}}}\r\n\r\nThen it behave surprisingly at request time:\r\n\r\n{{{\r\n$ ./manage.py shell\r\n>>> from decimal import Decimal\r\n>>> kwargs = {\"cost\": Decimal(\"12345.123456789\")}\r\n>>> Doh.objects.create(**kwargs)\r\n<Doh: Doh object (1)>\r\n>>> Doh.objects.get(**kwargs)\r\nTraceback (most recent call last):\r\n[...]\r\napp.models.Doh.DoesNotExist: Doh matching query does not exist.\r\n}}}\r\n\r\nSo currently I'm using:\r\n\r\n{{{\r\n        with localcontext() as ctx:\r\n            ctx.rounding = ROUND_UP\r\n            kwargs = {\"cost\": round(Decimal(\"12345.123456789\"), 3)}\r\n}}}\r\n\r\nBut it feels fragile: what if I change the scale on the model side? I'll have to change all my calls to round.\r\n\r\nAlso it feels like implementing something that could be done in the adapter: if we know the decimal has only 3 places, allowing a request to touch the database with a WHERE with a value with more prevision will always result in no answer from the DB so there\u2019s no point? Or am I missing something?"
+        }
+      }
+    },
+    "django:37455": {
+      "source": "django",
+      "ticket_id": 37455,
+      "watcher_issue_number": 126,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-25T11:50:37.553299+00:00",
+      "last_updated": "2026-10-25T11:50:37.553299+00:00",
+      "ticket_data": {
+        "id": 37455,
+        "source_id": "django",
+        "title": "Remove support for contrib.gis on 32-bit Windows.",
+        "description": "I propose to remove support for Windows 32-bit for GIS. In particular, the GDAL bindings for Win32 are more difficult to get correct than for Win64 and other OS's, GDAL 32-bit isn't readily available in 2026 and the Win32 bindings have not worked for some time. Let's remove them rather than try to fix them. The following gives my reasoning for this proposal specifically with regard to GDAL. If agreed, an audit should be conducted for other geospatial libraries and remove any Win32 support there as well.\r\n\r\nLet's start with a bit of code \u2013 GeoDjango has specialised ctype bindings for GDAL on Win32. [1.]\r\n\r\n{{{\r\ndef std_call(func):\r\n\u00a0 \u00a0\"\"\"\r\n\u00a0 \u00a0Return the correct STDCALL function for certain OSR routines on Win32\r\n\u00a0 \u00a0platforms.\r\n\u00a0 \u00a0\"\"\"\r\n\u00a0 \u00a0if os.name == \"nt\":\r\n\u00a0 \u00a0 \u00a0 \u00a0return lwingdal[func]\r\n\u00a0 \u00a0else:\r\n\u00a0 \u00a0 \u00a0 \u00a0return lgdal[func]\r\n\r\n}}}\r\n\r\nThis is useful as GDAL sometimes declares functions with `CPL_STDCALL`. This helper function eases using those functions across different opearting systems. However, not all of GDAL's functions use `CPL_STDCALL` \u00a0[2.] and therefore to support Win32 we need to be careful about which function calls use the helper. Unfortunately, some of the bindings have not used the correct calling convention for some time. Currently, the test suite crashes with an issue introduced in 2023 in 08306bad57761b5eb176894649ac7d4e735c52dd. I have not checked if it worked before that change.\u00a0\r\n\r\nHow so, you may ask? Well, GDAL isn't widely built for 32-bit, and hasn't been for some time. osgeo4w is what the GIS tutorial recommends for Windows. The last release for GDAL in their archive for \u2018x86\u2019 is 3.1.4 fom Dec-2020 [3.]. Conda-forge is also useful for accessing pre-built binaries; from what I can see, Win32 was removed from there back in 2018 [4.].\u00a0\r\n\r\nOn the Python side, Win32 is making up a smaller proportion of overall downloads, with less than 2% of Windows downloads being 32-bit as at the end of last year [5.]. The Django docs have been written assuming Python 64-bit since 2020 [6.]. Finally, other Python packages have started to drop Win32 support, e.g cryptography[7.].\r\n\r\n\r\n[1.] https://github.com/django/django/blob/0e128d524d0a7c55a955570d6e5da983ac6ce6c7/django/contrib/gis/gdal/libgdal.py#L81-L89\r\n[2.] https://github.com/OSGeo/gdal/blob/v3.9.0/ogr/ogr_srs_api.h#L577\r\n[3.]https://download.osgeo.org/osgeo4w/v1/x86/release/gdal/\r\n[4.] https://anaconda.org/channels/conda-forge/packages/gdal/files?file_q=win-32\r\n[5.] https://discuss.python.org/t/consider-downgrading-windows-32-bit-from-tier-1-to-tier-2-or-tier-3-in-python-3-13/33719/69\r\n[6.] https://github.com/django/django/pull/13045\r\n[7.] https://github.com/pyca/cryptography/blob/main/CHANGELOG.rst#4900---2026-06-12",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 25, 2026, 3:18:17 AM",
+        "updated_at": "Oct 25, 2026, 3:18:17 AM",
+        "reporter": "David Smith",
+        "owner": "David Smith",
+        "component": "GIS",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37455",
+        "pr_url": "https://github.com/django/django/pull/13045",
+        "pr_status": "merged",
+        "raw_data": {
+          "id": "37455",
+          "Summary": "Remove support for contrib.gis on 32-bit Windows.",
+          "Type": "Uncategorized",
+          "Status": "assigned",
+          "Component": "GIS",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 25, 2026, 3:18:17 AM",
+          "Modified": "Oct 25, 2026, 3:18:17 AM",
+          "Reporter": "David Smith",
+          "Owner": "David Smith",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "I propose to remove support for Windows 32-bit for GIS. In particular, the GDAL bindings for Win32 are more difficult to get correct than for Win64 and other OS's, GDAL 32-bit isn't readily available in 2026 and the Win32 bindings have not worked for some time. Let's remove them rather than try to fix them. The following gives my reasoning for this proposal specifically with regard to GDAL. If agreed, an audit should be conducted for other geospatial libraries and remove any Win32 support there as well.\r\n\r\nLet's start with a bit of code \u2013 GeoDjango has specialised ctype bindings for GDAL on Win32. [1.]\r\n\r\n{{{\r\ndef std_call(func):\r\n\u00a0 \u00a0\"\"\"\r\n\u00a0 \u00a0Return the correct STDCALL function for certain OSR routines on Win32\r\n\u00a0 \u00a0platforms.\r\n\u00a0 \u00a0\"\"\"\r\n\u00a0 \u00a0if os.name == \"nt\":\r\n\u00a0 \u00a0 \u00a0 \u00a0return lwingdal[func]\r\n\u00a0 \u00a0else:\r\n\u00a0 \u00a0 \u00a0 \u00a0return lgdal[func]\r\n\r\n}}}\r\n\r\nThis is useful as GDAL sometimes declares functions with `CPL_STDCALL`. This helper function eases using those functions across different opearting systems. However, not all of GDAL's functions use `CPL_STDCALL` \u00a0[2.] and therefore to support Win32 we need to be careful about which function calls use the helper. Unfortunately, some of the bindings have not used the correct calling convention for some time. Currently, the test suite crashes with an issue introduced in 2023 in 08306bad57761b5eb176894649ac7d4e735c52dd. I have not checked if it worked before that change.\u00a0\r\n\r\nHow so, you may ask? Well, GDAL isn't widely built for 32-bit, and hasn't been for some time. osgeo4w is what the GIS tutorial recommends for Windows. The last release for GDAL in their archive for \u2018x86\u2019 is 3.1.4 fom Dec-2020 [3.]. Conda-forge is also useful for accessing pre-built binaries; from what I can see, Win32 was removed from there back in 2018 [4.].\u00a0\r\n\r\nOn the Python side, Win32 is making up a smaller proportion of overall downloads, with less than 2% of Windows downloads being 32-bit as at the end of last year [5.]. The Django docs have been written assuming Python 64-bit since 2020 [6.]. Finally, other Python packages have started to drop Win32 support, e.g cryptography[7.].\r\n\r\n\r\n[1.] https://github.com/django/django/blob/0e128d524d0a7c55a955570d6e5da983ac6ce6c7/django/contrib/gis/gdal/libgdal.py#L81-L89\r\n[2.] https://github.com/OSGeo/gdal/blob/v3.9.0/ogr/ogr_srs_api.h#L577\r\n[3.]https://download.osgeo.org/osgeo4w/v1/x86/release/gdal/\r\n[4.] https://anaconda.org/channels/conda-forge/packages/gdal/files?file_q=win-32\r\n[5.] https://discuss.python.org/t/consider-downgrading-windows-32-bit-from-tier-1-to-tier-2-or-tier-3-in-python-3-13/33719/69\r\n[6.] https://github.com/django/django/pull/13045\r\n[7.] https://github.com/pyca/cryptography/blob/main/CHANGELOG.rst#4900---2026-06-12"
         }
       }
     }
