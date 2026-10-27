@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37458
+      "last_seen_id": 37460
     }
   },
   "tracked": {
@@ -4473,6 +4473,106 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Several sections of Django's admin documentation reference specific templates and static files that developers may need to customize or inspect. Although some sections link to the overall admin template directory, individual files are not always linked, requiring developers to manually find them.\r\n\r\nTicket - #37127 introduced a version-aware '':sourcefile:'' Sphinx role, which could be used to make these files easier to access directly from the docs.\r\n\r\nA few areas that could benefit from this:\r\n\r\n- **[https://docs.djangoproject.com/en/dev/intro/tutorial07/#customize-the-admin-look-and-feel Tutorial 7]** \u2014 Link `admin/base_site.html` and `admin/index.html`, which developers are instructed to copy and customize.\r\n- **[https://docs.djangoproject.com/en/dev/ref/contrib/admin/#overriding-admin-templates Admin template customization]** \u2014 Link specific templates such as `change_form.html` and `change_list.html` where developers are encouraged to inspect or override them.\r\n- **[https://docs.djangoproject.com/en/dev/ref/contrib/admin/filters/ Admin list filters]** \u2014 Link `admin/filter.html`, which is referenced as a concrete example for creating custom filter templates.\r\n- **[https://docs.djangoproject.com/en/dev/ref/contrib/admin/#theming-support Admin theming]** \u2014 Replace the existing hard-coded GitHub links to `base.css` and `dark_mode.css` with `:sourcefile:` links so they point to the corresponding Django source version.\r\n\r\nThe goal would be to link individual Django-provided files where the documentation specifically encourages developers to inspect or customize them, rather than linking every file mentioned in the documentation.\r\n\r\nRelated tickets:\r\n- #37127 \u2014 Added version-aware source links for form templates.\r\n- #33842 \u2014 Added links to source paths in the documentation.\r\n\r\nForum discussion: https://forum.djangoproject.com/t/when-should-docs-link-to-source-files/45949"
+        }
+      }
+    },
+    "django:37459": {
+      "source": "django",
+      "ticket_id": 37459,
+      "watcher_issue_number": 130,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-27T14:43:41.006090+00:00",
+      "last_updated": "2026-10-27T14:43:41.006090+00:00",
+      "ticket_data": {
+        "id": 37459,
+        "source_id": "django",
+        "title": "Parallel test runner crashes with MaybeEncodingError when a subTest fails in a test case with unpicklable attributes",
+        "description": "= Summary =\r\n\r\nWith `--parallel`, a failing `subTest` in a test case that has any unpicklable instance attribute (for example, a `MagicMock` or a test `Client` assigned in `setUp`) aborts the whole run with `multiprocessing.pool.MaybeEncodingError: Error sending result`, instead of reporting the failure.\r\n\r\n`RemoteTestResult.check_subtest_picklable()` runs while the test is executing. At that point `SimpleTestCase.__getstate__` filters out unpicklable attributes, because `self._outcome` is set. The events are pickled again when the worker sends its results, after the test has finished. By then unittest has reset `_outcome` to `None`, so `__getstate__` returns the full `__dict__` and pickling fails. The check passes on different state from what is actually sent.\r\n\r\nStoring mocks or extra clients on `self` in `setUp` is common, so any subtest failure in such a test crashes the parallel run. The built-in `self.client` is unaffected only because `_pre_setup()` assigns it on the class.\r\n\r\n= Minimal Reproduction =\r\n\r\nReproduced on 6.1.2 and 5.2.18, Python 3.12, with both the spawn and fork start methods. Requires tblib (`pip install django tblib`)\r\n\r\nsettings.py:\r\n{{{\r\nSECRET_KEY = \"x\"\r\nDATABASES = {\"default\": {\"ENGINE\": \"django.db.backends.sqlite3\", \"NAME\": \":memory:\"}}\r\n}}}\r\n\r\ntests.py:\r\n\r\n{{{\r\nfrom unittest.mock import MagicMock\r\n\r\nfrom django.test import SimpleTestCase\r\n\r\n\r\nclass SubTestWithMock(SimpleTestCase):\r\n    def setUp(self):\r\n        self.mock = MagicMock()\r\n\r\n    def test_failing_subtest(self):\r\n        with self.subTest(i=1):\r\n            self.fail(\"expected failure\")\r\n\r\n\r\nclass Other(SimpleTestCase):  # A second class so the run actually uses workers\r\n    def test_ok(self):\r\n        pass\r\n}}}\r\n\r\n**Run with**: `DJANGO_SETTINGS_MODULE=settings PYTHONPATH=. python -m django test tests --parallel 2`\r\n\r\n**Expected**: `FAILED (failures=1)`.\r\n\r\n**Actual**: the run aborts with\r\n{{{\r\nmultiprocessing.pool.MaybeEncodingError: Error sending result: ...\r\nReason: 'PicklingError(\"Can't pickle <class 'unittest.mock.MagicMock'>: it's not the same object as unittest.mock.MagicMock\")'\r\n}}}\r\n\r\n= Workaround =\r\n\r\nWith `--parallel 1`, or without including an un-pickleable attribute, the failure is reported normally.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 27, 2026, 5:24:04 AM",
+        "updated_at": "Oct 27, 2026, 5:24:04 AM",
+        "reporter": "OscarVanL",
+        "owner": "",
+        "component": "Testing framework",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37459",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37459",
+          "Summary": "Parallel test runner crashes with MaybeEncodingError when a subTest fails in a test case with unpicklable attributes",
+          "Type": "Uncategorized",
+          "Status": "new",
+          "Component": "Testing framework",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 27, 2026, 5:24:04 AM",
+          "Modified": "Oct 27, 2026, 5:24:04 AM",
+          "Reporter": "OscarVanL",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "= Summary =\r\n\r\nWith `--parallel`, a failing `subTest` in a test case that has any unpicklable instance attribute (for example, a `MagicMock` or a test `Client` assigned in `setUp`) aborts the whole run with `multiprocessing.pool.MaybeEncodingError: Error sending result`, instead of reporting the failure.\r\n\r\n`RemoteTestResult.check_subtest_picklable()` runs while the test is executing. At that point `SimpleTestCase.__getstate__` filters out unpicklable attributes, because `self._outcome` is set. The events are pickled again when the worker sends its results, after the test has finished. By then unittest has reset `_outcome` to `None`, so `__getstate__` returns the full `__dict__` and pickling fails. The check passes on different state from what is actually sent.\r\n\r\nStoring mocks or extra clients on `self` in `setUp` is common, so any subtest failure in such a test crashes the parallel run. The built-in `self.client` is unaffected only because `_pre_setup()` assigns it on the class.\r\n\r\n= Minimal Reproduction =\r\n\r\nReproduced on 6.1.2 and 5.2.18, Python 3.12, with both the spawn and fork start methods. Requires tblib (`pip install django tblib`)\r\n\r\nsettings.py:\r\n{{{\r\nSECRET_KEY = \"x\"\r\nDATABASES = {\"default\": {\"ENGINE\": \"django.db.backends.sqlite3\", \"NAME\": \":memory:\"}}\r\n}}}\r\n\r\ntests.py:\r\n\r\n{{{\r\nfrom unittest.mock import MagicMock\r\n\r\nfrom django.test import SimpleTestCase\r\n\r\n\r\nclass SubTestWithMock(SimpleTestCase):\r\n    def setUp(self):\r\n        self.mock = MagicMock()\r\n\r\n    def test_failing_subtest(self):\r\n        with self.subTest(i=1):\r\n            self.fail(\"expected failure\")\r\n\r\n\r\nclass Other(SimpleTestCase):  # A second class so the run actually uses workers\r\n    def test_ok(self):\r\n        pass\r\n}}}\r\n\r\n**Run with**: `DJANGO_SETTINGS_MODULE=settings PYTHONPATH=. python -m django test tests --parallel 2`\r\n\r\n**Expected**: `FAILED (failures=1)`.\r\n\r\n**Actual**: the run aborts with\r\n{{{\r\nmultiprocessing.pool.MaybeEncodingError: Error sending result: ...\r\nReason: 'PicklingError(\"Can't pickle <class 'unittest.mock.MagicMock'>: it's not the same object as unittest.mock.MagicMock\")'\r\n}}}\r\n\r\n= Workaround =\r\n\r\nWith `--parallel 1`, or without including an un-pickleable attribute, the failure is reported normally."
+        }
+      }
+    },
+    "django:37460": {
+      "source": "django",
+      "ticket_id": 37460,
+      "watcher_issue_number": 131,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-27T14:43:42.365751+00:00",
+      "last_updated": "2026-10-27T14:43:42.365751+00:00",
+      "ticket_data": {
+        "id": 37460,
+        "source_id": "django",
+        "title": "Create a second new contributors tutorial which teaches Code/PR Review as a valid contribution path",
+        "description": "Most new contributors seem unaware that they are qualified to do code reviews for existing open contributions to Django. \r\n\r\nThis ticket proposes the creation of a second tutorial to teach what we expect as a community from a new contributor doing a code review. \r\n\r\nThe benefit here is the provide an on-ramp to the code review process, with the broad goal to increase the number of potential reviewers and to elevate the status of the stage in the overall contribution process. As I understand it, the code review step is also our current bottleneck so ought to help with this stage (or at least that's the theory)\r\n\r\nI think this page would also benefit from providing some illustrations of good and bad reviews from the past (these could be anonymised for those involved)",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 27, 2026, 9:28:24 AM",
+        "updated_at": "Oct 27, 2026, 9:28:24 AM",
+        "reporter": "Andy Miller",
+        "owner": "",
+        "component": "Documentation",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37460",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37460",
+          "Summary": "Create a second new contributors tutorial which teaches Code/PR Review as a valid contribution path",
+          "Type": "New feature",
+          "Status": "new",
+          "Component": "Documentation",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 27, 2026, 9:28:24 AM",
+          "Modified": "Oct 27, 2026, 9:28:24 AM",
+          "Reporter": "Andy Miller",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Most new contributors seem unaware that they are qualified to do code reviews for existing open contributions to Django. \r\n\r\nThis ticket proposes the creation of a second tutorial to teach what we expect as a community from a new contributor doing a code review. \r\n\r\nThe benefit here is the provide an on-ramp to the code review process, with the broad goal to increase the number of potential reviewers and to elevate the status of the stage in the overall contribution process. As I understand it, the code review step is also our current bottleneck so ought to help with this stage (or at least that's the theory)\r\n\r\nI think this page would also benefit from providing some illustrations of good and bad reviews from the past (these could be anonymised for those involved)"
         }
       }
     }
