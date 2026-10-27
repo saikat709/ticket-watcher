@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37460
+      "last_seen_id": 37461
     }
   },
   "tracked": {
@@ -4573,6 +4573,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Most new contributors seem unaware that they are qualified to do code reviews for existing open contributions to Django. \r\n\r\nThis ticket proposes the creation of a second tutorial to teach what we expect as a community from a new contributor doing a code review. \r\n\r\nThe benefit here is the provide an on-ramp to the code review process, with the broad goal to increase the number of potential reviewers and to elevate the status of the stage in the overall contribution process. As I understand it, the code review step is also our current bottleneck so ought to help with this stage (or at least that's the theory)\r\n\r\nI think this page would also benefit from providing some illustrations of good and bad reviews from the past (these could be anonymised for those involved)"
+        }
+      }
+    },
+    "django:37461": {
+      "source": "django",
+      "ticket_id": 37461,
+      "watcher_issue_number": 132,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-27T19:43:56.560791+00:00",
+      "last_updated": "2026-10-27T19:43:56.560791+00:00",
+      "ticket_data": {
+        "id": 37461,
+        "source_id": "django",
+        "title": "Prefer JSON data type as JSON storage starting with Oracle 26ai",
+        "description": "As a follow-up to https://forum.djangoproject.com/t/json-persistence-for-oracle/46282, the JSON data type should be preferred over CLOB when storing and processing JSON documents.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 27, 2026, 11:33:54 AM",
+        "updated_at": "Oct 27, 2026, 11:33:54 AM",
+        "reporter": "Lo\u00efc LEFEVRE",
+        "owner": "",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37461",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37461",
+          "Summary": "Prefer JSON data type as JSON storage starting with Oracle 26ai",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 27, 2026, 11:33:54 AM",
+          "Modified": "Oct 27, 2026, 11:33:54 AM",
+          "Reporter": "Lo\u00efc LEFEVRE",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "As a follow-up to https://forum.djangoproject.com/t/json-persistence-for-oracle/46282, the JSON data type should be preferred over CLOB when storing and processing JSON documents."
         }
       }
     }
