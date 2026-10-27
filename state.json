@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37457
+      "last_seen_id": 37458
     }
   },
   "tracked": {
@@ -4423,6 +4423,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Submitting a JSON integer exceeding Python's configured integer string conversion limit to forms.JSONField causes an unhandled ValueError instead of a field validation error.\r\n\r\nTested on Python 3.14.4 with the default limit of 4300 digits, using Django main at 36920bb4766679f5b32445797dcc5d32b8ff5ad2 (6.2 alpha), on Windows. No custom encoder or decoder is required.\r\n\r\n=== Minimal reproduction ===\r\n\r\n{{{#!python\r\nimport sys\r\nfrom django.conf import settings\r\nsettings.configure(USE_I18N=False)\r\nfrom django import forms\r\n\r\nclass PayloadForm(forms.Form):\r\n    payload = forms.JSONField()\r\n\r\nlimit = sys.get_int_max_str_digits()\r\nassert limit > 0\r\nform = PayloadForm({\"payload\": \"9\" * (limit + 1)})\r\nform.is_valid()\r\n}}}\r\n\r\nActual result:\r\n\r\n{{{\r\nValueError: Exceeds the limit (4300 digits) for integer string conversion: value has 4301 digits; use sys.set_int_max_str_digits() to increase the limit\r\n}}}\r\n\r\nExpected result: is_valid() returns False, with the usual JSONField validation error (code \"invalid\"). This report is about handling rejected input at the form boundary, not accepting arbitrary-length integers or disabling Python's conversion limit.\r\n\r\n=== Related paths and controls ===\r\n\r\nThe same exception occurs with the integer inside a JSON array or object. It also escapes from forms.JSONField().clean(raw), the bound field value() method, and forms.JSONField().has_changed(None, raw). For bound input, the expected behavior is to preserve the submitted text for redisplay.\r\n\r\nAt the default limit, 4300-digit integers work; 4301-digit integers fail. Quoted digit strings and ordinary malformed JSON are handled normally. Adjusting the interpreter limit from 640 to 700 makes the same 641-digit input change from failure to success (the original limit was restored). IntegerField converts the equivalent conversion failure into ValidationError. A JSONDecoder using parse_int=str accepts the oversized numeric token, so any fix should preserve successful custom decoding.\r\n\r\n=== Relation to #37418 ===\r\n\r\n#37418, fixed by 9014ca5 / PR https://github.com/django/django/pull/22132, handled RecursionError for deeply nested JSON. JSONField.to_python() and bound_data() now catch JSONDecodeError and RecursionError, but json.loads() raises a plain ValueError for this integer conversion limit, which still escapes both handlers.\r\n\r\nA regression test should cover clean(), bound-value redisplay, and form validation; has_changed() is another affected caller of to_python(). Broadening the decoding exception handlers to handle ValueError appears worth considering, including the behavior of custom decoders.\r\n\r\nThe problem was reproduced through form/field APIs without a database. Other Django release branches and an HTTP/admin integration were not tested. No patch is attached.\r\n\r\nAI assistance disclosure: OpenAI Codex assisted with investigation, reproduction scripts, and preparation of this report.\r\n"
+        }
+      }
+    },
+    "django:37458": {
+      "source": "django",
+      "ticket_id": 37458,
+      "watcher_issue_number": 129,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-27T08:05:04.692544+00:00",
+      "last_updated": "2026-10-27T08:05:04.692544+00:00",
+      "ticket_data": {
+        "id": 37458,
+        "source_id": "django",
+        "title": "Add source links for customizable templates and assets in admin documentation",
+        "description": "Several sections of Django's admin documentation reference specific templates and static files that developers may need to customize or inspect. Although some sections link to the overall admin template directory, individual files are not always linked, requiring developers to manually find them.\r\n\r\nTicket - #37127 introduced a version-aware '':sourcefile:'' Sphinx role, which could be used to make these files easier to access directly from the docs.\r\n\r\nA few areas that could benefit from this:\r\n\r\n- **[https://docs.djangoproject.com/en/dev/intro/tutorial07/#customize-the-admin-look-and-feel Tutorial 7]** \u2014 Link `admin/base_site.html` and `admin/index.html`, which developers are instructed to copy and customize.\r\n- **[https://docs.djangoproject.com/en/dev/ref/contrib/admin/#overriding-admin-templates Admin template customization]** \u2014 Link specific templates such as `change_form.html` and `change_list.html` where developers are encouraged to inspect or override them.\r\n- **[https://docs.djangoproject.com/en/dev/ref/contrib/admin/filters/ Admin list filters]** \u2014 Link `admin/filter.html`, which is referenced as a concrete example for creating custom filter templates.\r\n- **[https://docs.djangoproject.com/en/dev/ref/contrib/admin/#theming-support Admin theming]** \u2014 Replace the existing hard-coded GitHub links to `base.css` and `dark_mode.css` with `:sourcefile:` links so they point to the corresponding Django source version.\r\n\r\nThe goal would be to link individual Django-provided files where the documentation specifically encourages developers to inspect or customize them, rather than linking every file mentioned in the documentation.\r\n\r\nRelated tickets:\r\n- #37127 \u2014 Added version-aware source links for form templates.\r\n- #33842 \u2014 Added links to source paths in the documentation.\r\n\r\nForum discussion: https://forum.djangoproject.com/t/when-should-docs-link-to-source-files/45949",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 26, 2026, 10:02:38 PM",
+        "updated_at": "Oct 27, 2026, 1:14:44 AM",
+        "reporter": "Rickey Shideler",
+        "owner": "Rickey Shideler",
+        "component": "Documentation",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37458",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37458",
+          "Summary": "Add source links for customizable templates and assets in admin documentation",
+          "Type": "Cleanup/optimization",
+          "Status": "assigned",
+          "Component": "Documentation",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 26, 2026, 10:02:38 PM",
+          "Modified": "Oct 27, 2026, 1:14:44 AM",
+          "Reporter": "Rickey Shideler",
+          "Owner": "Rickey Shideler",
+          "Triage Stage": "Accepted",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Several sections of Django's admin documentation reference specific templates and static files that developers may need to customize or inspect. Although some sections link to the overall admin template directory, individual files are not always linked, requiring developers to manually find them.\r\n\r\nTicket - #37127 introduced a version-aware '':sourcefile:'' Sphinx role, which could be used to make these files easier to access directly from the docs.\r\n\r\nA few areas that could benefit from this:\r\n\r\n- **[https://docs.djangoproject.com/en/dev/intro/tutorial07/#customize-the-admin-look-and-feel Tutorial 7]** \u2014 Link `admin/base_site.html` and `admin/index.html`, which developers are instructed to copy and customize.\r\n- **[https://docs.djangoproject.com/en/dev/ref/contrib/admin/#overriding-admin-templates Admin template customization]** \u2014 Link specific templates such as `change_form.html` and `change_list.html` where developers are encouraged to inspect or override them.\r\n- **[https://docs.djangoproject.com/en/dev/ref/contrib/admin/filters/ Admin list filters]** \u2014 Link `admin/filter.html`, which is referenced as a concrete example for creating custom filter templates.\r\n- **[https://docs.djangoproject.com/en/dev/ref/contrib/admin/#theming-support Admin theming]** \u2014 Replace the existing hard-coded GitHub links to `base.css` and `dark_mode.css` with `:sourcefile:` links so they point to the corresponding Django source version.\r\n\r\nThe goal would be to link individual Django-provided files where the documentation specifically encourages developers to inspect or customize them, rather than linking every file mentioned in the documentation.\r\n\r\nRelated tickets:\r\n- #37127 \u2014 Added version-aware source links for form templates.\r\n- #33842 \u2014 Added links to source paths in the documentation.\r\n\r\nForum discussion: https://forum.djangoproject.com/t/when-should-docs-link-to-source-files/45949"
         }
       }
     }
