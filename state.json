@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37461
+      "last_seen_id": 37462
     }
   },
   "tracked": {
@@ -4348,6 +4348,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "As a follow-up to https://forum.djangoproject.com/t/json-persistence-for-oracle/46282, the JSON data type should be preferred over CLOB when storing and processing JSON documents."
+        }
+      }
+    },
+    "django:37462": {
+      "source": "django",
+      "ticket_id": 37462,
+      "watcher_issue_number": 133,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-28T08:49:03.788593+00:00",
+      "last_updated": "2026-10-28T08:49:03.788593+00:00",
+      "ticket_data": {
+        "id": 37462,
+        "source_id": "django",
+        "title": "Add Execution Policy guidance for PowerShell users",
+        "description": "Proposal to add instructions on how to set the execution policy for PowerShell users in the ''Install Django on Windows'' and ''Writing your first contribution'' pages.\r\n\r\nPresently, the docs include commands for Windows users to activate the virtual environment in the [https://docs.djangoproject.com/en/6.1/howto/windows/#setting-up-a-virtual-environment Installing Django on Windows] and the [https://docs.djangoproject.com/en/dev/intro/contributing/#getting-a-copy-of-django-s-development-version Writing your first contribution] tutorials. Ticket #37452 generalizes the activation command to work for both Command Prompt and PowerShell users.\r\n\r\nPowerShell users may have to set the execution policy before they can run the virtual environment activation script.\r\n{{{\r\n...\\.venv\\Scripts\\Activate.ps1 cannot be loaded because running scripts is \r\ndisabled on this system. For more information, see about_Execution_Policies at https:/go.microsoft.com/fwlink/?LinkID=135170.\r\nAt line:1 char:1\r\n+ .\\Scripts\\activate\r\n+ ~~~~~~\r\n    + CategoryInfo          : SecurityError: (:) [], PSSecurityException\r\n    + FullyQualifiedErrorId : UnauthorizedAccess\r\n}}}\r\n\r\n**To simplify the experience for new Django users and contributors, the docs should include instructions with a command to set the execution policy.**\r\n\r\nThere are various options for the level of execution policy to set, and has been discussed in the forum. https://forum.djangoproject.com/t/virtual-environment-on-windows/8445\r\n\r\nThe Python docs, in their virtual environment tutorial, recommend the following:\r\nhttps://docs.python.org/3/library/venv.html?#creating-virtual-environments\r\n{{{\r\nPS C:\\> Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser\r\n}}}\r\n",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 28, 2026, 1:25:05 AM",
+        "updated_at": "Oct 28, 2026, 1:25:05 AM",
+        "reporter": "Jonathan Biemond",
+        "owner": "sibling ticket contributors",
+        "component": "Documentation",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37462",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37462",
+          "Summary": "Add Execution Policy guidance for PowerShell users",
+          "Type": "Cleanup/optimization",
+          "Status": "assigned",
+          "Component": "Documentation",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 28, 2026, 1:25:05 AM",
+          "Modified": "Oct 28, 2026, 1:25:05 AM",
+          "Reporter": "Jonathan Biemond",
+          "Owner": "sibling ticket contributors",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Proposal to add instructions on how to set the execution policy for PowerShell users in the ''Install Django on Windows'' and ''Writing your first contribution'' pages.\r\n\r\nPresently, the docs include commands for Windows users to activate the virtual environment in the [https://docs.djangoproject.com/en/6.1/howto/windows/#setting-up-a-virtual-environment Installing Django on Windows] and the [https://docs.djangoproject.com/en/dev/intro/contributing/#getting-a-copy-of-django-s-development-version Writing your first contribution] tutorials. Ticket #37452 generalizes the activation command to work for both Command Prompt and PowerShell users.\r\n\r\nPowerShell users may have to set the execution policy before they can run the virtual environment activation script.\r\n{{{\r\n...\\.venv\\Scripts\\Activate.ps1 cannot be loaded because running scripts is \r\ndisabled on this system. For more information, see about_Execution_Policies at https:/go.microsoft.com/fwlink/?LinkID=135170.\r\nAt line:1 char:1\r\n+ .\\Scripts\\activate\r\n+ ~~~~~~\r\n    + CategoryInfo          : SecurityError: (:) [], PSSecurityException\r\n    + FullyQualifiedErrorId : UnauthorizedAccess\r\n}}}\r\n\r\n**To simplify the experience for new Django users and contributors, the docs should include instructions with a command to set the execution policy.**\r\n\r\nThere are various options for the level of execution policy to set, and has been discussed in the forum. https://forum.djangoproject.com/t/virtual-environment-on-windows/8445\r\n\r\nThe Python docs, in their virtual environment tutorial, recommend the following:\r\nhttps://docs.python.org/3/library/venv.html?#creating-virtual-environments\r\n{{{\r\nPS C:\\> Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser\r\n}}}\r\n"
         }
       }
     }
