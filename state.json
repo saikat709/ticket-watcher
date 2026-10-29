@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37462
+      "last_seen_id": 37463
     }
   },
   "tracked": {
@@ -4398,6 +4398,57 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Proposal to add instructions on how to set the execution policy for PowerShell users in the ''Install Django on Windows'' and ''Writing your first contribution'' pages.\r\n\r\nPresently, the docs include commands for Windows users to activate the virtual environment in the [https://docs.djangoproject.com/en/6.1/howto/windows/#setting-up-a-virtual-environment Installing Django on Windows] and the [https://docs.djangoproject.com/en/dev/intro/contributing/#getting-a-copy-of-django-s-development-version Writing your first contribution] tutorials. Ticket #37452 generalizes the activation command to work for both Command Prompt and PowerShell users.\r\n\r\nPowerShell users may have to set the execution policy before they can run the virtual environment activation script.\r\n{{{\r\n...\\.venv\\Scripts\\Activate.ps1 cannot be loaded because running scripts is \r\ndisabled on this system. For more information, see about_Execution_Policies at https:/go.microsoft.com/fwlink/?LinkID=135170.\r\nAt line:1 char:1\r\n+ .\\Scripts\\activate\r\n+ ~~~~~~\r\n    + CategoryInfo          : SecurityError: (:) [], PSSecurityException\r\n    + FullyQualifiedErrorId : UnauthorizedAccess\r\n}}}\r\n\r\n**To simplify the experience for new Django users and contributors, the docs should include instructions with a command to set the execution policy.**\r\n\r\nThere are various options for the level of execution policy to set, and has been discussed in the forum. https://forum.djangoproject.com/t/virtual-environment-on-windows/8445\r\n\r\nThe Python docs, in their virtual environment tutorial, recommend the following:\r\nhttps://docs.python.org/3/library/venv.html?#creating-virtual-environments\r\n{{{\r\nPS C:\\> Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser\r\n}}}\r\n"
+        }
+      }
+    },
+    "django:37463": {
+      "source": "django",
+      "ticket_id": 37463,
+      "watcher_issue_number": 134,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-29T00:30:09.209570+00:00",
+      "last_updated": "2026-10-29T00:30:09.209570+00:00",
+      "ticket_data": {
+        "id": 37463,
+        "source_id": "django",
+        "title": "legend_tag() can double-render a required_css_class (attrs mutation)",
+        "description": "We have a minor regression with `legend_tag()` from 0eec2a163a4b2ea4e82c53ae1d7b71bf43ac911d. We just need to not mutate any `attrs` that are passed so we don't get double-rendering in some cases:\r\n\r\n{{{#!py\r\n\r\n    def test_legend_has_required_css_class_multiple_render(self):\r\n        class SomeForm(Form):\r\n            required_css_class = \"required\"\r\n            field = CharField(max_length=10)\r\n\r\n        f = SomeForm({\"field\": \"test\"})\r\n        attrs = {\"class\": \"foo\"}\r\n        self.assertHTMLEqual(\r\n            f[\"field\"].legend_tag(attrs=attrs),\r\n            '<legend class=\"foo required\">Field:</legend>',\r\n        )\r\n        self.assertHTMLEqual(\r\n            f[\"field\"].legend_tag(attrs=attrs),\r\n            '<legend class=\"foo required\">Field:</legend>',\r\n        )\r\n}}}\r\n{{{#!py\r\nFAIL: test_legend_has_required_css_class_multiple_render (forms_tests.tests.test_forms.FormsTestCase.test_legend_has_required_css_class_multiple_render)\r\n----------------------------------------------------------------------\r\nTraceback (most recent call last):\r\n  File \"/Users/jwalls/django/tests/forms_tests/tests/test_forms.py\", line 3989, in test_legend_has_required_css_class_multiple_render\r\n    self.assertHTMLEqual(\r\n    ~~~~~~~~~~~~~~~~~~~~^\r\n        f[\"field\"].legend_tag(attrs=attrs),\r\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n        '<legend class=\"foo required\">Field:</legend>',\r\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n    )\r\n    ^\r\nAssertionError: <legend class=\"foo required required\">\r\nField:\r\n</legend> != <legend class=\"foo required\">\r\nField:\r\n</legend>\r\n- <legend class=\"foo required required\">\r\n?                    ---------\r\n\r\n+ <legend class=\"foo required\">\r\n  Field:\r\n  </legend>\r\n}}}",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 28, 2026, 3:46:35 PM",
+        "updated_at": "Oct 28, 2026, 4:05:46 PM",
+        "reporter": "Jacob Walls",
+        "owner": "Jacob Walls",
+        "component": "Forms",
+        "priority": "Release blocker",
+        "severity": "Release blocker",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37463",
+        "pr_url": "https://github.com/django/django/pull/22209",
+        "pr_status": "open",
+        "raw_data": {
+          "id": "37463",
+          "Summary": "legend_tag() can double-render a required_css_class (attrs mutation)",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Forms",
+          "Severity": "Release blocker",
+          "Resolution": "",
+          "Created": "Oct 28, 2026, 3:46:35 PM",
+          "Modified": "Oct 28, 2026, 4:05:46 PM",
+          "Reporter": "Jacob Walls",
+          "Owner": "Jacob Walls",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "We have a minor regression with `legend_tag()` from 0eec2a163a4b2ea4e82c53ae1d7b71bf43ac911d. We just need to not mutate any `attrs` that are passed so we don't get double-rendering in some cases:\r\n\r\n{{{#!py\r\n\r\n    def test_legend_has_required_css_class_multiple_render(self):\r\n        class SomeForm(Form):\r\n            required_css_class = \"required\"\r\n            field = CharField(max_length=10)\r\n\r\n        f = SomeForm({\"field\": \"test\"})\r\n        attrs = {\"class\": \"foo\"}\r\n        self.assertHTMLEqual(\r\n            f[\"field\"].legend_tag(attrs=attrs),\r\n            '<legend class=\"foo required\">Field:</legend>',\r\n        )\r\n        self.assertHTMLEqual(\r\n            f[\"field\"].legend_tag(attrs=attrs),\r\n            '<legend class=\"foo required\">Field:</legend>',\r\n        )\r\n}}}\r\n{{{#!py\r\nFAIL: test_legend_has_required_css_class_multiple_render (forms_tests.tests.test_forms.FormsTestCase.test_legend_has_required_css_class_multiple_render)\r\n----------------------------------------------------------------------\r\nTraceback (most recent call last):\r\n  File \"/Users/jwalls/django/tests/forms_tests/tests/test_forms.py\", line 3989, in test_legend_has_required_css_class_multiple_render\r\n    self.assertHTMLEqual(\r\n    ~~~~~~~~~~~~~~~~~~~~^\r\n        f[\"field\"].legend_tag(attrs=attrs),\r\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n        '<legend class=\"foo required\">Field:</legend>',\r\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n    )\r\n    ^\r\nAssertionError: <legend class=\"foo required required\">\r\nField:\r\n</legend> != <legend class=\"foo required\">\r\nField:\r\n</legend>\r\n- <legend class=\"foo required required\">\r\n?                    ---------\r\n\r\n+ <legend class=\"foo required\">\r\n  Field:\r\n  </legend>\r\n}}}"
         }
       }
     }
