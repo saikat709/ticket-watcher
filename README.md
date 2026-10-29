@@ -2,7 +2,7 @@
 
 Stateful Python watcher powered by **GitHub Actions** to monitor open-source issue trackers (e.g., **Django Trac**, GitHub repos).
 
-Discovers new tickets, creates GitHub Issues in your personal watcher repo, and mentions `@saikat709` via a separate comment. Continuously tracks active tickets every 24 hours for status updates, PR links, and merges until completion.
+Discovers new tickets, creates GitHub Issues in your personal watcher repo, and mentions `@saikat709` via a separate comment. Focuses solely on new ticket discovery without sending recurring status update emails.
 
 ---
 
@@ -32,7 +32,6 @@ Set `state.json` baseline:
 | Workflow | Triggers | Frequency | Action |
 | --- | --- | --- | --- |
 | **`discover.yml`** | `push` (main), `schedule`, `workflow_dispatch` | Every 30 mins | Detects new tickets > `last_seen_id`, creates watcher Issue, posts `@saikat709` comment, updates `last_seen_id` |
-| **`update.yml`** | `schedule`, `workflow_dispatch` | Every 24 hours | Checks active `tracked` tickets, posts updates, removes completed/merged tickets |
 
 **Permissions**: Set GitHub Actions Workflow permissions to **Read and write permissions**.
 
