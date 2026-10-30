@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37464
+      "last_seen_id": 37465
     }
   },
   "tracked": {
@@ -52,6 +52,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "`StepValueValidator` uses `math.remainder()`. That converts values to float. Large integers and Decimals lose precision or crash.\r\n\r\n{{{#!python\r\nfrom decimal import Decimal\r\nfrom django import forms\r\n\r\nforms.IntegerField(step_size=2).clean(\"9007199254740993\")\r\n# Returns 9007199254740993. It is odd, so it should be rejected.\r\n\r\nforms.IntegerField(step_size=2).clean(\"9\" * 400)\r\n# OverflowError: int too large to convert to float\r\n\r\nforms.DecimalField(step_size=Decimal(\"0.1\")).clean(\"1e400\")\r\n# ValueError: math domain error\r\n\r\nforms.DecimalField(step_size=Decimal(\"0.01\")).clean(\"12345678901234567.01\")\r\n# ValidationError, but the value is a valid multiple of 0.01\r\n}}}\r\n\r\nThe first case lets an invalid value through. The next two raise an unhandled exception, so user input can cause a 500 error.\r\n\r\nFloats are also used for the tolerance (`abs_tol=1e-9`). So `Decimal(\"1.00000000005\")` is accepted with a step of `Decimal(\"1e-10\")`.\r\n\r\nI think int and Decimal values should be checked with exact arithmetic. The float path can stay as it is. Be careful not to turn the Decimal into a huge number: `Fraction(Decimal(\"1e50000000\"))` takes about a minute.\r\n\r\nI am happy to work on a patch once this is accepted.\r\n"
+        }
+      }
+    },
+    "django:37465": {
+      "source": "django",
+      "ticket_id": 37465,
+      "watcher_issue_number": 136,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-30T20:55:46.817023+00:00",
+      "last_updated": "2026-10-30T20:55:46.817023+00:00",
+      "ticket_data": {
+        "id": 37465,
+        "source_id": "django",
+        "title": "Drop support for Python 3.12 & 3.13",
+        "description": "Django 6.2 LTS, supported until April 2030, is the last version to support:\r\n- Python 3.12 (end of life: October 2028)\r\n- Python 3.13 (end of life: October 2029)\r\n\r\nPer [https://github.com/django/deps/blob/main/accepted/0020-annual-release-cycle.rst DEP 20], each feature release supports the two Python versions receiving bug fixes at the start of its pre-release phase, plus the most recent one to have moved to security fixes only. Django 2028 therefore supports Python 3.14, 3.15, and 3.16.\r\n\r\nSee [https://docs.djangoproject.com/en/dev/faq/install/#what-python-version-can-i-use-with-django our policy about Python version support]. For Django 2028, the dates work out like this:\r\n\r\n- Django 2028 is released in January 2028 and reaches end of life in December\u00a02030.\r\n- Python 3.14, its oldest supported Python, was released in October 2025 and gets five years of upstream support, so it reaches end of life in October\u00a02030.\r\n\r\nThe same holds every year: Django 2029 supports 3.15 through 3.17, and 3.15 reaches end of life in October 2031, two months before 2029 does in December 2031.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Oct 30, 2026, 11:32:57 AM",
+        "updated_at": "Oct 30, 2026, 12:17:40 PM",
+        "reporter": "Natalia Bidart",
+        "owner": "Natalia Bidart",
+        "component": "Core (Other)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Someday/Maybe",
+        "labels": [
+          "Someday/Maybe"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37465",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37465",
+          "Summary": "Drop support for Python 3.12 & 3.13",
+          "Type": "Cleanup/optimization",
+          "Status": "assigned",
+          "Component": "Core (Other)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 30, 2026, 11:32:57 AM",
+          "Modified": "Oct 30, 2026, 12:17:40 PM",
+          "Reporter": "Natalia Bidart",
+          "Owner": "Natalia Bidart",
+          "Triage Stage": "Someday/Maybe",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Django 6.2 LTS, supported until April 2030, is the last version to support:\r\n- Python 3.12 (end of life: October 2028)\r\n- Python 3.13 (end of life: October 2029)\r\n\r\nPer [https://github.com/django/deps/blob/main/accepted/0020-annual-release-cycle.rst DEP 20], each feature release supports the two Python versions receiving bug fixes at the start of its pre-release phase, plus the most recent one to have moved to security fixes only. Django 2028 therefore supports Python 3.14, 3.15, and 3.16.\r\n\r\nSee [https://docs.djangoproject.com/en/dev/faq/install/#what-python-version-can-i-use-with-django our policy about Python version support]. For Django 2028, the dates work out like this:\r\n\r\n- Django 2028 is released in January 2028 and reaches end of life in December\u00a02030.\r\n- Python 3.14, its oldest supported Python, was released in October 2025 and gets five years of upstream support, so it reaches end of life in October\u00a02030.\r\n\r\nThe same holds every year: Django 2029 supports 3.15 through 3.17, and 3.15 reaches end of life in October 2031, two months before 2029 does in December 2031."
         }
       }
     }
