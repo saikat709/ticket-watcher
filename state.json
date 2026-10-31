@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37465
+      "last_seen_id": 37466
     }
   },
   "tracked": {
@@ -102,6 +102,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Django 6.2 LTS, supported until April 2030, is the last version to support:\r\n- Python 3.12 (end of life: October 2028)\r\n- Python 3.13 (end of life: October 2029)\r\n\r\nPer [https://github.com/django/deps/blob/main/accepted/0020-annual-release-cycle.rst DEP 20], each feature release supports the two Python versions receiving bug fixes at the start of its pre-release phase, plus the most recent one to have moved to security fixes only. Django 2028 therefore supports Python 3.14, 3.15, and 3.16.\r\n\r\nSee [https://docs.djangoproject.com/en/dev/faq/install/#what-python-version-can-i-use-with-django our policy about Python version support]. For Django 2028, the dates work out like this:\r\n\r\n- Django 2028 is released in January 2028 and reaches end of life in December\u00a02030.\r\n- Python 3.14, its oldest supported Python, was released in October 2025 and gets five years of upstream support, so it reaches end of life in October\u00a02030.\r\n\r\nThe same holds every year: Django 2029 supports 3.15 through 3.17, and 3.15 reaches end of life in October 2031, two months before 2029 does in December 2031."
+        }
+      }
+    },
+    "django:37466": {
+      "source": "django",
+      "ticket_id": 37466,
+      "watcher_issue_number": 137,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-10-31T11:50:00.773619+00:00",
+      "last_updated": "2026-10-31T11:50:00.773619+00:00",
+      "ticket_data": {
+        "id": 37466,
+        "source_id": "django",
+        "title": "order_by(\"pk\") on a union() of a composite pk model crashes or sorts wrongly",
+        "description": "{{{#!python\r\nclass Comment(models.Model):\r\n    pk = models.CompositePrimaryKey(\"tenant_id\", \"comment_id\")\r\n    tenant_id = models.IntegerField()\r\n    comment_id = models.IntegerField()\r\n\r\n# rows (tenant_id, comment_id): (1, 2), (2, 1), (1, 1)\r\nqs = Comment.objects.filter(tenant_id=1).union(Comment.objects.filter(tenant_id=2))\r\n}}}\r\n\r\nOrdering a combined query by a composite primary key fails in two ways.\r\n\r\n1. On a normal queryset, `order_by(\"pk\")` crashes. `first()` crashes too, because it orders by `pk`.\r\n\r\n{{{#!python\r\nqs.first()\r\nqs.order_by(\"pk\")  # when evaluated\r\n# TypeError: 'NoneType' object does not support item assignment\r\n}}}\r\n\r\nThe error is raised in `Query.add_select_col()` (called from `SQLCompiler.get_order_by()`), because `query.selected` is `None`.\r\n\r\n2. With `values_list(\"pk\")` there is no error, but the order is wrong.\r\n\r\n{{{#!python\r\nlist(qs.values_list(\"pk\").order_by(\"pk\"))\r\n# [((1, 1),), ((2, 1),), ((1, 2),)]\r\n# expected: [((1, 1),), ((1, 2),), ((2, 1),)]\r\n}}}\r\n\r\nThe SQL ends with `ORDER BY \"col1\"`, and `col1` is only the last pk column (`comment_id`). The same query without `union()` is ordered correctly.\r\n\r\nI think `get_order_by()` treats the composite pk (`ColPairs`) as a single column in the combinator branch. It should order by each column of the pk.\r\n\r\nRelated: #36065, #37354 (other composite pk ordering bugs).\r\n",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Oct 31, 2026, 2:53:50 AM",
+        "updated_at": "Oct 31, 2026, 2:53:50 AM",
+        "reporter": "Akshat Gupta",
+        "owner": "",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37466",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37466",
+          "Summary": "order_by(\"pk\") on a union() of a composite pk model crashes or sorts wrongly",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Oct 31, 2026, 2:53:50 AM",
+          "Modified": "Oct 31, 2026, 2:53:50 AM",
+          "Reporter": "Akshat Gupta",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "{{{#!python\r\nclass Comment(models.Model):\r\n    pk = models.CompositePrimaryKey(\"tenant_id\", \"comment_id\")\r\n    tenant_id = models.IntegerField()\r\n    comment_id = models.IntegerField()\r\n\r\n# rows (tenant_id, comment_id): (1, 2), (2, 1), (1, 1)\r\nqs = Comment.objects.filter(tenant_id=1).union(Comment.objects.filter(tenant_id=2))\r\n}}}\r\n\r\nOrdering a combined query by a composite primary key fails in two ways.\r\n\r\n1. On a normal queryset, `order_by(\"pk\")` crashes. `first()` crashes too, because it orders by `pk`.\r\n\r\n{{{#!python\r\nqs.first()\r\nqs.order_by(\"pk\")  # when evaluated\r\n# TypeError: 'NoneType' object does not support item assignment\r\n}}}\r\n\r\nThe error is raised in `Query.add_select_col()` (called from `SQLCompiler.get_order_by()`), because `query.selected` is `None`.\r\n\r\n2. With `values_list(\"pk\")` there is no error, but the order is wrong.\r\n\r\n{{{#!python\r\nlist(qs.values_list(\"pk\").order_by(\"pk\"))\r\n# [((1, 1),), ((2, 1),), ((1, 2),)]\r\n# expected: [((1, 1),), ((1, 2),), ((2, 1),)]\r\n}}}\r\n\r\nThe SQL ends with `ORDER BY \"col1\"`, and `col1` is only the last pk column (`comment_id`). The same query without `union()` is ordered correctly.\r\n\r\nI think `get_order_by()` treats the composite pk (`ColPairs`) as a single column in the combinator branch. It should order by each column of the pk.\r\n\r\nRelated: #36065, #37354 (other composite pk ordering bugs).\r\n"
         }
       }
     }
