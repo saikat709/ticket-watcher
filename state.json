@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37466
+      "last_seen_id": 37467
     }
   },
   "tracked": {
@@ -152,6 +152,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "{{{#!python\r\nclass Comment(models.Model):\r\n    pk = models.CompositePrimaryKey(\"tenant_id\", \"comment_id\")\r\n    tenant_id = models.IntegerField()\r\n    comment_id = models.IntegerField()\r\n\r\n# rows (tenant_id, comment_id): (1, 2), (2, 1), (1, 1)\r\nqs = Comment.objects.filter(tenant_id=1).union(Comment.objects.filter(tenant_id=2))\r\n}}}\r\n\r\nOrdering a combined query by a composite primary key fails in two ways.\r\n\r\n1. On a normal queryset, `order_by(\"pk\")` crashes. `first()` crashes too, because it orders by `pk`.\r\n\r\n{{{#!python\r\nqs.first()\r\nqs.order_by(\"pk\")  # when evaluated\r\n# TypeError: 'NoneType' object does not support item assignment\r\n}}}\r\n\r\nThe error is raised in `Query.add_select_col()` (called from `SQLCompiler.get_order_by()`), because `query.selected` is `None`.\r\n\r\n2. With `values_list(\"pk\")` there is no error, but the order is wrong.\r\n\r\n{{{#!python\r\nlist(qs.values_list(\"pk\").order_by(\"pk\"))\r\n# [((1, 1),), ((2, 1),), ((1, 2),)]\r\n# expected: [((1, 1),), ((1, 2),), ((2, 1),)]\r\n}}}\r\n\r\nThe SQL ends with `ORDER BY \"col1\"`, and `col1` is only the last pk column (`comment_id`). The same query without `union()` is ordered correctly.\r\n\r\nI think `get_order_by()` treats the composite pk (`ColPairs`) as a single column in the combinator branch. It should order by each column of the pk.\r\n\r\nRelated: #36065, #37354 (other composite pk ordering bugs).\r\n"
+        }
+      }
+    },
+    "django:37467": {
+      "source": "django",
+      "ticket_id": 37467,
+      "watcher_issue_number": 138,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-01T16:51:53.709337+00:00",
+      "last_updated": "2026-11-01T16:51:53.709337+00:00",
+      "ticket_data": {
+        "id": 37467,
+        "source_id": "django",
+        "title": "delete_cookie() can't delete a cookie named with the __Host-Http- or __Http- prefix",
+        "description": "Browsers now enforce two more cookie name prefixes, `__Http-` and `__Host-Http-`, from the IETF cookies draft ([https://httpwg.org/http-extensions/draft-ietf-httpbis-layered-cookies.html draft-ietf-httpbis-layered-cookies], section \"The `__Host-Http-` prefix\"): such a cookie must have the `Secure` and `HttpOnly` attributes, and a `__Host-Http-` one also `Path=/` and no `Domain`. In the draft's \"Store a Cookie\" algorithm, a cookie that fails these requirements is dropped (step 16) before the step that replaces an existing cookie (step 19), and an expired cookie sent to delete one is no exception. Chrome and Edge 140 and Firefox 143 enforce this ([https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie MDN]).\r\n\r\n`HttpResponse.delete_cookie()` adds `Secure` for `__Secure-` and `__Host-` names (#28989), but it never sends `HttpOnly`. A browser that enforces these prefixes therefore ignores the deletion and keeps the cookie.\r\n\r\nThis matters for the session cookie. RFC 10017 (BCP 212, \"OAuth 2.0 for Browser-Based Applications\"), section 6.1.3.2, recommends the `__Host-Http-` prefix for the session cookie of a backend that runs the login. With `SESSION_COOKIE_NAME = \"__Host-Http-sessionid\"`, `SessionMiddleware` deletes an emptied session's cookie (after `logout()`, for example) through `delete_cookie()`, and Firefox logs:\r\n\r\n{{{\r\nCookie \"__Host-Http-sessionid\" has been rejected for invalid prefix.\r\n}}}\r\n\r\nThe session row is deleted, so the leftover cookie opens nothing. But it stays in the browser until a new session replaces it, and meanwhile the middleware sends the same rejected deletion on every response that reads the session.\r\n\r\nSteps to reproduce (Django 5.2.18, and the same code on main):\r\n\r\n{{{\r\n#!python\r\n# settings.py\r\nSESSION_COOKIE_NAME = \"__Host-Http-sessionid\"\r\nSESSION_COOKIE_SECURE = True\r\n# SESSION_COOKIE_HTTPONLY = True (the default)\r\n}}}\r\n\r\nOver HTTPS in Firefox 143 or Chrome 140, log in and log out. The logout response carries:\r\n\r\n{{{\r\nSet-Cookie: __Host-Http-sessionid=\"\"; expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; Path=/; SameSite=Lax; Secure\r\n}}}\r\n\r\nThere is no `HttpOnly`; the console reports the rejection and the cookie remains in storage.\r\n\r\nA possible fix, by analogy with #28989: `delete_cookie()` also sets `httponly=True` when the name starts with `__Http-` or `__Host-Http-`. An alternative is an `httponly` argument that `SessionMiddleware` fills from `SESSION_COOKIE_HTTPONLY`, as #31790 did for `samesite`, but the prefix rule covers every caller.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 1, 2026, 4:44:07 AM",
+        "updated_at": "Nov 1, 2026, 4:44:07 AM",
+        "reporter": "albertoflp",
+        "owner": "",
+        "component": "HTTP handling",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37467",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37467",
+          "Summary": "delete_cookie() can't delete a cookie named with the __Host-Http- or __Http- prefix",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "HTTP handling",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 1, 2026, 4:44:07 AM",
+          "Modified": "Nov 1, 2026, 4:44:07 AM",
+          "Reporter": "albertoflp",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Browsers now enforce two more cookie name prefixes, `__Http-` and `__Host-Http-`, from the IETF cookies draft ([https://httpwg.org/http-extensions/draft-ietf-httpbis-layered-cookies.html draft-ietf-httpbis-layered-cookies], section \"The `__Host-Http-` prefix\"): such a cookie must have the `Secure` and `HttpOnly` attributes, and a `__Host-Http-` one also `Path=/` and no `Domain`. In the draft's \"Store a Cookie\" algorithm, a cookie that fails these requirements is dropped (step 16) before the step that replaces an existing cookie (step 19), and an expired cookie sent to delete one is no exception. Chrome and Edge 140 and Firefox 143 enforce this ([https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie MDN]).\r\n\r\n`HttpResponse.delete_cookie()` adds `Secure` for `__Secure-` and `__Host-` names (#28989), but it never sends `HttpOnly`. A browser that enforces these prefixes therefore ignores the deletion and keeps the cookie.\r\n\r\nThis matters for the session cookie. RFC 10017 (BCP 212, \"OAuth 2.0 for Browser-Based Applications\"), section 6.1.3.2, recommends the `__Host-Http-` prefix for the session cookie of a backend that runs the login. With `SESSION_COOKIE_NAME = \"__Host-Http-sessionid\"`, `SessionMiddleware` deletes an emptied session's cookie (after `logout()`, for example) through `delete_cookie()`, and Firefox logs:\r\n\r\n{{{\r\nCookie \"__Host-Http-sessionid\" has been rejected for invalid prefix.\r\n}}}\r\n\r\nThe session row is deleted, so the leftover cookie opens nothing. But it stays in the browser until a new session replaces it, and meanwhile the middleware sends the same rejected deletion on every response that reads the session.\r\n\r\nSteps to reproduce (Django 5.2.18, and the same code on main):\r\n\r\n{{{\r\n#!python\r\n# settings.py\r\nSESSION_COOKIE_NAME = \"__Host-Http-sessionid\"\r\nSESSION_COOKIE_SECURE = True\r\n# SESSION_COOKIE_HTTPONLY = True (the default)\r\n}}}\r\n\r\nOver HTTPS in Firefox 143 or Chrome 140, log in and log out. The logout response carries:\r\n\r\n{{{\r\nSet-Cookie: __Host-Http-sessionid=\"\"; expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; Path=/; SameSite=Lax; Secure\r\n}}}\r\n\r\nThere is no `HttpOnly`; the console reports the rejection and the cookie remains in storage.\r\n\r\nA possible fix, by analogy with #28989: `delete_cookie()` also sets `httponly=True` when the name starts with `__Http-` or `__Host-Http-`. An alternative is an `httponly` argument that `SessionMiddleware` fills from `SESSION_COOKIE_HTTPONLY`, as #31790 did for `samesite`, but the prefix rule covers every caller."
         }
       }
     }
