@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37470
+      "last_seen_id": 37471
     }
   },
   "tracked": {
@@ -303,6 +303,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "`NegatedExpression.as_sql()` handles `EmptyResultSet` raised by the wrapped expression, but not `FullResultSet`. When the wrapped condition matches everything, `FullResultSet` propagates un-negated and callers treat `NOT <always true>` as always true.\r\n\r\nOne visible consequence is that a `CheckConstraint` using a negated lookup is not enforced by model validation for `NULL` values, while the database does enforce it:\r\n\r\n{{{#!python\r\nfrom django.db import models\r\nfrom django.db.models import F\r\nfrom django.db.models.lookups import IsNull\r\n\r\n\r\nclass Item(models.Model):\r\n    value = models.IntegerField(null=True)\r\n\r\n    class Meta:\r\n        constraints = [\r\n            models.CheckConstraint(\r\n                condition=~IsNull(F(\"value\"), True),\r\n                name=\"value_not_null\",\r\n            ),\r\n        ]\r\n}}}\r\n\r\n{{{#!python\r\nItem(value=None).validate_constraints()  # Expected ValidationError, nothing is raised.\r\nItem(value=None).save()  # The database rejects it: IntegrityError.\r\n}}}\r\n\r\nThe equivalent `~Q(value__isnull=True)` constraint raises `ValidationError` as expected.\r\n\r\nThe same root cause affects queries:\r\n\r\n{{{#!python\r\nfrom django.db.models import BooleanField, ExpressionWrapper, Q\r\n\r\nalways_false = ~ExpressionWrapper(~Q(pk__in=[]), output_field=BooleanField())\r\nItem.objects.filter(always_false)            # Expected: no rows. Actual: all rows.\r\nItem.objects.annotate(x=always_false)        # Expected: x=False. Actual: x=True.\r\n}}}\r\n\r\nThe `CheckConstraint` case is a regression in 3434dbd39d373df7193ad006b970c09c1a909ea3 (#34754, backported to 4.2.5), which made `IsNull(Value(None), True)` raise `FullResultSet`. On its parent commit (2b582387d5) `validate_constraints()` correctly raises `ValidationError`. The queryset cases have been incorrect since `FullResultSet` was introduced in 76e37513e22f4d9a01c7f15eee36fe44388e6670 (refs #33374), shortly after `NegatedExpression` was added for #16211.\r\n\r\nAdding an `except FullResultSet: raise EmptyResultSet` branch to `NegatedExpression.as_sql()` fixes it: the reproduction tests pass and the full test suite passes on SQLite with that change. I haven't tested other backends yet. I'd like to submit a PR with a regression test.\r\n\r\nReproduced on main (b501b8493f) with SQLite.\r\n\r\nI used Claude Code to help explore the codebase and draft the reproduction tests. I verified the behavior, the regression commit, and the test results myself."
+        }
+      }
+    },
+    "django:37471": {
+      "source": "django",
+      "ticket_id": 37471,
+      "watcher_issue_number": 141,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-03T18:32:03.115922+00:00",
+      "last_updated": "2026-11-03T18:32:03.115922+00:00",
+      "ticket_data": {
+        "id": 37471,
+        "source_id": "django",
+        "title": "No system check for GenericRelation on a model with DB_CASCADE, leaving orphaned generic rows",
+        "description": "The docs say that database-level and Python-level `on_delete` variants cannot be mixed in the same model or in related models. System checks enforce this with `models.E050` and `fields.E323`.\r\n\r\n`GenericRelation` is a Python-level cleanup, but it is not checked. If a model has a `GenericRelation` and a `DB_CASCADE` foreign key, the database deletes the model's rows and Django never deletes the generic related objects. They stay in the table with no error and no check warning.\r\n\r\n{{{#!python\r\nclass Tag(models.Model):\r\n    content_type = models.ForeignKey(ContentType, models.CASCADE)\r\n    object_id = models.PositiveIntegerField()\r\n    content_object = GenericForeignKey()\r\n\r\n\r\nclass Author(models.Model):\r\n    pass\r\n\r\n\r\nclass Book(models.Model):\r\n    author = models.ForeignKey(Author, models.DB_CASCADE)\r\n    tags = GenericRelation(Tag)\r\n}}}\r\n\r\n{{{#!python\r\n>>> author = Author.objects.create()\r\n>>> book = Book.objects.create(author=author)\r\n>>> book.tags.create()\r\n>>> author.delete()\r\n>>> Book.objects.count(), Tag.objects.count()\r\n(0, 1)\r\n}}}\r\n\r\n`manage.py check` reports no issues. With `models.CASCADE` instead of `models.DB_CASCADE`, the `Tag` row is deleted.\r\n\r\nWhy it happens: `Collector.collect()` skips `DB_CASCADE` relations, so `Book` instances are never collected. Their private fields are never visited, so `GenericRelation.bulk_related_objects()` never runs. `GenericRelation.remote_field.on_delete` is `DO_NOTHING`, so `Model._check_related_fields()` does not see it as a Python-level variant.\r\n\r\nI verified this on 6.1.3 and on main with SQLite. I also ran random schemas with database and Python `on_delete` variants against the equivalent all-Python schemas. Among schemas that pass all checks, the only difference in the final data was orphaned generic rows.\r\n\r\nSuggested fix: add a system check error for a model that has a `GenericRelation` (any private field with `bulk_related_objects()`) and a `DB_CASCADE` foreign key. It would not fire for `DB_SET_NULL` or `DB_SET_DEFAULT`, because those do not delete the model's rows. This is the same kind of gap as #37254 (implicit M2M through tables), which was fixed in 6.1.x.\r\n\r\nI am happy to work on a patch once the approach is agreed.\r\n",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 3, 2026, 12:12:31 PM",
+        "updated_at": "Nov 3, 2026, 12:12:31 PM",
+        "reporter": "Akshat Gupta",
+        "owner": "",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37471",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37471",
+          "Summary": "No system check for GenericRelation on a model with DB_CASCADE, leaving orphaned generic rows",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 3, 2026, 12:12:31 PM",
+          "Modified": "Nov 3, 2026, 12:12:31 PM",
+          "Reporter": "Akshat Gupta",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "The docs say that database-level and Python-level `on_delete` variants cannot be mixed in the same model or in related models. System checks enforce this with `models.E050` and `fields.E323`.\r\n\r\n`GenericRelation` is a Python-level cleanup, but it is not checked. If a model has a `GenericRelation` and a `DB_CASCADE` foreign key, the database deletes the model's rows and Django never deletes the generic related objects. They stay in the table with no error and no check warning.\r\n\r\n{{{#!python\r\nclass Tag(models.Model):\r\n    content_type = models.ForeignKey(ContentType, models.CASCADE)\r\n    object_id = models.PositiveIntegerField()\r\n    content_object = GenericForeignKey()\r\n\r\n\r\nclass Author(models.Model):\r\n    pass\r\n\r\n\r\nclass Book(models.Model):\r\n    author = models.ForeignKey(Author, models.DB_CASCADE)\r\n    tags = GenericRelation(Tag)\r\n}}}\r\n\r\n{{{#!python\r\n>>> author = Author.objects.create()\r\n>>> book = Book.objects.create(author=author)\r\n>>> book.tags.create()\r\n>>> author.delete()\r\n>>> Book.objects.count(), Tag.objects.count()\r\n(0, 1)\r\n}}}\r\n\r\n`manage.py check` reports no issues. With `models.CASCADE` instead of `models.DB_CASCADE`, the `Tag` row is deleted.\r\n\r\nWhy it happens: `Collector.collect()` skips `DB_CASCADE` relations, so `Book` instances are never collected. Their private fields are never visited, so `GenericRelation.bulk_related_objects()` never runs. `GenericRelation.remote_field.on_delete` is `DO_NOTHING`, so `Model._check_related_fields()` does not see it as a Python-level variant.\r\n\r\nI verified this on 6.1.3 and on main with SQLite. I also ran random schemas with database and Python `on_delete` variants against the equivalent all-Python schemas. Among schemas that pass all checks, the only difference in the final data was orphaned generic rows.\r\n\r\nSuggested fix: add a system check error for a model that has a `GenericRelation` (any private field with `bulk_related_objects()`) and a `DB_CASCADE` foreign key. It would not fire for `DB_SET_NULL` or `DB_SET_DEFAULT`, because those do not delete the model's rows. This is the same kind of gap as #37254 (implicit M2M through tables), which was fixed in 6.1.x.\r\n\r\nI am happy to work on a patch once the approach is agreed.\r\n"
         }
       }
     }
