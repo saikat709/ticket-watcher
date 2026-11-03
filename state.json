@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37471
+      "last_seen_id": 37474
     }
   },
   "tracked": {
@@ -353,6 +353,157 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "The docs say that database-level and Python-level `on_delete` variants cannot be mixed in the same model or in related models. System checks enforce this with `models.E050` and `fields.E323`.\r\n\r\n`GenericRelation` is a Python-level cleanup, but it is not checked. If a model has a `GenericRelation` and a `DB_CASCADE` foreign key, the database deletes the model's rows and Django never deletes the generic related objects. They stay in the table with no error and no check warning.\r\n\r\n{{{#!python\r\nclass Tag(models.Model):\r\n    content_type = models.ForeignKey(ContentType, models.CASCADE)\r\n    object_id = models.PositiveIntegerField()\r\n    content_object = GenericForeignKey()\r\n\r\n\r\nclass Author(models.Model):\r\n    pass\r\n\r\n\r\nclass Book(models.Model):\r\n    author = models.ForeignKey(Author, models.DB_CASCADE)\r\n    tags = GenericRelation(Tag)\r\n}}}\r\n\r\n{{{#!python\r\n>>> author = Author.objects.create()\r\n>>> book = Book.objects.create(author=author)\r\n>>> book.tags.create()\r\n>>> author.delete()\r\n>>> Book.objects.count(), Tag.objects.count()\r\n(0, 1)\r\n}}}\r\n\r\n`manage.py check` reports no issues. With `models.CASCADE` instead of `models.DB_CASCADE`, the `Tag` row is deleted.\r\n\r\nWhy it happens: `Collector.collect()` skips `DB_CASCADE` relations, so `Book` instances are never collected. Their private fields are never visited, so `GenericRelation.bulk_related_objects()` never runs. `GenericRelation.remote_field.on_delete` is `DO_NOTHING`, so `Model._check_related_fields()` does not see it as a Python-level variant.\r\n\r\nI verified this on 6.1.3 and on main with SQLite. I also ran random schemas with database and Python `on_delete` variants against the equivalent all-Python schemas. Among schemas that pass all checks, the only difference in the final data was orphaned generic rows.\r\n\r\nSuggested fix: add a system check error for a model that has a `GenericRelation` (any private field with `bulk_related_objects()`) and a `DB_CASCADE` foreign key. It would not fire for `DB_SET_NULL` or `DB_SET_DEFAULT`, because those do not delete the model's rows. This is the same kind of gap as #37254 (implicit M2M through tables), which was fixed in 6.1.x.\r\n\r\nI am happy to work on a patch once the approach is agreed.\r\n"
+        }
+      }
+    },
+    "django:37472": {
+      "source": "django",
+      "ticket_id": 37472,
+      "watcher_issue_number": 142,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-03T23:45:24.500527+00:00",
+      "last_updated": "2026-11-03T23:45:24.500527+00:00",
+      "ticket_data": {
+        "id": 37472,
+        "source_id": "django",
+        "title": "Numbers in Admin tables",
+        "description": "Hi. I would like to propose to add `font-variant-numeric: tabular-nums;` to tables in the django admin:\r\n\r\n{{{\r\nM django/contrib/admin/static/admin/css/base.css\r\n@@ -348,6 +348,7 @@ a.quiet:visited {\r\n table {\r\n     border-collapse: collapse;\r\n     border-color: var(--border-color);\r\n+    font-variant-numeric: tabular-nums;\r\n }\r\n \r\n td,\r\n}}}\r\n\r\nScreenshot without:\r\n[[Image(non-tabular.png, 500px)]]\r\n\r\nScreenshot with:\r\n[[Image(tabular.png, 500px)]]",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 3, 2026, 2:28:04 PM",
+        "updated_at": "Nov 3, 2026, 2:44:19 PM",
+        "reporter": "minusf",
+        "owner": "",
+        "component": "contrib.admin",
+        "priority": "Low",
+        "severity": "Low",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "ui/ux"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37472",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37472",
+          "Summary": "Numbers in Admin tables",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "contrib.admin",
+          "Severity": "Low",
+          "Resolution": "",
+          "Created": "Nov 3, 2026, 2:28:04 PM",
+          "Modified": "Nov 3, 2026, 2:44:19 PM",
+          "Reporter": "minusf",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "1",
+          "Description": "Hi. I would like to propose to add `font-variant-numeric: tabular-nums;` to tables in the django admin:\r\n\r\n{{{\r\nM django/contrib/admin/static/admin/css/base.css\r\n@@ -348,6 +348,7 @@ a.quiet:visited {\r\n table {\r\n     border-collapse: collapse;\r\n     border-color: var(--border-color);\r\n+    font-variant-numeric: tabular-nums;\r\n }\r\n \r\n td,\r\n}}}\r\n\r\nScreenshot without:\r\n[[Image(non-tabular.png, 500px)]]\r\n\r\nScreenshot with:\r\n[[Image(tabular.png, 500px)]]"
+        }
+      }
+    },
+    "django:37473": {
+      "source": "django",
+      "ticket_id": 37473,
+      "watcher_issue_number": 143,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-03T23:45:26.255590+00:00",
+      "last_updated": "2026-11-03T23:45:26.255590+00:00",
+      "ticket_data": {
+        "id": 37473,
+        "source_id": "django",
+        "title": "count() and aggregate() build an empty SELECT when values() selects only aggregate annotations",
+        "description": "When `values()` selects only an aggregate annotation, a following `count()`, or `aggregate()` over another field, generates a subquery with an empty SELECT list.\r\n\r\n{{{#!python\r\nclass Author(models.Model):\r\n    name = models.CharField(max_length=20)\r\n    age = models.IntegerField()\r\n\r\nclass Book(models.Model):\r\n    title = models.CharField(max_length=20)\r\n    pages = models.IntegerField()\r\n    author = models.ForeignKey(Author, models.CASCADE, related_name=\"books\")\r\n}}}\r\n\r\nWith two authors (ages 40 and 30) and one book each:\r\n\r\n{{{\r\n>>> Author.objects.annotate(c=Count(\"books\")).values(\"c\").aggregate(m=Max(\"age\"))\r\nTraceback (most recent call last):\r\n  ...\r\n  File \"django/db/backends/sqlite3/base.py\", line 365, in execute\r\n    return super().execute(query, params)\r\ndjango.db.utils.OperationalError: near \"FROM\": syntax error\r\n}}}\r\n\r\nGenerated SQL (SQLite):\r\n\r\n{{{\r\nSELECT MAX(\"__col1\") FROM (SELECT  FROM \"app_author\" LEFT OUTER JOIN \"app_book\" ON (\"app_author\".\"id\" = \"app_book\".\"author_id\") GROUP BY \"app_author\".\"id\", \"app_author\".\"name\", \"app_author\".\"age\") subquery\r\n}}}\r\n\r\nExpected `{'m': 40}`, as on Django 5.1, where the inner query selects `\"app_author\".\"age\" AS \"__col1\"`. `values_list(\"c\")` fails the same way; `values(\"name\", \"c\")` and `aggregate(m=Max(\"c\"))` work.\r\n\r\nRegression in 65ad4ade74dc9208b9d686a451cd6045df0c9c3a (Refs #28900): the query works on its parent and fails on it. Reproduced on 5.2.19, 6.0.10, 6.1.3 and main with SQLite; 5.1.15 is not affected. On PostgreSQL (checked on 16), which accepts an empty SELECT list, `count()` returns the right number but `aggregate(m=Max(\"age\"))` fails with `column \"__col1\" does not exist`.\r\n\r\nThe cause appears to be `if self.selected:` in `Query.set_annotation_mask()` (django/db/models/sql/query.py:2568 at 5bd95c57a2) and `Query.add_annotation()` (:1248), which treats an empty `selected` dict like `None`: after `get_aggregation()` masks the unused `c` annotation, `selected` is `{}` and the `__col1` column added for the aggregate is never added to it. `count()` also goes through the fallback that selects the primary key when nothing else is selected (query.py:595-605), which only sets `inner_query.select` and is ignored once `selected` is `{}`, so changing the two checks to `is not None` fixes `aggregate()` but not `count()`.\r\n\r\nAI disclosure: found during a code audit with Claude Code 2.1.317 (Claude Opus 5.5), which also reduced the test case and ran it on the versions above and on 65ad4ade74 and its parent. The PostgreSQL behavior and the `count()` note came from an independent review with ChatGPT Pro and were re-run with Claude Code. I reviewed this report and re-ran the reproduction on main and stable/5.1.x.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 3, 2026, 4:16:44 PM",
+        "updated_at": "Nov 3, 2026, 4:52:54 PM",
+        "reporter": "cheek-walnut",
+        "owner": "",
+        "component": "Database layer (models, ORM)",
+        "priority": "Low",
+        "severity": "Low",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37473",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37473",
+          "Summary": "count() and aggregate() build an empty SELECT when values() selects only aggregate annotations",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Low",
+          "Resolution": "",
+          "Created": "Nov 3, 2026, 4:16:44 PM",
+          "Modified": "Nov 3, 2026, 4:52:54 PM",
+          "Reporter": "cheek-walnut",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "When `values()` selects only an aggregate annotation, a following `count()`, or `aggregate()` over another field, generates a subquery with an empty SELECT list.\r\n\r\n{{{#!python\r\nclass Author(models.Model):\r\n    name = models.CharField(max_length=20)\r\n    age = models.IntegerField()\r\n\r\nclass Book(models.Model):\r\n    title = models.CharField(max_length=20)\r\n    pages = models.IntegerField()\r\n    author = models.ForeignKey(Author, models.CASCADE, related_name=\"books\")\r\n}}}\r\n\r\nWith two authors (ages 40 and 30) and one book each:\r\n\r\n{{{\r\n>>> Author.objects.annotate(c=Count(\"books\")).values(\"c\").aggregate(m=Max(\"age\"))\r\nTraceback (most recent call last):\r\n  ...\r\n  File \"django/db/backends/sqlite3/base.py\", line 365, in execute\r\n    return super().execute(query, params)\r\ndjango.db.utils.OperationalError: near \"FROM\": syntax error\r\n}}}\r\n\r\nGenerated SQL (SQLite):\r\n\r\n{{{\r\nSELECT MAX(\"__col1\") FROM (SELECT  FROM \"app_author\" LEFT OUTER JOIN \"app_book\" ON (\"app_author\".\"id\" = \"app_book\".\"author_id\") GROUP BY \"app_author\".\"id\", \"app_author\".\"name\", \"app_author\".\"age\") subquery\r\n}}}\r\n\r\nExpected `{'m': 40}`, as on Django 5.1, where the inner query selects `\"app_author\".\"age\" AS \"__col1\"`. `values_list(\"c\")` fails the same way; `values(\"name\", \"c\")` and `aggregate(m=Max(\"c\"))` work.\r\n\r\nRegression in 65ad4ade74dc9208b9d686a451cd6045df0c9c3a (Refs #28900): the query works on its parent and fails on it. Reproduced on 5.2.19, 6.0.10, 6.1.3 and main with SQLite; 5.1.15 is not affected. On PostgreSQL (checked on 16), which accepts an empty SELECT list, `count()` returns the right number but `aggregate(m=Max(\"age\"))` fails with `column \"__col1\" does not exist`.\r\n\r\nThe cause appears to be `if self.selected:` in `Query.set_annotation_mask()` (django/db/models/sql/query.py:2568 at 5bd95c57a2) and `Query.add_annotation()` (:1248), which treats an empty `selected` dict like `None`: after `get_aggregation()` masks the unused `c` annotation, `selected` is `{}` and the `__col1` column added for the aggregate is never added to it. `count()` also goes through the fallback that selects the primary key when nothing else is selected (query.py:595-605), which only sets `inner_query.select` and is ignored once `selected` is `{}`, so changing the two checks to `is not None` fixes `aggregate()` but not `count()`.\r\n\r\nAI disclosure: found during a code audit with Claude Code 2.1.317 (Claude Opus 5.5), which also reduced the test case and ran it on the versions above and on 65ad4ade74 and its parent. The PostgreSQL behavior and the `count()` note came from an independent review with ChatGPT Pro and were re-run with Claude Code. I reviewed this report and re-ran the reproduction on main and stable/5.1.x."
+        }
+      }
+    },
+    "django:37474": {
+      "source": "django",
+      "ticket_id": 37474,
+      "watcher_issue_number": 144,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-03T23:45:28.206384+00:00",
+      "last_updated": "2026-11-03T23:45:28.206384+00:00",
+      "ticket_data": {
+        "id": 37474,
+        "source_id": "django",
+        "title": "Combined queries with values() ordered by a non-selected field crash after a clone is evaluated",
+        "description": "On a combined query (e.g. `union()`) using `values()` and ordered by a field that isn't in `values()`, evaluating one queryset breaks other querysets cloned from the same query.\r\n\r\n{{{#!python\r\nclass Author(models.Model):\r\n    name = models.CharField(max_length=20)\r\n    age = models.IntegerField()\r\n\r\nclass Book(models.Model):\r\n    title = models.CharField(max_length=20)\r\n    pages = models.IntegerField()\r\n    author = models.ForeignKey(Author, models.CASCADE, related_name=\"books\")\r\n}}}\r\n\r\nWith two books (pages 10 and 20):\r\n\r\n{{{#!python\r\nqs = Book.objects.filter(pages__gt=0).union(Book.objects.filter(pages__gt=0))\r\nqs = qs.values(\"title\").order_by(\"pages\")\r\nqs2 = qs.all()\r\nlist(qs)   # [{'title': 'b1'}, {'title': 'b2'}]\r\nlist(qs2)  # IndexError\r\n}}}\r\n\r\n{{{\r\n  File \"django/db/models/sql/compiler.py\", line 77, in setup_query\r\n    self.select, self.klass_info, self.annotation_col_map = self.get_select(\r\n  File \"django/db/models/sql/compiler.py\", line 295, in get_select\r\n    expression = cols[expression]\r\nIndexError: tuple index out of range\r\n}}}\r\n\r\nEvaluating `qs2` first breaks `qs` instead. `list(qs[:1])` followed by `list(qs)`, or evaluating `qs.all()` twice, crash the same way. Ordering by a selected field (`order_by(\"title\")`) works.\r\n\r\nExpected: both evaluations return `[{'title': 'b1'}, {'title': 'b2'}]`, as on Django 5.1.\r\n\r\nRegression in 65ad4ade74dc9208b9d686a451cd6045df0c9c3a (Refs #28900): the queries work on its parent and fail on it. Reproduced on 5.2.19, 6.0.10, 6.1.3 and main with SQLite, and on main with PostgreSQL 16; 5.1.15 is not affected.\r\n\r\nThe cause appears to be that `Query.clone()` (django/db/models/sql/query.py:387-395 at 5bd95c57a2) doesn't copy the `selected` dict, so clones share it, while `Query.add_select_col()` (:2265, called from `SQLCompiler.get_order_by()` at compiler.py:544 for combined queries) mutates it in place and each clone keeps its own `select` tuple. This is different from #37466, which is about composite primary keys.\r\n\r\nAI disclosure: found during a code audit with Claude Code 2.1.317 (Claude Opus 5.5), which also reduced the test case and ran it on the versions above and on 65ad4ade74 and its parent. I reviewed this report and re-ran the reproduction on main and stable/5.1.x.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 3, 2026, 4:17:19 PM",
+        "updated_at": "Nov 3, 2026, 4:53:22 PM",
+        "reporter": "cheek-walnut",
+        "owner": "",
+        "component": "Database layer (models, ORM)",
+        "priority": "Low",
+        "severity": "Low",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37474",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37474",
+          "Summary": "Combined queries with values() ordered by a non-selected field crash after a clone is evaluated",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Low",
+          "Resolution": "",
+          "Created": "Nov 3, 2026, 4:17:19 PM",
+          "Modified": "Nov 3, 2026, 4:53:22 PM",
+          "Reporter": "cheek-walnut",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "On a combined query (e.g. `union()`) using `values()` and ordered by a field that isn't in `values()`, evaluating one queryset breaks other querysets cloned from the same query.\r\n\r\n{{{#!python\r\nclass Author(models.Model):\r\n    name = models.CharField(max_length=20)\r\n    age = models.IntegerField()\r\n\r\nclass Book(models.Model):\r\n    title = models.CharField(max_length=20)\r\n    pages = models.IntegerField()\r\n    author = models.ForeignKey(Author, models.CASCADE, related_name=\"books\")\r\n}}}\r\n\r\nWith two books (pages 10 and 20):\r\n\r\n{{{#!python\r\nqs = Book.objects.filter(pages__gt=0).union(Book.objects.filter(pages__gt=0))\r\nqs = qs.values(\"title\").order_by(\"pages\")\r\nqs2 = qs.all()\r\nlist(qs)   # [{'title': 'b1'}, {'title': 'b2'}]\r\nlist(qs2)  # IndexError\r\n}}}\r\n\r\n{{{\r\n  File \"django/db/models/sql/compiler.py\", line 77, in setup_query\r\n    self.select, self.klass_info, self.annotation_col_map = self.get_select(\r\n  File \"django/db/models/sql/compiler.py\", line 295, in get_select\r\n    expression = cols[expression]\r\nIndexError: tuple index out of range\r\n}}}\r\n\r\nEvaluating `qs2` first breaks `qs` instead. `list(qs[:1])` followed by `list(qs)`, or evaluating `qs.all()` twice, crash the same way. Ordering by a selected field (`order_by(\"title\")`) works.\r\n\r\nExpected: both evaluations return `[{'title': 'b1'}, {'title': 'b2'}]`, as on Django 5.1.\r\n\r\nRegression in 65ad4ade74dc9208b9d686a451cd6045df0c9c3a (Refs #28900): the queries work on its parent and fail on it. Reproduced on 5.2.19, 6.0.10, 6.1.3 and main with SQLite, and on main with PostgreSQL 16; 5.1.15 is not affected.\r\n\r\nThe cause appears to be that `Query.clone()` (django/db/models/sql/query.py:387-395 at 5bd95c57a2) doesn't copy the `selected` dict, so clones share it, while `Query.add_select_col()` (:2265, called from `SQLCompiler.get_order_by()` at compiler.py:544 for combined queries) mutates it in place and each clone keeps its own `select` tuple. This is different from #37466, which is about composite primary keys.\r\n\r\nAI disclosure: found during a code audit with Claude Code 2.1.317 (Claude Opus 5.5), which also reduced the test case and ran it on the versions above and on 65ad4ade74 and its parent. I reviewed this report and re-ran the reproduction on main and stable/5.1.x."
         }
       }
     }
