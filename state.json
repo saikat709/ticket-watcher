@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37469
+      "last_seen_id": 37470
     }
   },
   "tracked": {
@@ -253,6 +253,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Searching for `Lexeme('&')` passes the provided value through `psql_escape`, which returns `None`. When UTF8Dumper calls `bytes(None, \"utf-8\")`:\r\n{{{\r\nERROR: test_quote_lexeme (postgres_tests.test_search.TestLexemes.test_quote_lexeme) (lexeme='&')\r\n----------------------------------------------------------------------\r\nTraceback (most recent call last):\r\n  File \"/home/pdi/dev/django/tests/postgres_tests/test_search.py\", line 886, in test_quote_lexeme\r\n    self.assertEqual(quote_lexeme(lexeme), quoted)\r\n                     ~~~~~~~~~~~~^^^^^^^^\r\n  File \"/home/pdi/dev/django/django/contrib/postgres/search.py\", line 26, in quote_lexeme\r\n    return UTF8Dumper(str).quote(psql_escape(value)).decode()\r\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\r\n  File \"/home/pdi/dev/django/.venv/lib/python3.14/site-packages/psycopg/adapt.py\", line 59, in quote\r\n    if (value := self.dump(obj)) is None:\r\n                 ~~~~~~~~~^^^^^\r\n  File \"/home/pdi/dev/django/django/contrib/postgres/search.py\", line 23, in dump\r\n    return bytes(obj, \"utf-8\")\r\nTypeError: encoding without a string argument\r\n}}}\r\n\r\nSee the attached patch to reproduce in the django test suite.\r\n\r\nLexeme is documented as:\r\n> Lexeme objects allow search operators to be safely used with strings from an untrusted source. The content of each lexeme is escaped so that any operators that may exist in the string itself will not be interpreted."
+        }
+      }
+    },
+    "django:37470": {
+      "source": "django",
+      "ticket_id": 37470,
+      "watcher_issue_number": 140,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-03T11:26:48.645464+00:00",
+      "last_updated": "2026-11-03T11:26:48.645464+00:00",
+      "ticket_data": {
+        "id": 37470,
+        "source_id": "django",
+        "title": "NegatedExpression doesn't handle FullResultSet, so negating an always-true condition evaluates to true.",
+        "description": "`NegatedExpression.as_sql()` handles `EmptyResultSet` raised by the wrapped expression, but not `FullResultSet`. When the wrapped condition matches everything, `FullResultSet` propagates un-negated and callers treat `NOT <always true>` as always true.\r\n\r\nOne visible consequence is that a `CheckConstraint` using a negated lookup is not enforced by model validation for `NULL` values, while the database does enforce it:\r\n\r\n{{{#!python\r\nfrom django.db import models\r\nfrom django.db.models import F\r\nfrom django.db.models.lookups import IsNull\r\n\r\n\r\nclass Item(models.Model):\r\n    value = models.IntegerField(null=True)\r\n\r\n    class Meta:\r\n        constraints = [\r\n            models.CheckConstraint(\r\n                condition=~IsNull(F(\"value\"), True),\r\n                name=\"value_not_null\",\r\n            ),\r\n        ]\r\n}}}\r\n\r\n{{{#!python\r\nItem(value=None).validate_constraints()  # Expected ValidationError, nothing is raised.\r\nItem(value=None).save()  # The database rejects it: IntegrityError.\r\n}}}\r\n\r\nThe equivalent `~Q(value__isnull=True)` constraint raises `ValidationError` as expected.\r\n\r\nThe same root cause affects queries:\r\n\r\n{{{#!python\r\nfrom django.db.models import BooleanField, ExpressionWrapper, Q\r\n\r\nalways_false = ~ExpressionWrapper(~Q(pk__in=[]), output_field=BooleanField())\r\nItem.objects.filter(always_false)            # Expected: no rows. Actual: all rows.\r\nItem.objects.annotate(x=always_false)        # Expected: x=False. Actual: x=True.\r\n}}}\r\n\r\nThe `CheckConstraint` case is a regression in 3434dbd39d373df7193ad006b970c09c1a909ea3 (#34754, backported to 4.2.5), which made `IsNull(Value(None), True)` raise `FullResultSet`. On its parent commit (2b582387d5) `validate_constraints()` correctly raises `ValidationError`. The queryset cases have been incorrect since `FullResultSet` was introduced in 76e37513e22f4d9a01c7f15eee36fe44388e6670 (refs #33374), shortly after `NegatedExpression` was added for #16211.\r\n\r\nAdding an `except FullResultSet: raise EmptyResultSet` branch to `NegatedExpression.as_sql()` fixes it: the reproduction tests pass and the full test suite passes on SQLite with that change. I haven't tested other backends yet. I'd like to submit a PR with a regression test.\r\n\r\nReproduced on main (b501b8493f) with SQLite.\r\n\r\nI used Claude Code to help explore the codebase and draft the reproduction tests. I verified the behavior, the regression commit, and the test results myself.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 3, 2026, 1:41:55 AM",
+        "updated_at": "Nov 3, 2026, 1:46:28 AM",
+        "reporter": "maiload",
+        "owner": "maiload",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37470",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37470",
+          "Summary": "NegatedExpression doesn't handle FullResultSet, so negating an always-true condition evaluates to true.",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 3, 2026, 1:41:55 AM",
+          "Modified": "Nov 3, 2026, 1:46:28 AM",
+          "Reporter": "maiload",
+          "Owner": "maiload",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "`NegatedExpression.as_sql()` handles `EmptyResultSet` raised by the wrapped expression, but not `FullResultSet`. When the wrapped condition matches everything, `FullResultSet` propagates un-negated and callers treat `NOT <always true>` as always true.\r\n\r\nOne visible consequence is that a `CheckConstraint` using a negated lookup is not enforced by model validation for `NULL` values, while the database does enforce it:\r\n\r\n{{{#!python\r\nfrom django.db import models\r\nfrom django.db.models import F\r\nfrom django.db.models.lookups import IsNull\r\n\r\n\r\nclass Item(models.Model):\r\n    value = models.IntegerField(null=True)\r\n\r\n    class Meta:\r\n        constraints = [\r\n            models.CheckConstraint(\r\n                condition=~IsNull(F(\"value\"), True),\r\n                name=\"value_not_null\",\r\n            ),\r\n        ]\r\n}}}\r\n\r\n{{{#!python\r\nItem(value=None).validate_constraints()  # Expected ValidationError, nothing is raised.\r\nItem(value=None).save()  # The database rejects it: IntegrityError.\r\n}}}\r\n\r\nThe equivalent `~Q(value__isnull=True)` constraint raises `ValidationError` as expected.\r\n\r\nThe same root cause affects queries:\r\n\r\n{{{#!python\r\nfrom django.db.models import BooleanField, ExpressionWrapper, Q\r\n\r\nalways_false = ~ExpressionWrapper(~Q(pk__in=[]), output_field=BooleanField())\r\nItem.objects.filter(always_false)            # Expected: no rows. Actual: all rows.\r\nItem.objects.annotate(x=always_false)        # Expected: x=False. Actual: x=True.\r\n}}}\r\n\r\nThe `CheckConstraint` case is a regression in 3434dbd39d373df7193ad006b970c09c1a909ea3 (#34754, backported to 4.2.5), which made `IsNull(Value(None), True)` raise `FullResultSet`. On its parent commit (2b582387d5) `validate_constraints()` correctly raises `ValidationError`. The queryset cases have been incorrect since `FullResultSet` was introduced in 76e37513e22f4d9a01c7f15eee36fe44388e6670 (refs #33374), shortly after `NegatedExpression` was added for #16211.\r\n\r\nAdding an `except FullResultSet: raise EmptyResultSet` branch to `NegatedExpression.as_sql()` fixes it: the reproduction tests pass and the full test suite passes on SQLite with that change. I haven't tested other backends yet. I'd like to submit a PR with a regression test.\r\n\r\nReproduced on main (b501b8493f) with SQLite.\r\n\r\nI used Claude Code to help explore the codebase and draft the reproduction tests. I verified the behavior, the regression commit, and the test results myself."
         }
       }
     }
