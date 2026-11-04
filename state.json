@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37474
+      "last_seen_id": 37475
     }
   },
   "tracked": {
@@ -504,6 +504,57 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "On a combined query (e.g. `union()`) using `values()` and ordered by a field that isn't in `values()`, evaluating one queryset breaks other querysets cloned from the same query.\r\n\r\n{{{#!python\r\nclass Author(models.Model):\r\n    name = models.CharField(max_length=20)\r\n    age = models.IntegerField()\r\n\r\nclass Book(models.Model):\r\n    title = models.CharField(max_length=20)\r\n    pages = models.IntegerField()\r\n    author = models.ForeignKey(Author, models.CASCADE, related_name=\"books\")\r\n}}}\r\n\r\nWith two books (pages 10 and 20):\r\n\r\n{{{#!python\r\nqs = Book.objects.filter(pages__gt=0).union(Book.objects.filter(pages__gt=0))\r\nqs = qs.values(\"title\").order_by(\"pages\")\r\nqs2 = qs.all()\r\nlist(qs)   # [{'title': 'b1'}, {'title': 'b2'}]\r\nlist(qs2)  # IndexError\r\n}}}\r\n\r\n{{{\r\n  File \"django/db/models/sql/compiler.py\", line 77, in setup_query\r\n    self.select, self.klass_info, self.annotation_col_map = self.get_select(\r\n  File \"django/db/models/sql/compiler.py\", line 295, in get_select\r\n    expression = cols[expression]\r\nIndexError: tuple index out of range\r\n}}}\r\n\r\nEvaluating `qs2` first breaks `qs` instead. `list(qs[:1])` followed by `list(qs)`, or evaluating `qs.all()` twice, crash the same way. Ordering by a selected field (`order_by(\"title\")`) works.\r\n\r\nExpected: both evaluations return `[{'title': 'b1'}, {'title': 'b2'}]`, as on Django 5.1.\r\n\r\nRegression in 65ad4ade74dc9208b9d686a451cd6045df0c9c3a (Refs #28900): the queries work on its parent and fail on it. Reproduced on 5.2.19, 6.0.10, 6.1.3 and main with SQLite, and on main with PostgreSQL 16; 5.1.15 is not affected.\r\n\r\nThe cause appears to be that `Query.clone()` (django/db/models/sql/query.py:387-395 at 5bd95c57a2) doesn't copy the `selected` dict, so clones share it, while `Query.add_select_col()` (:2265, called from `SQLCompiler.get_order_by()` at compiler.py:544 for combined queries) mutates it in place and each clone keeps its own `select` tuple. This is different from #37466, which is about composite primary keys.\r\n\r\nAI disclosure: found during a code audit with Claude Code 2.1.317 (Claude Opus 5.5), which also reduced the test case and ran it on the versions above and on 65ad4ade74 and its parent. I reviewed this report and re-ran the reproduction on main and stable/5.1.x."
+        }
+      }
+    },
+    "django:37475": {
+      "source": "django",
+      "ticket_id": 37475,
+      "watcher_issue_number": 145,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-04T18:59:13.790815+00:00",
+      "last_updated": "2026-11-04T18:59:13.790815+00:00",
+      "ticket_data": {
+        "id": 37475,
+        "source_id": "django",
+        "title": "Tutorial part 4, explicit list for reverse() args",
+        "description": "The current version (https://github.com/django/django/blob/main/docs/intro/tutorial04.txt#L106) is creating an implicit list by using a trailing comma. I suggest to use an explicit list instead to both be inline with the documentation and avoid user error/confusion.\r\n\r\nI already have a pull request to address this issue (https://github.com/django/django/pull/22246).",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 4, 2026, 10:56:18 AM",
+        "updated_at": "Nov 4, 2026, 11:16:23 AM",
+        "reporter": "Julien Vallet",
+        "owner": "Julien Vallet",
+        "component": "Documentation",
+        "priority": "Low",
+        "severity": "Low",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37475",
+        "pr_url": "https://github.com/django/django/pull/22246",
+        "pr_status": "open",
+        "raw_data": {
+          "id": "37475",
+          "Summary": "Tutorial part 4, explicit list for reverse() args",
+          "Type": "Uncategorized",
+          "Status": "assigned",
+          "Component": "Documentation",
+          "Severity": "Low",
+          "Resolution": "",
+          "Created": "Nov 4, 2026, 10:56:18 AM",
+          "Modified": "Nov 4, 2026, 11:16:23 AM",
+          "Reporter": "Julien Vallet",
+          "Owner": "Julien Vallet",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "The current version (https://github.com/django/django/blob/main/docs/intro/tutorial04.txt#L106) is creating an implicit list by using a trailing comma. I suggest to use an explicit list instead to both be inline with the documentation and avoid user error/confusion.\r\n\r\nI already have a pull request to address this issue (https://github.com/django/django/pull/22246)."
         }
       }
     }
