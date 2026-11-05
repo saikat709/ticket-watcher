@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37475
+      "last_seen_id": 37478
     }
   },
   "tracked": {
@@ -555,6 +555,107 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "The current version (https://github.com/django/django/blob/main/docs/intro/tutorial04.txt#L106) is creating an implicit list by using a trailing comma. I suggest to use an explicit list instead to both be inline with the documentation and avoid user error/confusion.\r\n\r\nI already have a pull request to address this issue (https://github.com/django/django/pull/22246)."
+        }
+      }
+    },
+    "django:37477": {
+      "source": "django",
+      "ticket_id": 37477,
+      "watcher_issue_number": 146,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-05T15:39:47.409751+00:00",
+      "last_updated": "2026-11-05T15:39:47.409751+00:00",
+      "ticket_data": {
+        "id": 37477,
+        "source_id": "django",
+        "title": "makemigrations orders AlterModelOptions before RenameModel when a new model has an FK to the renamed model",
+        "description": "When a model is renamed, `makemigrations` can put operations on the new model name before the `RenameModel` operation. `migrate` then crashes with a `KeyError`.\r\n\r\nIt needs three things in one `makemigrations` run:\r\n\r\n1. A model is renamed (and the rename prompt is answered \"y\").\r\n2. Its Meta options change, for example `ordering`.\r\n3. A new model with a ForeignKey to the renamed model is added.\r\n\r\nStarting point (migrated):\r\n\r\n{{{#!python\r\nclass Author(models.Model):\r\n    name = models.CharField(max_length=50)\r\n}}}\r\n\r\nChanged to:\r\n\r\n{{{#!python\r\nclass Writer(models.Model):\r\n    name = models.CharField(max_length=50)\r\n\r\n    class Meta:\r\n        ordering = [\"name\"]\r\n\r\n\r\nclass Book(models.Model):\r\n    title = models.CharField(max_length=50)\r\n    writer = models.ForeignKey(Writer, on_delete=models.CASCADE)\r\n}}}\r\n\r\n`makemigrations` (\"Was the model shop.Author renamed to Writer? y\") writes the operations in this order:\r\n\r\n{{{#!python\r\noperations = [\r\n    migrations.AlterModelOptions(name=\"writer\", options={\"ordering\": [\"name\"]}),\r\n    migrations.RenameModel(old_name=\"Author\", new_name=\"Writer\"),\r\n    migrations.CreateModel(name=\"Book\", ...),\r\n]\r\n}}}\r\n\r\n\r\n`migrate` fails:\r\n\r\n{{{#!text\r\n    File \".../django/db/migrations/state.py\", line 183, in alter_model_options\r\n        model_state = self.models[app_label, model_name]\r\n    KeyError: ('shop', 'writer')\r\n}}}\r\n\r\nWithout the new `Book` model the order is correct. I also see `AddIndex` and `AddConstraint` on the renamed model emitted before `RenameModel` in the same situation.\r\n\r\nCause: `generate_renamed_models()` gives `RenameModel` dependencies for the reverse relations of the renamed model. A new model with an FK to it makes `RenameModel` depend on that `CreateModel`. The options, index and constraint operations on the renamed model have no dependency on `RenameModel`. `_sort_migrations()` emits operations without dependencies first, so they end up before the rename.\r\n\r\nA fix could make every operation on a renamed model depend on its `RenameModel` in `_sort_migrations()`. I tried this locally and the migrations tests pass.\r\n\r\nTested on main (6.2 dev) with SQLite.\r\n",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 5, 2026, 5:48:35 AM",
+        "updated_at": "Nov 5, 2026, 8:48:21 AM",
+        "reporter": "Akshat Gupta",
+        "owner": "",
+        "component": "Migrations",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37477",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37477",
+          "Summary": "makemigrations orders AlterModelOptions before RenameModel when a new model has an FK to the renamed model",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Migrations",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 5, 2026, 5:48:35 AM",
+          "Modified": "Nov 5, 2026, 8:48:21 AM",
+          "Reporter": "Akshat Gupta",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "When a model is renamed, `makemigrations` can put operations on the new model name before the `RenameModel` operation. `migrate` then crashes with a `KeyError`.\r\n\r\nIt needs three things in one `makemigrations` run:\r\n\r\n1. A model is renamed (and the rename prompt is answered \"y\").\r\n2. Its Meta options change, for example `ordering`.\r\n3. A new model with a ForeignKey to the renamed model is added.\r\n\r\nStarting point (migrated):\r\n\r\n{{{#!python\r\nclass Author(models.Model):\r\n    name = models.CharField(max_length=50)\r\n}}}\r\n\r\nChanged to:\r\n\r\n{{{#!python\r\nclass Writer(models.Model):\r\n    name = models.CharField(max_length=50)\r\n\r\n    class Meta:\r\n        ordering = [\"name\"]\r\n\r\n\r\nclass Book(models.Model):\r\n    title = models.CharField(max_length=50)\r\n    writer = models.ForeignKey(Writer, on_delete=models.CASCADE)\r\n}}}\r\n\r\n`makemigrations` (\"Was the model shop.Author renamed to Writer? y\") writes the operations in this order:\r\n\r\n{{{#!python\r\noperations = [\r\n    migrations.AlterModelOptions(name=\"writer\", options={\"ordering\": [\"name\"]}),\r\n    migrations.RenameModel(old_name=\"Author\", new_name=\"Writer\"),\r\n    migrations.CreateModel(name=\"Book\", ...),\r\n]\r\n}}}\r\n\r\n\r\n`migrate` fails:\r\n\r\n{{{#!text\r\n    File \".../django/db/migrations/state.py\", line 183, in alter_model_options\r\n        model_state = self.models[app_label, model_name]\r\n    KeyError: ('shop', 'writer')\r\n}}}\r\n\r\nWithout the new `Book` model the order is correct. I also see `AddIndex` and `AddConstraint` on the renamed model emitted before `RenameModel` in the same situation.\r\n\r\nCause: `generate_renamed_models()` gives `RenameModel` dependencies for the reverse relations of the renamed model. A new model with an FK to it makes `RenameModel` depend on that `CreateModel`. The options, index and constraint operations on the renamed model have no dependency on `RenameModel`. `_sort_migrations()` emits operations without dependencies first, so they end up before the rename.\r\n\r\nA fix could make every operation on a renamed model depend on its `RenameModel` in `_sort_migrations()`. I tried this locally and the migrations tests pass.\r\n\r\nTested on main (6.2 dev) with SQLite.\r\n"
+        }
+      }
+    },
+    "django:37478": {
+      "source": "django",
+      "ticket_id": 37478,
+      "watcher_issue_number": 147,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-05T15:39:51.659528+00:00",
+      "last_updated": "2026-11-05T15:39:51.659528+00:00",
+      "ticket_data": {
+        "id": 37478,
+        "source_id": "django",
+        "title": "Database session backends crash on session keys containing a null character",
+        "description": "A request with the header {{{Cookie: sessionid=\"AAAAAAAA\\000\"}}} (printable ASCII only) returns HTTP 500 when using the {{{db}}} or {{{cached_db}}} session backend on PostgreSQL.\r\n\r\n{{{http.cookies}}} unquotes the {{{\\000}}} escape into a null character. {{{SessionBase._validate_session_key()}}} accepts the key, because it checks only {{{key and len(key) >= 8}}}. {{{SessionStore._get_session_from_db()}}} (and {{{_aget_session_from_db()}}}) then passes it to the database. PostgreSQL's driver rejects it (psycopg 3 raises {{{DataError}}}, psycopg2 raises {{{ValueError}}}), and the exception propagates out of {{{SessionMiddleware}}}. Because the session loads in middleware, every URL is affected, and the 500 response doesn't clear the cookie, so a client holding it keeps getting 500s until the cookie is removed.\r\n\r\nThe {{{cache}}}, {{{file}}} and {{{signed_cookies}}} backends, and the {{{db}}} backend on SQLite, return 200 for the same cookie.\r\n\r\nTo reproduce, save the script below as {{{poc.py}}}, then run these commands in the same directory. They need Docker and Python 3.12 or later; the container is removed on stop.\r\n\r\n{{{#!sh\r\npython3 -m venv djnul-venv\r\n. djnul-venv/bin/activate\r\ndocker run --rm -d --name djnul -e POSTGRES_DB=djnul -e POSTGRES_HOST_AUTH_METHOD=trust -p 55432:5432 postgres:17\r\nuntil docker exec djnul pg_isready -h localhost -U postgres -q; do sleep 1; done\r\npip install \"Django>=6.0,<6.1\" \"psycopg[binary]\"\r\nPGHOST=localhost PGPORT=55432 PGUSER=postgres python poc.py\r\ndocker stop djnul\r\n}}}\r\n\r\nIt prints {{{crafted: 500}}} and {{{normal: 200}}}. To test main instead, install {{{git+https://github.com/django/django.git}}} in place of the Django release. The script sets only the database {{{NAME}}}, so psycopg picks up the host, port and user from the {{{PG*}}} environment variables.\r\n\r\n{{{#!python\r\nimport django\r\nfrom django.conf import settings\r\n\r\nsettings.configure(\r\n    DEBUG=False,\r\n    ALLOWED_HOSTS=[\"testserver\"],\r\n    SECRET_KEY=\"x\",\r\n    DATABASES={\"default\": {\"ENGINE\": \"django.db.backends.postgresql\", \"NAME\": \"djnul\"}},\r\n    INSTALLED_APPS=[\"django.contrib.contenttypes\", \"django.contrib.auth\", \"django.contrib.sessions\"],\r\n    MIDDLEWARE=[\"django.contrib.sessions.middleware.SessionMiddleware\"],\r\n    ROOT_URLCONF=\"__main__\",\r\n)\r\ndjango.setup()\r\n\r\nfrom django.core.management import call_command\r\nfrom django.http import HttpResponse\r\nfrom django.test import Client\r\nfrom django.urls import path\r\n\r\ndef view(request):\r\n    request.session.get(\"x\")\r\n    return HttpResponse(\"ok\")\r\n\r\nurlpatterns = [path(\"\", view)]\r\n\r\ncall_command(\"migrate\", run_syncdb=True, verbosity=0)\r\nclient = Client(raise_request_exception=False)\r\nprint(\"crafted:\", client.get(\"/\", HTTP_COOKIE='sessionid=\"AAAAAAAA\\\\000\"').status_code)  # 500\r\nprint(\"normal: \", client.get(\"/\", HTTP_COOKIE=\"sessionid=\" + \"a\" * 32).status_code)  # 200\r\n}}}\r\n\r\nTested on Django 6.0.9 and main, with psycopg 3 and psycopg2. The code is the same on 5.2, 6.0, 6.1 and main.\r\n\r\nProposed fix: make {{{_validate_session_key()}}} also reject keys containing a null character, so such a key becomes \"no session\", the same as an unknown key. Restricting keys to {{{VALID_KEY_CHARS}}} (as the file backend does) would be stricter, but it would break the {{{signed_cookies}}} backend, whose keys are signed strings containing {{{:}}}, {{{-}}}, {{{_}}} and uppercase letters.\r\n\r\nThis was first reported to security@djangoproject.com, and the security team asked for a public ticket.\r\n\r\nI prepared this report and patch with help from Claude Opus 5.5 (Anthropic) via Claude Code, and I reviewed and verified the output myself.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 5, 2026, 8:21:02 AM",
+        "updated_at": "Nov 5, 2026, 8:56:59 AM",
+        "reporter": "Markus Magnuson",
+        "owner": "Markus Magnuson",
+        "component": "contrib.sessions",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37478",
+        "pr_url": "https://github.com/django/django/pull/22252",
+        "pr_status": "open",
+        "raw_data": {
+          "id": "37478",
+          "Summary": "Database session backends crash on session keys containing a null character",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "contrib.sessions",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 5, 2026, 8:21:02 AM",
+          "Modified": "Nov 5, 2026, 8:56:59 AM",
+          "Reporter": "Markus Magnuson",
+          "Owner": "Markus Magnuson",
+          "Triage Stage": "Accepted",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "A request with the header {{{Cookie: sessionid=\"AAAAAAAA\\000\"}}} (printable ASCII only) returns HTTP 500 when using the {{{db}}} or {{{cached_db}}} session backend on PostgreSQL.\r\n\r\n{{{http.cookies}}} unquotes the {{{\\000}}} escape into a null character. {{{SessionBase._validate_session_key()}}} accepts the key, because it checks only {{{key and len(key) >= 8}}}. {{{SessionStore._get_session_from_db()}}} (and {{{_aget_session_from_db()}}}) then passes it to the database. PostgreSQL's driver rejects it (psycopg 3 raises {{{DataError}}}, psycopg2 raises {{{ValueError}}}), and the exception propagates out of {{{SessionMiddleware}}}. Because the session loads in middleware, every URL is affected, and the 500 response doesn't clear the cookie, so a client holding it keeps getting 500s until the cookie is removed.\r\n\r\nThe {{{cache}}}, {{{file}}} and {{{signed_cookies}}} backends, and the {{{db}}} backend on SQLite, return 200 for the same cookie.\r\n\r\nTo reproduce, save the script below as {{{poc.py}}}, then run these commands in the same directory. They need Docker and Python 3.12 or later; the container is removed on stop.\r\n\r\n{{{#!sh\r\npython3 -m venv djnul-venv\r\n. djnul-venv/bin/activate\r\ndocker run --rm -d --name djnul -e POSTGRES_DB=djnul -e POSTGRES_HOST_AUTH_METHOD=trust -p 55432:5432 postgres:17\r\nuntil docker exec djnul pg_isready -h localhost -U postgres -q; do sleep 1; done\r\npip install \"Django>=6.0,<6.1\" \"psycopg[binary]\"\r\nPGHOST=localhost PGPORT=55432 PGUSER=postgres python poc.py\r\ndocker stop djnul\r\n}}}\r\n\r\nIt prints {{{crafted: 500}}} and {{{normal: 200}}}. To test main instead, install {{{git+https://github.com/django/django.git}}} in place of the Django release. The script sets only the database {{{NAME}}}, so psycopg picks up the host, port and user from the {{{PG*}}} environment variables.\r\n\r\n{{{#!python\r\nimport django\r\nfrom django.conf import settings\r\n\r\nsettings.configure(\r\n    DEBUG=False,\r\n    ALLOWED_HOSTS=[\"testserver\"],\r\n    SECRET_KEY=\"x\",\r\n    DATABASES={\"default\": {\"ENGINE\": \"django.db.backends.postgresql\", \"NAME\": \"djnul\"}},\r\n    INSTALLED_APPS=[\"django.contrib.contenttypes\", \"django.contrib.auth\", \"django.contrib.sessions\"],\r\n    MIDDLEWARE=[\"django.contrib.sessions.middleware.SessionMiddleware\"],\r\n    ROOT_URLCONF=\"__main__\",\r\n)\r\ndjango.setup()\r\n\r\nfrom django.core.management import call_command\r\nfrom django.http import HttpResponse\r\nfrom django.test import Client\r\nfrom django.urls import path\r\n\r\ndef view(request):\r\n    request.session.get(\"x\")\r\n    return HttpResponse(\"ok\")\r\n\r\nurlpatterns = [path(\"\", view)]\r\n\r\ncall_command(\"migrate\", run_syncdb=True, verbosity=0)\r\nclient = Client(raise_request_exception=False)\r\nprint(\"crafted:\", client.get(\"/\", HTTP_COOKIE='sessionid=\"AAAAAAAA\\\\000\"').status_code)  # 500\r\nprint(\"normal: \", client.get(\"/\", HTTP_COOKIE=\"sessionid=\" + \"a\" * 32).status_code)  # 200\r\n}}}\r\n\r\nTested on Django 6.0.9 and main, with psycopg 3 and psycopg2. The code is the same on 5.2, 6.0, 6.1 and main.\r\n\r\nProposed fix: make {{{_validate_session_key()}}} also reject keys containing a null character, so such a key becomes \"no session\", the same as an unknown key. Restricting keys to {{{VALID_KEY_CHARS}}} (as the file backend does) would be stricter, but it would break the {{{signed_cookies}}} backend, whose keys are signed strings containing {{{:}}}, {{{-}}}, {{{_}}} and uppercase letters.\r\n\r\nThis was first reported to security@djangoproject.com, and the security team asked for a public ticket.\r\n\r\nI prepared this report and patch with help from Claude Opus 5.5 (Anthropic) via Claude Code, and I reviewed and verified the output myself."
         }
       }
     }
