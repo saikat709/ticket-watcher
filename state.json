@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37478
+      "last_seen_id": 37481
     }
   },
   "tracked": {
@@ -656,6 +656,157 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "A request with the header {{{Cookie: sessionid=\"AAAAAAAA\\000\"}}} (printable ASCII only) returns HTTP 500 when using the {{{db}}} or {{{cached_db}}} session backend on PostgreSQL.\r\n\r\n{{{http.cookies}}} unquotes the {{{\\000}}} escape into a null character. {{{SessionBase._validate_session_key()}}} accepts the key, because it checks only {{{key and len(key) >= 8}}}. {{{SessionStore._get_session_from_db()}}} (and {{{_aget_session_from_db()}}}) then passes it to the database. PostgreSQL's driver rejects it (psycopg 3 raises {{{DataError}}}, psycopg2 raises {{{ValueError}}}), and the exception propagates out of {{{SessionMiddleware}}}. Because the session loads in middleware, every URL is affected, and the 500 response doesn't clear the cookie, so a client holding it keeps getting 500s until the cookie is removed.\r\n\r\nThe {{{cache}}}, {{{file}}} and {{{signed_cookies}}} backends, and the {{{db}}} backend on SQLite, return 200 for the same cookie.\r\n\r\nTo reproduce, save the script below as {{{poc.py}}}, then run these commands in the same directory. They need Docker and Python 3.12 or later; the container is removed on stop.\r\n\r\n{{{#!sh\r\npython3 -m venv djnul-venv\r\n. djnul-venv/bin/activate\r\ndocker run --rm -d --name djnul -e POSTGRES_DB=djnul -e POSTGRES_HOST_AUTH_METHOD=trust -p 55432:5432 postgres:17\r\nuntil docker exec djnul pg_isready -h localhost -U postgres -q; do sleep 1; done\r\npip install \"Django>=6.0,<6.1\" \"psycopg[binary]\"\r\nPGHOST=localhost PGPORT=55432 PGUSER=postgres python poc.py\r\ndocker stop djnul\r\n}}}\r\n\r\nIt prints {{{crafted: 500}}} and {{{normal: 200}}}. To test main instead, install {{{git+https://github.com/django/django.git}}} in place of the Django release. The script sets only the database {{{NAME}}}, so psycopg picks up the host, port and user from the {{{PG*}}} environment variables.\r\n\r\n{{{#!python\r\nimport django\r\nfrom django.conf import settings\r\n\r\nsettings.configure(\r\n    DEBUG=False,\r\n    ALLOWED_HOSTS=[\"testserver\"],\r\n    SECRET_KEY=\"x\",\r\n    DATABASES={\"default\": {\"ENGINE\": \"django.db.backends.postgresql\", \"NAME\": \"djnul\"}},\r\n    INSTALLED_APPS=[\"django.contrib.contenttypes\", \"django.contrib.auth\", \"django.contrib.sessions\"],\r\n    MIDDLEWARE=[\"django.contrib.sessions.middleware.SessionMiddleware\"],\r\n    ROOT_URLCONF=\"__main__\",\r\n)\r\ndjango.setup()\r\n\r\nfrom django.core.management import call_command\r\nfrom django.http import HttpResponse\r\nfrom django.test import Client\r\nfrom django.urls import path\r\n\r\ndef view(request):\r\n    request.session.get(\"x\")\r\n    return HttpResponse(\"ok\")\r\n\r\nurlpatterns = [path(\"\", view)]\r\n\r\ncall_command(\"migrate\", run_syncdb=True, verbosity=0)\r\nclient = Client(raise_request_exception=False)\r\nprint(\"crafted:\", client.get(\"/\", HTTP_COOKIE='sessionid=\"AAAAAAAA\\\\000\"').status_code)  # 500\r\nprint(\"normal: \", client.get(\"/\", HTTP_COOKIE=\"sessionid=\" + \"a\" * 32).status_code)  # 200\r\n}}}\r\n\r\nTested on Django 6.0.9 and main, with psycopg 3 and psycopg2. The code is the same on 5.2, 6.0, 6.1 and main.\r\n\r\nProposed fix: make {{{_validate_session_key()}}} also reject keys containing a null character, so such a key becomes \"no session\", the same as an unknown key. Restricting keys to {{{VALID_KEY_CHARS}}} (as the file backend does) would be stricter, but it would break the {{{signed_cookies}}} backend, whose keys are signed strings containing {{{:}}}, {{{-}}}, {{{_}}} and uppercase letters.\r\n\r\nThis was first reported to security@djangoproject.com, and the security team asked for a public ticket.\r\n\r\nI prepared this report and patch with help from Claude Opus 5.5 (Anthropic) via Claude Code, and I reviewed and verified the output myself."
+        }
+      }
+    },
+    "django:37479": {
+      "source": "django",
+      "ticket_id": 37479,
+      "watcher_issue_number": 148,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-05T21:39:17.573136+00:00",
+      "last_updated": "2026-11-05T21:39:17.573136+00:00",
+      "ticket_data": {
+        "id": 37479,
+        "source_id": "django",
+        "title": "Run async signal receivers sequentially",
+        "description": "Since async signal support was added, `Signal.send()` and `Signal.asend()` run async receivers concurrently. This causes two problems:\r\n\r\n * '''Registration order is lost.''' In sync Django, receivers run in the order they were registered, and projects often rely on this for good reasons. With async receivers, the order is lost silently, so converting a receiver from sync to async can change behavior.\r\n * '''Transactions inside receivers are not well ordered.''' Since each receiver runs in its own task, their queries and savepoints can interleave. This came up in the review of async `transaction.atomic()` (#33882, [https://github.com/django/django/pull/22074 PR #22074]): receivers can't use `atomic()` inside an async transaction, and inside a sync transaction a write from one receiver can be silently rolled back with another receiver's savepoint.\r\n\r\n'''Proposal:''' await async receivers one by one, in registration order, in the caller's task. This keeps the same semantics as sync receivers and makes transaction handling inside receivers safe.\r\n\r\n'''Trade-off:''' slow receivers would no longer run concurrently. This is a behavior change and would need a release note.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 5, 2026, 12:05:59 PM",
+        "updated_at": "Nov 5, 2026, 2:11:20 PM",
+        "reporter": "Mykhailo Havelia",
+        "owner": "Mykhailo Havelia",
+        "component": "Core (Other)",
+        "priority": "Low",
+        "severity": "Low",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37479",
+        "pr_url": "https://github.com/django/django/pull/22074",
+        "pr_status": "open",
+        "raw_data": {
+          "id": "37479",
+          "Summary": "Run async signal receivers sequentially",
+          "Type": "Cleanup/optimization",
+          "Status": "assigned",
+          "Component": "Core (Other)",
+          "Severity": "Low",
+          "Resolution": "",
+          "Created": "Nov 5, 2026, 12:05:59 PM",
+          "Modified": "Nov 5, 2026, 2:11:20 PM",
+          "Reporter": "Mykhailo Havelia",
+          "Owner": "Mykhailo Havelia",
+          "Triage Stage": "Accepted",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Since async signal support was added, `Signal.send()` and `Signal.asend()` run async receivers concurrently. This causes two problems:\r\n\r\n * '''Registration order is lost.''' In sync Django, receivers run in the order they were registered, and projects often rely on this for good reasons. With async receivers, the order is lost silently, so converting a receiver from sync to async can change behavior.\r\n * '''Transactions inside receivers are not well ordered.''' Since each receiver runs in its own task, their queries and savepoints can interleave. This came up in the review of async `transaction.atomic()` (#33882, [https://github.com/django/django/pull/22074 PR #22074]): receivers can't use `atomic()` inside an async transaction, and inside a sync transaction a write from one receiver can be silently rolled back with another receiver's savepoint.\r\n\r\n'''Proposal:''' await async receivers one by one, in registration order, in the caller's task. This keeps the same semantics as sync receivers and makes transaction handling inside receivers safe.\r\n\r\n'''Trade-off:''' slow receivers would no longer run concurrently. This is a behavior change and would need a release note."
+        }
+      }
+    },
+    "django:37480": {
+      "source": "django",
+      "ticket_id": 37480,
+      "watcher_issue_number": 149,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-05T21:39:19.441829+00:00",
+      "last_updated": "2026-11-05T21:39:19.441829+00:00",
+      "ticket_data": {
+        "id": 37480,
+        "source_id": "django",
+        "title": "FieldError for annotation excluded by previous values() call incorrectly refers to unpromoted alias",
+        "description": "#36352 improved the `FieldError` message text when an annotation alias is requested via `values()` after being excluded by an earlier `values()` call.\r\n\r\nHowever, it doesn't handle the case where the prior values call excludes ''all'' annotations, as in the last example below:\r\n\r\n[https://dryorm.xterm.info/bugfield-error-message DryORM fiddle]\r\n{{{#!py\r\nfrom django.db import models\r\n\r\nclass Person(models.Model):\r\n    name = models.CharField(max_length=100)\r\n\r\n\r\ndef run():\r\n    # qs = (\r\n    #     Person.objects.annotate(a=models.Value(42), b=models.Value(43))\r\n    #     .values(\"a\")\r\n    #     # CORRECT:\r\n    #     # FieldError: Cannot select the 'b' alias. It was excluded by a\r\n    #     # previous values() or values_list() call. Include 'b' in that\r\n    #     # call to select it.\r\n    #     .values(\"b\")\r\n    # )\r\n    \r\n    qs = (\r\n        Person.objects.annotate(a=models.Value(42), b=models.Value(43))\r\n        .values(\"pk\")\r\n        # INCORRECT:\r\n        # FieldError: Cannot select the 'b' alias. Use annotate() to promote it.\r\n        .values(\"b\")\r\n    )\r\n\r\n}}}\r\n\r\nI think we could check the contents of `self.annotations` (the annotations that have been registered) and `self.annotation_select` (the annotations that have been selected by a prior `values()` call) instead of only checking whether one or the other is empty.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 5, 2026, 2:41:44 PM",
+        "updated_at": "Nov 5, 2026, 2:47:52 PM",
+        "reporter": "Jacob Walls",
+        "owner": "Django Sprints",
+        "component": "Database layer (models, ORM)",
+        "priority": "Low",
+        "severity": "Low",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37480",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37480",
+          "Summary": "FieldError for annotation excluded by previous values() call incorrectly refers to unpromoted alias",
+          "Type": "Cleanup/optimization",
+          "Status": "assigned",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Low",
+          "Resolution": "",
+          "Created": "Nov 5, 2026, 2:41:44 PM",
+          "Modified": "Nov 5, 2026, 2:47:52 PM",
+          "Reporter": "Jacob Walls",
+          "Owner": "Django Sprints",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "#36352 improved the `FieldError` message text when an annotation alias is requested via `values()` after being excluded by an earlier `values()` call.\r\n\r\nHowever, it doesn't handle the case where the prior values call excludes ''all'' annotations, as in the last example below:\r\n\r\n[https://dryorm.xterm.info/bugfield-error-message DryORM fiddle]\r\n{{{#!py\r\nfrom django.db import models\r\n\r\nclass Person(models.Model):\r\n    name = models.CharField(max_length=100)\r\n\r\n\r\ndef run():\r\n    # qs = (\r\n    #     Person.objects.annotate(a=models.Value(42), b=models.Value(43))\r\n    #     .values(\"a\")\r\n    #     # CORRECT:\r\n    #     # FieldError: Cannot select the 'b' alias. It was excluded by a\r\n    #     # previous values() or values_list() call. Include 'b' in that\r\n    #     # call to select it.\r\n    #     .values(\"b\")\r\n    # )\r\n    \r\n    qs = (\r\n        Person.objects.annotate(a=models.Value(42), b=models.Value(43))\r\n        .values(\"pk\")\r\n        # INCORRECT:\r\n        # FieldError: Cannot select the 'b' alias. Use annotate() to promote it.\r\n        .values(\"b\")\r\n    )\r\n\r\n}}}\r\n\r\nI think we could check the contents of `self.annotations` (the annotations that have been registered) and `self.annotation_select` (the annotations that have been selected by a prior `values()` call) instead of only checking whether one or the other is empty."
+        }
+      }
+    },
+    "django:37481": {
+      "source": "django",
+      "ticket_id": 37481,
+      "watcher_issue_number": 150,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-05T21:39:21.658695+00:00",
+      "last_updated": "2026-11-05T21:39:21.658695+00:00",
+      "ticket_data": {
+        "id": 37481,
+        "source_id": "django",
+        "title": "Test client responses form a reference cycle via `response.json` and need a GC pass to be freed",
+        "description": "`Client.request()` and `AsyncClient.request()` attach a `json` helper to every\r\nresponse as\r\n\r\n{{{#!python\r\nresponse.json = partial(self._parse_json, response)\r\n}}}\r\n\r\n([https://github.com/django/django/blob/main/django/test/client.py#L1132 client.py#L1132],\r\n[https://github.com/django/django/blob/main/django/test/client.py#L1524 #L1524]).\r\n\r\nThe `partial` holds a strong reference to the response and is stored on the\r\nresponse itself, so every response returned by the test client is part of a\r\nreference cycle. Reference counting can never free it; it survives until the\r\ncyclic garbage collector runs. Because the response also holds\r\n`response.templates`, `response.context` (every `Context`/`RequestContext`\r\nrendered during the request), `response.request`, `response.wsgi_request` and\r\nthe rendered content, the whole graph stays alive with it.\r\n\r\nThis is the same class of problem as #36701 (`ModelState` cycles), which was\r\naccepted and fixed.\r\n\r\n=== Impact ===\r\n\r\nOn a large suite (~11k tests, many of them making admin requests) this was the\r\nmain source of cyclic garbage. With Python 3.14.0\u20133.14.4 (incremental GC,\r\nreverted in 3.14.5) the garbage was collected much more slowly than it was\r\nproduced: a single pytest-xdist worker grew from ~360 MB to ~1.8 GB over 1266\r\ntests, and `-n auto` on a 14-core / 14 GB machine exhausted RAM. With the\r\ngenerational GC the garbage does get collected, but every test-client response\r\nstill has to be reclaimed by a gen-2 pass instead of being freed on `del`,\r\nwhich means extra GC work and a higher memory peak in long suites.\r\n\r\n=== Reproduction (standalone, no project needed) ===\r\n\r\n{{{#!python\r\nimport gc\r\nimport django\r\nfrom django.conf import settings\r\n\r\nsettings.configure(\r\n    ROOT_URLCONF=__name__, ALLOWED_HOSTS=[\"testserver\"], SECRET_KEY=\"x\",\r\n    TEMPLATES=[{\"BACKEND\": \"django.template.backends.django.DjangoTemplates\"}],\r\n)\r\ndjango.setup()\r\n\r\nfrom django.http import HttpResponse\r\nfrom django.template import engines\r\nfrom django.test import Client\r\nfrom django.test.utils import setup_test_environment\r\nfrom django.urls import path\r\n\r\n\r\ndef view(request):\r\n    tpl = engines[\"django\"].from_string(\"{% for i in r %}<p>{{ i }}</p>{% endfor %}\")\r\n    return HttpResponse(tpl.render({\"r\": range(50)}))\r\n\r\n\r\nurlpatterns = [path(\"\", view)]\r\nsetup_test_environment()\r\n\r\nc = Client()\r\nc.get(\"/\")\r\ngc.disable()\r\ngc.collect()\r\n\r\nr = c.get(\"/\")\r\ndel r\r\nprint(\"objects in cycles after one request:\", gc.collect())  # 71\r\n\r\nr = c.get(\"/\")\r\ndel r.json\r\ndel r\r\nprint(\"same, after removing response.json:\", gc.collect())  # 0\r\n}}}\r\n\r\nOutput (Django 5.2.19 and main, Python 3.14.9; same on 3.14.4):\r\n\r\n{{{\r\nobjects in cycles after one request: 71\r\nsame, after removing response.json: 0\r\n}}}\r\n\r\n`response.json` is the only cycle. Once it is removed, nothing is left for the\r\ncollector.\r\n\r\n=== Possible fix ===\r\n\r\nKeep a weak reference to the response in the helper:\r\n\r\n{{{#!python\r\nresponse.json = partial(self._parse_json, weakref.proxy(response))\r\n}}}\r\n\r\n(in both `Client.request()` and `AsyncClient.request()`). `response.json()`\r\nkeeps working, and the parsed result is still cached on `response._json`\r\n(#27516). With this change the reproduction above reports `0` objects in cycles.\r\nThe only behaviour change is that calling a detached `json` after the response\r\nitself has been released raises `ReferenceError`, e.g.\r\n`f = client.get(...).json; f()`. That seems unlikely in practice. If it matters,\r\n`json` could instead be exposed through a small descriptor.\r\n\r\nA regression test could assert that, with `gc.disable()`, a response from\r\n`client.get()` is freed as soon as it is deleted. For example, take a\r\n`weakref.ref(response)`, then `del response`, and check that the ref is `None`\r\nwithout calling `gc.collect()`.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 5, 2026, 2:52:33 PM",
+        "updated_at": "Nov 5, 2026, 3:31:28 PM",
+        "reporter": "Micha\u0142 Pasternak",
+        "owner": "Micha\u0142 Pasternak",
+        "component": "Testing framework",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37481",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37481",
+          "Summary": "Test client responses form a reference cycle via `response.json` and need a GC pass to be freed",
+          "Type": "Cleanup/optimization",
+          "Status": "assigned",
+          "Component": "Testing framework",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 5, 2026, 2:52:33 PM",
+          "Modified": "Nov 5, 2026, 3:31:28 PM",
+          "Reporter": "Micha\u0142 Pasternak",
+          "Owner": "Micha\u0142 Pasternak",
+          "Triage Stage": "Accepted",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "`Client.request()` and `AsyncClient.request()` attach a `json` helper to every\r\nresponse as\r\n\r\n{{{#!python\r\nresponse.json = partial(self._parse_json, response)\r\n}}}\r\n\r\n([https://github.com/django/django/blob/main/django/test/client.py#L1132 client.py#L1132],\r\n[https://github.com/django/django/blob/main/django/test/client.py#L1524 #L1524]).\r\n\r\nThe `partial` holds a strong reference to the response and is stored on the\r\nresponse itself, so every response returned by the test client is part of a\r\nreference cycle. Reference counting can never free it; it survives until the\r\ncyclic garbage collector runs. Because the response also holds\r\n`response.templates`, `response.context` (every `Context`/`RequestContext`\r\nrendered during the request), `response.request`, `response.wsgi_request` and\r\nthe rendered content, the whole graph stays alive with it.\r\n\r\nThis is the same class of problem as #36701 (`ModelState` cycles), which was\r\naccepted and fixed.\r\n\r\n=== Impact ===\r\n\r\nOn a large suite (~11k tests, many of them making admin requests) this was the\r\nmain source of cyclic garbage. With Python 3.14.0\u20133.14.4 (incremental GC,\r\nreverted in 3.14.5) the garbage was collected much more slowly than it was\r\nproduced: a single pytest-xdist worker grew from ~360 MB to ~1.8 GB over 1266\r\ntests, and `-n auto` on a 14-core / 14 GB machine exhausted RAM. With the\r\ngenerational GC the garbage does get collected, but every test-client response\r\nstill has to be reclaimed by a gen-2 pass instead of being freed on `del`,\r\nwhich means extra GC work and a higher memory peak in long suites.\r\n\r\n=== Reproduction (standalone, no project needed) ===\r\n\r\n{{{#!python\r\nimport gc\r\nimport django\r\nfrom django.conf import settings\r\n\r\nsettings.configure(\r\n    ROOT_URLCONF=__name__, ALLOWED_HOSTS=[\"testserver\"], SECRET_KEY=\"x\",\r\n    TEMPLATES=[{\"BACKEND\": \"django.template.backends.django.DjangoTemplates\"}],\r\n)\r\ndjango.setup()\r\n\r\nfrom django.http import HttpResponse\r\nfrom django.template import engines\r\nfrom django.test import Client\r\nfrom django.test.utils import setup_test_environment\r\nfrom django.urls import path\r\n\r\n\r\ndef view(request):\r\n    tpl = engines[\"django\"].from_string(\"{% for i in r %}<p>{{ i }}</p>{% endfor %}\")\r\n    return HttpResponse(tpl.render({\"r\": range(50)}))\r\n\r\n\r\nurlpatterns = [path(\"\", view)]\r\nsetup_test_environment()\r\n\r\nc = Client()\r\nc.get(\"/\")\r\ngc.disable()\r\ngc.collect()\r\n\r\nr = c.get(\"/\")\r\ndel r\r\nprint(\"objects in cycles after one request:\", gc.collect())  # 71\r\n\r\nr = c.get(\"/\")\r\ndel r.json\r\ndel r\r\nprint(\"same, after removing response.json:\", gc.collect())  # 0\r\n}}}\r\n\r\nOutput (Django 5.2.19 and main, Python 3.14.9; same on 3.14.4):\r\n\r\n{{{\r\nobjects in cycles after one request: 71\r\nsame, after removing response.json: 0\r\n}}}\r\n\r\n`response.json` is the only cycle. Once it is removed, nothing is left for the\r\ncollector.\r\n\r\n=== Possible fix ===\r\n\r\nKeep a weak reference to the response in the helper:\r\n\r\n{{{#!python\r\nresponse.json = partial(self._parse_json, weakref.proxy(response))\r\n}}}\r\n\r\n(in both `Client.request()` and `AsyncClient.request()`). `response.json()`\r\nkeeps working, and the parsed result is still cached on `response._json`\r\n(#27516). With this change the reproduction above reports `0` objects in cycles.\r\nThe only behaviour change is that calling a detached `json` after the response\r\nitself has been released raises `ReferenceError`, e.g.\r\n`f = client.get(...).json; f()`. That seems unlikely in practice. If it matters,\r\n`json` could instead be exposed through a small descriptor.\r\n\r\nA regression test could assert that, with `gc.disable()`, a response from\r\n`client.get()` is freed as soon as it is deleted. For example, take a\r\n`weakref.ref(response)`, then `del response`, and check that the ref is `None`\r\nwithout calling `gc.collect()`."
         }
       }
     }
