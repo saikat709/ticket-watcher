@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37481
+      "last_seen_id": 37483
     }
   },
   "tracked": {
@@ -807,6 +807,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "`Client.request()` and `AsyncClient.request()` attach a `json` helper to every\r\nresponse as\r\n\r\n{{{#!python\r\nresponse.json = partial(self._parse_json, response)\r\n}}}\r\n\r\n([https://github.com/django/django/blob/main/django/test/client.py#L1132 client.py#L1132],\r\n[https://github.com/django/django/blob/main/django/test/client.py#L1524 #L1524]).\r\n\r\nThe `partial` holds a strong reference to the response and is stored on the\r\nresponse itself, so every response returned by the test client is part of a\r\nreference cycle. Reference counting can never free it; it survives until the\r\ncyclic garbage collector runs. Because the response also holds\r\n`response.templates`, `response.context` (every `Context`/`RequestContext`\r\nrendered during the request), `response.request`, `response.wsgi_request` and\r\nthe rendered content, the whole graph stays alive with it.\r\n\r\nThis is the same class of problem as #36701 (`ModelState` cycles), which was\r\naccepted and fixed.\r\n\r\n=== Impact ===\r\n\r\nOn a large suite (~11k tests, many of them making admin requests) this was the\r\nmain source of cyclic garbage. With Python 3.14.0\u20133.14.4 (incremental GC,\r\nreverted in 3.14.5) the garbage was collected much more slowly than it was\r\nproduced: a single pytest-xdist worker grew from ~360 MB to ~1.8 GB over 1266\r\ntests, and `-n auto` on a 14-core / 14 GB machine exhausted RAM. With the\r\ngenerational GC the garbage does get collected, but every test-client response\r\nstill has to be reclaimed by a gen-2 pass instead of being freed on `del`,\r\nwhich means extra GC work and a higher memory peak in long suites.\r\n\r\n=== Reproduction (standalone, no project needed) ===\r\n\r\n{{{#!python\r\nimport gc\r\nimport django\r\nfrom django.conf import settings\r\n\r\nsettings.configure(\r\n    ROOT_URLCONF=__name__, ALLOWED_HOSTS=[\"testserver\"], SECRET_KEY=\"x\",\r\n    TEMPLATES=[{\"BACKEND\": \"django.template.backends.django.DjangoTemplates\"}],\r\n)\r\ndjango.setup()\r\n\r\nfrom django.http import HttpResponse\r\nfrom django.template import engines\r\nfrom django.test import Client\r\nfrom django.test.utils import setup_test_environment\r\nfrom django.urls import path\r\n\r\n\r\ndef view(request):\r\n    tpl = engines[\"django\"].from_string(\"{% for i in r %}<p>{{ i }}</p>{% endfor %}\")\r\n    return HttpResponse(tpl.render({\"r\": range(50)}))\r\n\r\n\r\nurlpatterns = [path(\"\", view)]\r\nsetup_test_environment()\r\n\r\nc = Client()\r\nc.get(\"/\")\r\ngc.disable()\r\ngc.collect()\r\n\r\nr = c.get(\"/\")\r\ndel r\r\nprint(\"objects in cycles after one request:\", gc.collect())  # 71\r\n\r\nr = c.get(\"/\")\r\ndel r.json\r\ndel r\r\nprint(\"same, after removing response.json:\", gc.collect())  # 0\r\n}}}\r\n\r\nOutput (Django 5.2.19 and main, Python 3.14.9; same on 3.14.4):\r\n\r\n{{{\r\nobjects in cycles after one request: 71\r\nsame, after removing response.json: 0\r\n}}}\r\n\r\n`response.json` is the only cycle. Once it is removed, nothing is left for the\r\ncollector.\r\n\r\n=== Possible fix ===\r\n\r\nKeep a weak reference to the response in the helper:\r\n\r\n{{{#!python\r\nresponse.json = partial(self._parse_json, weakref.proxy(response))\r\n}}}\r\n\r\n(in both `Client.request()` and `AsyncClient.request()`). `response.json()`\r\nkeeps working, and the parsed result is still cached on `response._json`\r\n(#27516). With this change the reproduction above reports `0` objects in cycles.\r\nThe only behaviour change is that calling a detached `json` after the response\r\nitself has been released raises `ReferenceError`, e.g.\r\n`f = client.get(...).json; f()`. That seems unlikely in practice. If it matters,\r\n`json` could instead be exposed through a small descriptor.\r\n\r\nA regression test could assert that, with `gc.disable()`, a response from\r\n`client.get()` is freed as soon as it is deleted. For example, take a\r\n`weakref.ref(response)`, then `del response`, and check that the ref is `None`\r\nwithout calling `gc.collect()`."
+        }
+      }
+    },
+    "django:37483": {
+      "source": "django",
+      "ticket_id": 37483,
+      "watcher_issue_number": 151,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-06T21:40:42.219264+00:00",
+      "last_updated": "2026-11-06T21:40:42.219264+00:00",
+      "ticket_data": {
+        "id": 37483,
+        "source_id": "django",
+        "title": "Python 3.16 compatibility.",
+        "description": "Python 3.16 final is scheduled for October 2027 (see \u200b\u200b\u200b[https://peps.python.org/pep-0826/ PEP 826]). This is a tracking ticket for compatibility fixes for Django submitted in the meantime.\r\n\r\nDjango 6.2 will be the first version to support Python 3.16, because Django 6.1 will end the mainstream support in April 2027.\r\n",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 6, 2026, 1:02:43 PM",
+        "updated_at": "Nov 6, 2026, 1:06:47 PM",
+        "reporter": "Mariusz Felisiak",
+        "owner": "Mariusz Felisiak",
+        "component": "Core (Other)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Someday/Maybe",
+        "labels": [
+          "Someday/Maybe"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37483",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37483",
+          "Summary": "Python 3.16 compatibility.",
+          "Type": "New feature",
+          "Status": "assigned",
+          "Component": "Core (Other)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 6, 2026, 1:02:43 PM",
+          "Modified": "Nov 6, 2026, 1:06:47 PM",
+          "Reporter": "Mariusz Felisiak",
+          "Owner": "Mariusz Felisiak",
+          "Triage Stage": "Someday/Maybe",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Python 3.16 final is scheduled for October 2027 (see \u200b\u200b\u200b[https://peps.python.org/pep-0826/ PEP 826]). This is a tracking ticket for compatibility fixes for Django submitted in the meantime.\r\n\r\nDjango 6.2 will be the first version to support Python 3.16, because Django 6.1 will end the mainstream support in April 2027.\r\n"
         }
       }
     }
