@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37485
+      "last_seen_id": 37488
     }
   },
   "tracked": {
@@ -958,6 +958,157 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "`HttpResponse.set_cookie()` emits the `secure` and `httponly` values exactly as it receives them, while\r\n`HttpResponse.delete_cookie()` already applies the flags a browser requires before it stores a cookie.\r\nThe result is a syntactically valid `Set-Cookie` header that the browser silently discards.\r\n\r\nThis affects three documented cases:\r\n\r\n|| Cookie name / parameters || Required by the browser || Emitted by set_cookie() ||\r\n|| `__Secure-x`, `__Host-x`, `__Http-x` || `Secure` || nothing, unless the caller passes `secure=True` ||\r\n|| `__Http-x`, `__Host-Http-x` || `HttpOnly` || nothing, unless the caller passes `httponly=True` ||\r\n|| `samesite=\"None\"` || `Secure` || nothing ||\r\n\r\nReferences: RFC 6265bis section 4.1.3 (cookie name prefixes) and the SameSite=None requirements. The\r\n`__Http-` and `__Host-Http-` prefixes come from CHIPS; `delete_cookie()` already handles them, so the\r\ninconsistency is inside the same class.\r\n\r\nThe failure is silent. The response is a normal 200 with a `Set-Cookie` header, the browser drops the\r\ncookie, and the following request arrives without it. A project that sets\r\n`SESSION_COOKIE_NAME = \"__Host-sessionid\"` and keeps `SESSION_COOKIE_SECURE = False` (local development,\r\nor TLS terminated in a reverse proxy) sees a successful login followed by a request with no session, and\r\nnothing appears in the server logs.\r\n\r\nSteps to reproduce, current behavior:\r\n\r\n{{{\r\n>>> from django.http import HttpResponse\r\n>>> r = HttpResponse()\r\n>>> r.set_cookie(\"__Host-sessionid\", \"abc\")\r\n>>> r.cookies[\"__Host-sessionid\"][\"secure\"]\r\n''\r\n>>> r.set_cookie(\"c\", \"abc\", samesite=\"None\")\r\n>>> r.cookies[\"c\"][\"secure\"]\r\n''\r\n}}}\r\n\r\nExpected behavior: `secure` is `True` in both cases, because a browser will not store either cookie\r\notherwise. Cookies without a name prefix and without `SameSite=None` must keep behaving exactly as\r\nbefore, with the flags the caller passed and nothing else.\r\n\r\nProposed fix: a module-level helper in `django/http/response.py` that computes the flags required by the\r\nname and by `samesite`, used by both `set_cookie()` and `delete_cookie()` so the two paths cannot\r\ndiverge again. The helper only adds flags a browser already requires for that cookie; it never removes\r\none.\r\n\r\nPatch: https://github.com/django/django/pull/22261 (branch `set-cookie-required-flags`), with four\r\nregression tests in `tests/responses/test_cookie.py` and a paragraph in\r\n`docs/ref/request-response.txt`.\r\n\r\nVerification:\r\n\r\n{{{\r\n$ python tests/runtests.py responses --parallel 1     # with the patch\r\nRan 61 tests\r\nOK (skipped=1)\r\n\r\n$ python tests/runtests.py responses --parallel 1     # django/http/response.py reverted\r\nFAILED (failures=7, skipped=1)\r\n}}}\r\n\r\nThe seven failures are exactly the new assertions (the prefixed-name loops count one subtest each), so\r\nthey measure the change and not the environment.\r\n\r\nNot covered by this patch: `__Host-` also requires `Path=/` and no `Domain` attribute. Enforcing that\r\nmeans changing the contract of `set_cookie()` or adding a `security.W0xx` deployment check that reads\r\n`SESSION_COOKIE_NAME` / `CSRF_COOKIE_NAME`; it can be a follow-up rather than part of this diff.\r\n\r\nI searched the existing tickets for cookie prefixes, `Secure`, `HttpOnly` and `SameSite`. The open ones I\r\nfound, including 34613 (`Partitioned` support) and the older cookie parsing tickets, do not cover\r\n`set_cookie()` applying the flags required by name prefixes or by `SameSite=None`."
+        }
+      }
+    },
+    "django:37486": {
+      "source": "django",
+      "ticket_id": 37486,
+      "watcher_issue_number": 154,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-07T14:14:23.883854+00:00",
+      "last_updated": "2026-11-07T14:14:23.883854+00:00",
+      "ticket_data": {
+        "id": 37486,
+        "source_id": "django",
+        "title": "makemessages fails to extract context from multiline translation tags",
+        "description": "The `makemessages` command doesn't correctly extract contextual translations from multiline `{% translate %}` and `{% blocktranslate %}` template tags.\r\n\r\nFor example:\r\n\r\n{{{\r\n{% blocktranslate\r\n    with name=user.name\r\n    context \"greeting\"\r\n%}\r\n    Hello {{ name }}\r\n{% endblocktranslate %}\r\n}}}\r\n\r\nThe template parser correctly recognizes the message context at runtime. However, the extraction logic in `django/utils/translation/template.py` doesn't recognize contexts spanning multiple lines because the regular expressions used for parsing translation tags don't match newline characters.\r\n\r\nConsequently, `makemessages` may extract the message without its context, producing an incorrect gettext entry. This is inconsistent with the contextual translation lookup performed at runtime.\r\n\r\nThere is also a source-location issue. Newlines inside multiline template tags aren't preserved in the output generated by `templatize()`. As a result, subsequent messages can receive incorrect line numbers in generated `.po` files.\r\n\r\nThis can also affect the association of translator comments with extracted messages.\r\n\r\n== Proposed fix ==\r\n\r\nThe regular expressions used for extracting translation contexts should support multiline tags.\r\n\r\nAdditionally, the original newlines inside template tags should be preserved during templatization so that gettext receives accurate source locations.\r\n\r\nRegression tests should cover:\r\n\r\n- Multiline `{% translate %}` tags with message contexts.\r\n- Multiline `{% blocktranslate %}` tags with message contexts.\r\n- Correct extraction of contextual message IDs.\r\n- Preservation of source line numbers after multiline tags.\r\n\r\nThe issue can be reproduced using `templatize()` directly, and the proposed changes include regression tests covering the affected extraction behavior.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 7, 2026, 3:22:23 AM",
+        "updated_at": "Nov 7, 2026, 3:22:23 AM",
+        "reporter": "Patel Namraa",
+        "owner": "Patel Namraa",
+        "component": "Internationalization",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37486",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37486",
+          "Summary": "makemessages fails to extract context from multiline translation tags",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Internationalization",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 7, 2026, 3:22:23 AM",
+          "Modified": "Nov 7, 2026, 3:22:23 AM",
+          "Reporter": "Patel Namraa",
+          "Owner": "Patel Namraa",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "The `makemessages` command doesn't correctly extract contextual translations from multiline `{% translate %}` and `{% blocktranslate %}` template tags.\r\n\r\nFor example:\r\n\r\n{{{\r\n{% blocktranslate\r\n    with name=user.name\r\n    context \"greeting\"\r\n%}\r\n    Hello {{ name }}\r\n{% endblocktranslate %}\r\n}}}\r\n\r\nThe template parser correctly recognizes the message context at runtime. However, the extraction logic in `django/utils/translation/template.py` doesn't recognize contexts spanning multiple lines because the regular expressions used for parsing translation tags don't match newline characters.\r\n\r\nConsequently, `makemessages` may extract the message without its context, producing an incorrect gettext entry. This is inconsistent with the contextual translation lookup performed at runtime.\r\n\r\nThere is also a source-location issue. Newlines inside multiline template tags aren't preserved in the output generated by `templatize()`. As a result, subsequent messages can receive incorrect line numbers in generated `.po` files.\r\n\r\nThis can also affect the association of translator comments with extracted messages.\r\n\r\n== Proposed fix ==\r\n\r\nThe regular expressions used for extracting translation contexts should support multiline tags.\r\n\r\nAdditionally, the original newlines inside template tags should be preserved during templatization so that gettext receives accurate source locations.\r\n\r\nRegression tests should cover:\r\n\r\n- Multiline `{% translate %}` tags with message contexts.\r\n- Multiline `{% blocktranslate %}` tags with message contexts.\r\n- Correct extraction of contextual message IDs.\r\n- Preservation of source line numbers after multiline tags.\r\n\r\nThe issue can be reproduced using `templatize()` directly, and the proposed changes include regression tests covering the affected extraction behavior."
+        }
+      }
+    },
+    "django:37487": {
+      "source": "django",
+      "ticket_id": 37487,
+      "watcher_issue_number": 155,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-07T14:14:25.199599+00:00",
+      "last_updated": "2026-11-07T14:14:25.199599+00:00",
+      "ticket_data": {
+        "id": 37487,
+        "source_id": "django",
+        "title": "Conditional request handling treats the Unix epoch as a missing date",
+        "description": "`parse_http_date_safe()` returns `0` for `Thu, 01 Jan 1970 00:00:00 GMT`, and the conditional request code checks these timestamps for truthiness, so the epoch is handled as if the date were missing:\r\n\r\n * `get_conditional_response()` ignores `If-Unmodified-Since: Thu, 01 Jan 1970 00:00:00 GMT`, so a request that should get 412 (for any resource modified after 1970) goes through.\r\n * `_if_unmodified_since_passes()` and `_if_modified_since_passes()` treat a resource whose `Last-Modified` is the epoch as having no modification date: `If-Unmodified-Since` always gives 412, and `If-Modified-Since` never gives 304.\r\n * `ConditionalGetMiddleware` passes an epoch `Last-Modified` on as missing, and skips conditional handling altogether when the response has no `ETag`.\r\n * `@condition` / `@last_modified` don't add the `Last-Modified` header when `last_modified_func` returns the epoch.\r\n\r\nAn epoch `Last-Modified` can come up for files whose mtime was normalized to 0, e.g. by a reproducible build.\r\n\r\nComparing with `is None` / `is not None` instead fixes all four. I have a patch with tests ready.\r\n\r\nThis touches the same helper as #37252 ([https://github.com/django/django/pull/21737 PR 21737]), where `not last_modified` would also treat the epoch as missing. The two fixes are compatible, and I'm happy to rebase on whichever lands first.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 7, 2026, 4:23:40 AM",
+        "updated_at": "Nov 7, 2026, 4:38:28 AM",
+        "reporter": "canblmz",
+        "owner": "canblmz",
+        "component": "HTTP handling",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37487",
+        "pr_url": "https://github.com/django/django/pull/21737",
+        "pr_status": "open",
+        "raw_data": {
+          "id": "37487",
+          "Summary": "Conditional request handling treats the Unix epoch as a missing date",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "HTTP handling",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 7, 2026, 4:23:40 AM",
+          "Modified": "Nov 7, 2026, 4:38:28 AM",
+          "Reporter": "canblmz",
+          "Owner": "canblmz",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "`parse_http_date_safe()` returns `0` for `Thu, 01 Jan 1970 00:00:00 GMT`, and the conditional request code checks these timestamps for truthiness, so the epoch is handled as if the date were missing:\r\n\r\n * `get_conditional_response()` ignores `If-Unmodified-Since: Thu, 01 Jan 1970 00:00:00 GMT`, so a request that should get 412 (for any resource modified after 1970) goes through.\r\n * `_if_unmodified_since_passes()` and `_if_modified_since_passes()` treat a resource whose `Last-Modified` is the epoch as having no modification date: `If-Unmodified-Since` always gives 412, and `If-Modified-Since` never gives 304.\r\n * `ConditionalGetMiddleware` passes an epoch `Last-Modified` on as missing, and skips conditional handling altogether when the response has no `ETag`.\r\n * `@condition` / `@last_modified` don't add the `Last-Modified` header when `last_modified_func` returns the epoch.\r\n\r\nAn epoch `Last-Modified` can come up for files whose mtime was normalized to 0, e.g. by a reproducible build.\r\n\r\nComparing with `is None` / `is not None` instead fixes all four. I have a patch with tests ready.\r\n\r\nThis touches the same helper as #37252 ([https://github.com/django/django/pull/21737 PR 21737]), where `not last_modified` would also treat the epoch as missing. The two fixes are compatible, and I'm happy to rebase on whichever lands first."
+        }
+      }
+    },
+    "django:37488": {
+      "source": "django",
+      "ticket_id": 37488,
+      "watcher_issue_number": 156,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-07T14:14:27.079391+00:00",
+      "last_updated": "2026-11-07T14:14:27.079391+00:00",
+      "ticket_data": {
+        "id": 37488,
+        "source_id": "django",
+        "title": "DuckDB database backend for Django.",
+        "description": "Trying to get rid of SQLite in favor DuckDB.\r\n\r\nhttps://github.com/wieczorek1990/django\r\n\r\nhttps://github.com/wieczorek1990/django-with-duckdb\r\n",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 7, 2026, 5:14:27 AM",
+        "updated_at": "Nov 7, 2026, 5:17:36 AM",
+        "reporter": "\u0141ukasz Wieczorek",
+        "owner": "",
+        "component": "Database layer (models, ORM)",
+        "priority": "Low",
+        "severity": "Low",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37488",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37488",
+          "Summary": "DuckDB database backend for Django.",
+          "Type": "New feature",
+          "Status": "new",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Low",
+          "Resolution": "",
+          "Created": "Nov 7, 2026, 5:14:27 AM",
+          "Modified": "Nov 7, 2026, 5:17:36 AM",
+          "Reporter": "\u0141ukasz Wieczorek",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Trying to get rid of SQLite in favor DuckDB.\r\n\r\nhttps://github.com/wieczorek1990/django\r\n\r\nhttps://github.com/wieczorek1990/django-with-duckdb\r\n"
         }
       }
     }
