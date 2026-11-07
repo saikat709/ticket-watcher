@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37483
+      "last_seen_id": 37485
     }
   },
   "tracked": {
@@ -857,6 +857,107 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Python 3.16 final is scheduled for October 2027 (see \u200b\u200b\u200b[https://peps.python.org/pep-0826/ PEP 826]). This is a tracking ticket for compatibility fixes for Django submitted in the meantime.\r\n\r\nDjango 6.2 will be the first version to support Python 3.16, because Django 6.1 will end the mainstream support in April 2027.\r\n"
+        }
+      }
+    },
+    "django:37484": {
+      "source": "django",
+      "ticket_id": 37484,
+      "watcher_issue_number": 152,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-07T01:24:10.289769+00:00",
+      "last_updated": "2026-11-07T01:24:10.289769+00:00",
+      "ticket_data": {
+        "id": 37484,
+        "source_id": "django",
+        "title": "Avoid importing ctypes at import time in django.core.files.locks on Windows",
+        "description": "On Windows, django/core/files/locks.py imports ctypes and ctypes.wintypes and defines the OVERLAPPED structure and the LockFileEx/UnlockFileEx prototypes at module level. The module is imported by django.core.cache.backends.filebased, which django.core.checks imports, so every `import django.db.models` on Windows imports ctypes and loads _ctypes.pyd, libffi and the OLE DLLs _ctypes links against, whether or not anything ever locks a file. On other platforms the module only imports fcntl.\r\n\r\nMeasured on Windows 11 with Python 3.14.4 and Django main (8e3dec6):\r\n\r\n- `python -X importtime -c \"import django.db.models\"`: django.core.files.locks takes 11.2 ms cumulative on Windows (0.1 ms on Linux, same machine under WSL2).\r\n- Building the ctypes objects on the first lock()/unlock() call instead: `import django.db.models` is 6.0 ms faster (310.7 -> 300.9 ms, 95% CI 1.2-13.6 ms, 60 alternating runs timed inside the process).\r\n\r\nThe constants and the lock/unlock functions stay at module level, so the public behavior is unchanged. `runtests.py files cache file_storage` passes on Windows with the change.\r\n\r\nI'd be happy to submit the patch.\r\n\r\nAI disclosure: the patch was prepared with GitHub Copilot (Claude Opus 5.5 model), which was used to find the import, and write the patch.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 6, 2026, 5:40:16 PM",
+        "updated_at": "Nov 6, 2026, 5:40:16 PM",
+        "reporter": "Alexandre Zollinger Chohfi",
+        "owner": "",
+        "component": "Core (Other)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37484",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37484",
+          "Summary": "Avoid importing ctypes at import time in django.core.files.locks on Windows",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "Core (Other)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 6, 2026, 5:40:16 PM",
+          "Modified": "Nov 6, 2026, 5:40:16 PM",
+          "Reporter": "Alexandre Zollinger Chohfi",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "On Windows, django/core/files/locks.py imports ctypes and ctypes.wintypes and defines the OVERLAPPED structure and the LockFileEx/UnlockFileEx prototypes at module level. The module is imported by django.core.cache.backends.filebased, which django.core.checks imports, so every `import django.db.models` on Windows imports ctypes and loads _ctypes.pyd, libffi and the OLE DLLs _ctypes links against, whether or not anything ever locks a file. On other platforms the module only imports fcntl.\r\n\r\nMeasured on Windows 11 with Python 3.14.4 and Django main (8e3dec6):\r\n\r\n- `python -X importtime -c \"import django.db.models\"`: django.core.files.locks takes 11.2 ms cumulative on Windows (0.1 ms on Linux, same machine under WSL2).\r\n- Building the ctypes objects on the first lock()/unlock() call instead: `import django.db.models` is 6.0 ms faster (310.7 -> 300.9 ms, 95% CI 1.2-13.6 ms, 60 alternating runs timed inside the process).\r\n\r\nThe constants and the lock/unlock functions stay at module level, so the public behavior is unchanged. `runtests.py files cache file_storage` passes on Windows with the change.\r\n\r\nI'd be happy to submit the patch.\r\n\r\nAI disclosure: the patch was prepared with GitHub Copilot (Claude Opus 5.5 model), which was used to find the import, and write the patch."
+        }
+      }
+    },
+    "django:37485": {
+      "source": "django",
+      "ticket_id": 37485,
+      "watcher_issue_number": 153,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-07T01:24:11.536689+00:00",
+      "last_updated": "2026-11-07T01:24:11.536689+00:00",
+      "ticket_data": {
+        "id": 37485,
+        "source_id": "django",
+        "title": "set_cookie() ignores the cookie flags required by name prefixes and SameSite=None",
+        "description": "`HttpResponse.set_cookie()` emits the `secure` and `httponly` values exactly as it receives them, while\r\n`HttpResponse.delete_cookie()` already applies the flags a browser requires before it stores a cookie.\r\nThe result is a syntactically valid `Set-Cookie` header that the browser silently discards.\r\n\r\nThis affects three documented cases:\r\n\r\n|| Cookie name / parameters || Required by the browser || Emitted by set_cookie() ||\r\n|| `__Secure-x`, `__Host-x`, `__Http-x` || `Secure` || nothing, unless the caller passes `secure=True` ||\r\n|| `__Http-x`, `__Host-Http-x` || `HttpOnly` || nothing, unless the caller passes `httponly=True` ||\r\n|| `samesite=\"None\"` || `Secure` || nothing ||\r\n\r\nReferences: RFC 6265bis section 4.1.3 (cookie name prefixes) and the SameSite=None requirements. The\r\n`__Http-` and `__Host-Http-` prefixes come from CHIPS; `delete_cookie()` already handles them, so the\r\ninconsistency is inside the same class.\r\n\r\nThe failure is silent. The response is a normal 200 with a `Set-Cookie` header, the browser drops the\r\ncookie, and the following request arrives without it. A project that sets\r\n`SESSION_COOKIE_NAME = \"__Host-sessionid\"` and keeps `SESSION_COOKIE_SECURE = False` (local development,\r\nor TLS terminated in a reverse proxy) sees a successful login followed by a request with no session, and\r\nnothing appears in the server logs.\r\n\r\nSteps to reproduce, current behavior:\r\n\r\n{{{\r\n>>> from django.http import HttpResponse\r\n>>> r = HttpResponse()\r\n>>> r.set_cookie(\"__Host-sessionid\", \"abc\")\r\n>>> r.cookies[\"__Host-sessionid\"][\"secure\"]\r\n''\r\n>>> r.set_cookie(\"c\", \"abc\", samesite=\"None\")\r\n>>> r.cookies[\"c\"][\"secure\"]\r\n''\r\n}}}\r\n\r\nExpected behavior: `secure` is `True` in both cases, because a browser will not store either cookie\r\notherwise. Cookies without a name prefix and without `SameSite=None` must keep behaving exactly as\r\nbefore, with the flags the caller passed and nothing else.\r\n\r\nProposed fix: a module-level helper in `django/http/response.py` that computes the flags required by the\r\nname and by `samesite`, used by both `set_cookie()` and `delete_cookie()` so the two paths cannot\r\ndiverge again. The helper only adds flags a browser already requires for that cookie; it never removes\r\none.\r\n\r\nPatch: https://github.com/django/django/pull/22261 (branch `set-cookie-required-flags`), with four\r\nregression tests in `tests/responses/test_cookie.py` and a paragraph in\r\n`docs/ref/request-response.txt`.\r\n\r\nVerification:\r\n\r\n{{{\r\n$ python tests/runtests.py responses --parallel 1     # with the patch\r\nRan 61 tests\r\nOK (skipped=1)\r\n\r\n$ python tests/runtests.py responses --parallel 1     # django/http/response.py reverted\r\nFAILED (failures=7, skipped=1)\r\n}}}\r\n\r\nThe seven failures are exactly the new assertions (the prefixed-name loops count one subtest each), so\r\nthey measure the change and not the environment.\r\n\r\nNot covered by this patch: `__Host-` also requires `Path=/` and no `Domain` attribute. Enforcing that\r\nmeans changing the contract of `set_cookie()` or adding a `security.W0xx` deployment check that reads\r\n`SESSION_COOKIE_NAME` / `CSRF_COOKIE_NAME`; it can be a follow-up rather than part of this diff.\r\n\r\nI searched the existing tickets for cookie prefixes, `Secure`, `HttpOnly` and `SameSite`. The open ones I\r\nfound, including 34613 (`Partitioned` support) and the older cookie parsing tickets, do not cover\r\n`set_cookie()` applying the flags required by name prefixes or by `SameSite=None`.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 6, 2026, 7:12:39 PM",
+        "updated_at": "Nov 6, 2026, 7:21:24 PM",
+        "reporter": "knklinux",
+        "owner": "",
+        "component": "HTTP handling",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37485",
+        "pr_url": "https://github.com/django/django/pull/22261",
+        "pr_status": null,
+        "raw_data": {
+          "id": "37485",
+          "Summary": "set_cookie() ignores the cookie flags required by name prefixes and SameSite=None",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "HTTP handling",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 6, 2026, 7:12:39 PM",
+          "Modified": "Nov 6, 2026, 7:21:24 PM",
+          "Reporter": "knklinux",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "`HttpResponse.set_cookie()` emits the `secure` and `httponly` values exactly as it receives them, while\r\n`HttpResponse.delete_cookie()` already applies the flags a browser requires before it stores a cookie.\r\nThe result is a syntactically valid `Set-Cookie` header that the browser silently discards.\r\n\r\nThis affects three documented cases:\r\n\r\n|| Cookie name / parameters || Required by the browser || Emitted by set_cookie() ||\r\n|| `__Secure-x`, `__Host-x`, `__Http-x` || `Secure` || nothing, unless the caller passes `secure=True` ||\r\n|| `__Http-x`, `__Host-Http-x` || `HttpOnly` || nothing, unless the caller passes `httponly=True` ||\r\n|| `samesite=\"None\"` || `Secure` || nothing ||\r\n\r\nReferences: RFC 6265bis section 4.1.3 (cookie name prefixes) and the SameSite=None requirements. The\r\n`__Http-` and `__Host-Http-` prefixes come from CHIPS; `delete_cookie()` already handles them, so the\r\ninconsistency is inside the same class.\r\n\r\nThe failure is silent. The response is a normal 200 with a `Set-Cookie` header, the browser drops the\r\ncookie, and the following request arrives without it. A project that sets\r\n`SESSION_COOKIE_NAME = \"__Host-sessionid\"` and keeps `SESSION_COOKIE_SECURE = False` (local development,\r\nor TLS terminated in a reverse proxy) sees a successful login followed by a request with no session, and\r\nnothing appears in the server logs.\r\n\r\nSteps to reproduce, current behavior:\r\n\r\n{{{\r\n>>> from django.http import HttpResponse\r\n>>> r = HttpResponse()\r\n>>> r.set_cookie(\"__Host-sessionid\", \"abc\")\r\n>>> r.cookies[\"__Host-sessionid\"][\"secure\"]\r\n''\r\n>>> r.set_cookie(\"c\", \"abc\", samesite=\"None\")\r\n>>> r.cookies[\"c\"][\"secure\"]\r\n''\r\n}}}\r\n\r\nExpected behavior: `secure` is `True` in both cases, because a browser will not store either cookie\r\notherwise. Cookies without a name prefix and without `SameSite=None` must keep behaving exactly as\r\nbefore, with the flags the caller passed and nothing else.\r\n\r\nProposed fix: a module-level helper in `django/http/response.py` that computes the flags required by the\r\nname and by `samesite`, used by both `set_cookie()` and `delete_cookie()` so the two paths cannot\r\ndiverge again. The helper only adds flags a browser already requires for that cookie; it never removes\r\none.\r\n\r\nPatch: https://github.com/django/django/pull/22261 (branch `set-cookie-required-flags`), with four\r\nregression tests in `tests/responses/test_cookie.py` and a paragraph in\r\n`docs/ref/request-response.txt`.\r\n\r\nVerification:\r\n\r\n{{{\r\n$ python tests/runtests.py responses --parallel 1     # with the patch\r\nRan 61 tests\r\nOK (skipped=1)\r\n\r\n$ python tests/runtests.py responses --parallel 1     # django/http/response.py reverted\r\nFAILED (failures=7, skipped=1)\r\n}}}\r\n\r\nThe seven failures are exactly the new assertions (the prefixed-name loops count one subtest each), so\r\nthey measure the change and not the environment.\r\n\r\nNot covered by this patch: `__Host-` also requires `Path=/` and no `Domain` attribute. Enforcing that\r\nmeans changing the contract of `set_cookie()` or adding a `security.W0xx` deployment check that reads\r\n`SESSION_COOKIE_NAME` / `CSRF_COOKIE_NAME`; it can be a follow-up rather than part of this diff.\r\n\r\nI searched the existing tickets for cookie prefixes, `Secure`, `HttpOnly` and `SameSite`. The open ones I\r\nfound, including 34613 (`Partitioned` support) and the older cookie parsing tickets, do not cover\r\n`set_cookie()` applying the flags required by name prefixes or by `SameSite=None`."
         }
       }
     }
