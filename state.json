@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37488
+      "last_seen_id": 37492
     }
   },
   "tracked": {
@@ -1109,6 +1109,209 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Trying to get rid of SQLite in favor DuckDB.\r\n\r\nhttps://github.com/wieczorek1990/django\r\n\r\nhttps://github.com/wieczorek1990/django-with-duckdb\r\n"
+        }
+      }
+    },
+    "django:37489": {
+      "source": "django",
+      "ticket_id": 37489,
+      "watcher_issue_number": 157,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-09T21:10:38.771011+00:00",
+      "last_updated": "2026-11-09T21:10:38.771011+00:00",
+      "ticket_data": {
+        "id": 37489,
+        "source_id": "django",
+        "title": "Forms: Add missing inline doc comment for Field.template_name.",
+        "description": "`Field.__init__()` has inline comments documenting most of its arguments (`required`, `label`, `initial`, etc.), but `template_name` is missing one.\r\n\r\nI propose adding a short comment in the same style:\r\n{{{\r\n        # template_name -- Name of the template to use in Field.as_field_group.\r\n        #                  By default Django uses the \"django/forms/field.html\"\r\n        #                  template which is designed for use with the default\r\n        #                  \"django/forms/div.html\" form style.\r\n}}}",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 9, 2026, 7:36:33 AM",
+        "updated_at": "Nov 9, 2026, 9:03:55 AM",
+        "reporter": "Zishan Kadri",
+        "owner": "Zishan Kadri",
+        "component": "Forms",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37489",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37489",
+          "Summary": "Forms: Add missing inline doc comment for Field.template_name.",
+          "Type": "Cleanup/optimization",
+          "Status": "assigned",
+          "Component": "Forms",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 9, 2026, 7:36:33 AM",
+          "Modified": "Nov 9, 2026, 9:03:55 AM",
+          "Reporter": "Zishan Kadri",
+          "Owner": "Zishan Kadri",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "`Field.__init__()` has inline comments documenting most of its arguments (`required`, `label`, `initial`, etc.), but `template_name` is missing one.\r\n\r\nI propose adding a short comment in the same style:\r\n{{{\r\n        # template_name -- Name of the template to use in Field.as_field_group.\r\n        #                  By default Django uses the \"django/forms/field.html\"\r\n        #                  template which is designed for use with the default\r\n        #                  \"django/forms/div.html\" form style.\r\n}}}"
+        }
+      }
+    },
+    "django:37490": {
+      "source": "django",
+      "ticket_id": 37490,
+      "watcher_issue_number": 158,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-09T21:10:40.349980+00:00",
+      "last_updated": "2026-11-09T21:10:40.349980+00:00",
+      "ticket_data": {
+        "id": 37490,
+        "source_id": "django",
+        "title": "Document using Django's ORM in other Python projects",
+        "description": "References https://github.com/django/new-features/issues/35\r\n\r\n> There's a long standing desire to make the ORM easier to use outside of a regular Django project. (Script usage for example.) Django should explicitly support this use-case, and provide documentation to guide users.\r\n> \r\n> While it is possible to use the Django ORM without much of Django's other machinery already, there is still some minimal configuration with settings and calling django.setup(). The necessary configuration is difficult to discover, so many users find it difficult to get started or don't think it's possible.\r\n\r\nPaolo has an example in his blog post here: https://www.paulox.net/2026/02/20/django-orm-standalone-database-inspectdb-query/",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 9, 2026, 12:25:01 PM",
+        "updated_at": "Nov 9, 2026, 12:25:01 PM",
+        "reporter": "Tim Schilling",
+        "owner": "Django Sprints",
+        "component": "Documentation",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37490",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37490",
+          "Summary": "Document using Django's ORM in other Python projects",
+          "Type": "New feature",
+          "Status": "assigned",
+          "Component": "Documentation",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 9, 2026, 12:25:01 PM",
+          "Modified": "Nov 9, 2026, 12:25:01 PM",
+          "Reporter": "Tim Schilling",
+          "Owner": "Django Sprints",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "References https://github.com/django/new-features/issues/35\r\n\r\n> There's a long standing desire to make the ORM easier to use outside of a regular Django project. (Script usage for example.) Django should explicitly support this use-case, and provide documentation to guide users.\r\n> \r\n> While it is possible to use the Django ORM without much of Django's other machinery already, there is still some minimal configuration with settings and calling django.setup(). The necessary configuration is difficult to discover, so many users find it difficult to get started or don't think it's possible.\r\n\r\nPaolo has an example in his blog post here: https://www.paulox.net/2026/02/20/django-orm-standalone-database-inspectdb-query/"
+        }
+      }
+    },
+    "django:37491": {
+      "source": "django",
+      "ticket_id": 37491,
+      "watcher_issue_number": 159,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-09T21:10:41.990398+00:00",
+      "last_updated": "2026-11-09T21:10:41.990398+00:00",
+      "ticket_data": {
+        "id": 37491,
+        "source_id": "django",
+        "title": "GeometryField crashes with RecursionError on deeply nested GeoJSON",
+        "description": "The `ExternalCRSBlocker.check()` added for CVE-2026-111362 (ecb2b77b49) parses GeoJSON input with `json.loads()` and doesn't catch `RecursionError`. When the input is nested more deeply than the recursion limit, e.g. a Point with 100,000 nested `[` in `coordinates`, `forms.GeometryField.clean()` raises `RecursionError` (HTTP 500) instead of a `ValidationError`. This also applies to the default widget and the admin. `BaseGeometryWidget.deserialize()` only catches `GEOSException`, `GDALException`, `ValueError` and `TypeError`.\r\n\r\nOn 6.1.2 the same input gives \"Invalid geometry value.\", so this is a regression in 6.1.3, and presumably 6.0.10 and 5.2.19 too, since the fix was backported.\r\n\r\n```python\r\nfrom django.contrib.gis import forms\r\nn = 100_000\r\nforms.GeometryField().clean('{\"type\": \"Point\", \"coordinates\": ' + \"[\" * n + \"]\" * n + \"}\")\r\n# 6.1.2: ValidationError; 6.1.3 / main: RecursionError\r\n```\r\n\r\nPatch: in `ExternalCRSBlocker.check()`, re-raise `RecursionError` from `json.loads()` as a `ValueError`, so that it's handled like the `JSONDecodeError` (a `ValueError` subclass) that callers already handle. Like #37418, the test mocks `json.loads()`, because the depth at which it raises depends on the interpreter's stack size.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 9, 2026, 1:34:23 PM",
+        "updated_at": "Nov 9, 2026, 1:38:19 PM",
+        "reporter": "Philip S\u00f8rensen",
+        "owner": "",
+        "component": "GIS",
+        "priority": "Release blocker",
+        "severity": "Release blocker",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37491",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37491",
+          "Summary": "GeometryField crashes with RecursionError on deeply nested GeoJSON",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "GIS",
+          "Severity": "Release blocker",
+          "Resolution": "",
+          "Created": "Nov 9, 2026, 1:34:23 PM",
+          "Modified": "Nov 9, 2026, 1:38:19 PM",
+          "Reporter": "Philip S\u00f8rensen",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "The `ExternalCRSBlocker.check()` added for CVE-2026-111362 (ecb2b77b49) parses GeoJSON input with `json.loads()` and doesn't catch `RecursionError`. When the input is nested more deeply than the recursion limit, e.g. a Point with 100,000 nested `[` in `coordinates`, `forms.GeometryField.clean()` raises `RecursionError` (HTTP 500) instead of a `ValidationError`. This also applies to the default widget and the admin. `BaseGeometryWidget.deserialize()` only catches `GEOSException`, `GDALException`, `ValueError` and `TypeError`.\r\n\r\nOn 6.1.2 the same input gives \"Invalid geometry value.\", so this is a regression in 6.1.3, and presumably 6.0.10 and 5.2.19 too, since the fix was backported.\r\n\r\n```python\r\nfrom django.contrib.gis import forms\r\nn = 100_000\r\nforms.GeometryField().clean('{\"type\": \"Point\", \"coordinates\": ' + \"[\" * n + \"]\" * n + \"}\")\r\n# 6.1.2: ValidationError; 6.1.3 / main: RecursionError\r\n```\r\n\r\nPatch: in `ExternalCRSBlocker.check()`, re-raise `RecursionError` from `json.loads()` as a `ValueError`, so that it's handled like the `JSONDecodeError` (a `ValueError` subclass) that callers already handle. Like #37418, the test mocks `json.loads()`, because the depth at which it raises depends on the interpreter's stack size."
+        }
+      }
+    },
+    "django:37492": {
+      "source": "django",
+      "ticket_id": 37492,
+      "watcher_issue_number": 160,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-09T21:10:43.636603+00:00",
+      "last_updated": "2026-11-09T21:10:43.636603+00:00",
+      "ticket_data": {
+        "id": 37492,
+        "source_id": "django",
+        "title": "GeometryField.to_python() crashes with GDALException on invalid GeoJSON when the widget has no deserialize()",
+        "description": "#29978 made `GeometryField.to_python()` catch `GDALException` from `widget.deserialize()`. However, when the widget has no `deserialize()` method (e.g. `widget=forms.TextInput`, which `test_field_with_text_widget` covers), `to_python()` calls `GEOSGeometry()` directly and only catches `GEOSException`, `ValueError` and `TypeError`. For GeoJSON input that GDAL rejects, `GEOSGeometry()` raises `GDALException`, so `clean()` crashes (HTTP 500) instead of raising a `ValidationError`:\r\n\r\n```python\r\nfrom django import forms as django_forms\r\nfrom django.contrib.gis import forms\r\nforms.GeometryField(widget=django_forms.TextInput).clean(\"{}\")\r\n# GDALException: Invalid geometry pointer returned from \"OGR_G_CreateGeometryFromJson\".\r\n```\r\n\r\n`'{\"type\": \"Foo\"}'`, `'{\"type\": \"Point\"}'` and `'{\"type\": \"Point\", \"coordinates\": \"x\"}'` crash the same way. This reproduces on 6.1.2, 6.1.3 and main. The default widget isn't affected, because `BaseGeometryWidget.deserialize()` catches `GDALException`.\r\n\r\nPatch: add `GDALException` to the exceptions caught in the fallback.\r\n",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 9, 2026, 1:35:52 PM",
+        "updated_at": "Nov 9, 2026, 1:38:07 PM",
+        "reporter": "Philip S\u00f8rensen",
+        "owner": "",
+        "component": "GIS",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37492",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37492",
+          "Summary": "GeometryField.to_python() crashes with GDALException on invalid GeoJSON when the widget has no deserialize()",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "GIS",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 9, 2026, 1:35:52 PM",
+          "Modified": "Nov 9, 2026, 1:38:07 PM",
+          "Reporter": "Philip S\u00f8rensen",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "#29978 made `GeometryField.to_python()` catch `GDALException` from `widget.deserialize()`. However, when the widget has no `deserialize()` method (e.g. `widget=forms.TextInput`, which `test_field_with_text_widget` covers), `to_python()` calls `GEOSGeometry()` directly and only catches `GEOSException`, `ValueError` and `TypeError`. For GeoJSON input that GDAL rejects, `GEOSGeometry()` raises `GDALException`, so `clean()` crashes (HTTP 500) instead of raising a `ValidationError`:\r\n\r\n```python\r\nfrom django import forms as django_forms\r\nfrom django.contrib.gis import forms\r\nforms.GeometryField(widget=django_forms.TextInput).clean(\"{}\")\r\n# GDALException: Invalid geometry pointer returned from \"OGR_G_CreateGeometryFromJson\".\r\n```\r\n\r\n`'{\"type\": \"Foo\"}'`, `'{\"type\": \"Point\"}'` and `'{\"type\": \"Point\", \"coordinates\": \"x\"}'` crash the same way. This reproduces on 6.1.2, 6.1.3 and main. The default widget isn't affected, because `BaseGeometryWidget.deserialize()` catches `GDALException`.\r\n\r\nPatch: add `GDALException` to the exceptions caught in the fallback.\r\n"
         }
       }
     }
