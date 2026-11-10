@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37493
+      "last_seen_id": 37494
     }
   },
   "tracked": {
@@ -1362,6 +1362,57 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "If a `SeparateDatabaseAndState` has an operation on an unrelated model before an `AlterField` that retypes a primary key, the foreign keys to that primary key keep their old type. The same operations without `SeparateDatabaseAndState` retype them. I reproduced using postgres, on Django 5.2, 6.0, 6.1, and main.\r\n\r\nStart with these models:\r\n\r\n{{{#!python\r\nclass Parent(models.Model):\r\n    id = models.AutoField(primary_key=True)\r\n\r\nclass Child(models.Model):\r\n    parent = models.ForeignKey(Parent, models.CASCADE)\r\n\r\nclass Confounder(models.Model):\r\n    pass\r\n}}}\r\n\r\nGenerate an initial migration. It's the standard `CreateModel`s so I won't quote it here. Then change `Parent.id` to a `BigAutoField` and add a new field to `Confounder`. `makemigrations` gives:\r\n\r\n{{{#!python\r\nclass Migration(migrations.Migration):\r\n    dependencies = [\r\n        ('app', '0001_initial'),\r\n    ]\r\n    operations = [\r\n        migrations.AddField(\r\n            model_name='confounder',\r\n            name='note',\r\n            field=models.TextField(default=None),\r\n            preserve_default=False,\r\n        ),\r\n        migrations.AlterField(\r\n            model_name='parent',\r\n            name='id',\r\n            field=models.BigAutoField(primary_key=True, serialize=False),\r\n        ),\r\n    ]\r\n}}}\r\n\r\n\r\nEdit this migration to wrap the operations in a `SeparateDatabaseAndState`, using the ''same'' operations for both `database_operations` and `state_operations`. By definition, `SeparateDatabaseAndState` with the same database and state should be the same as the operations alone:\r\n\r\n\r\n{{{#!python\r\nOPERATIONS = [\r\n    migrations.AddField(\r\n        model_name='confounder',\r\n        name='note',\r\n        field=models.TextField(default=None),\r\n        preserve_default=False,\r\n    ),\r\n    migrations.AlterField(\r\n        model_name='parent',\r\n        name='id',\r\n        field=models.BigAutoField(primary_key=True, serialize=False),\r\n    ),\r\n]\r\nclass Migration(migrations.Migration):\r\n    dependencies = [\r\n        ('app', '0001_initial'),\r\n    ]\r\n    operations = [\r\n        migrations.SeparateDatabaseAndState(\r\n            state_operations=OPERATIONS,\r\n            database_operations=OPERATIONS,\r\n        ),\r\n    ]\r\n}}}\r\n\r\n{{{\r\n$ ./manage.py migrate app\r\n  Applying app.0001_initial... OK\r\n  Applying app.0002_confounder_note_alter_parent_id... OK\r\n}}}\r\n\r\n\r\nThis is supposed to change the type of `Parent.id` and all foreign keys to it, but it didn't. In the database, `app_child.parent_id` is type `integer` while `app_parent.id` is type `bigint`. psql output, trimmed:\r\n\r\n{{{\r\n\\d app_child\r\n  Column   |  Type   \r\n-----------+---------\r\n parent_id | integer\r\n\r\n\\d app_parent\r\n Column    |  Type  \r\n-----------+--------\r\n id        | bigint\r\n}}}\r\n\r\n\r\n\r\n`manage.py sqlmigrate app 0002` does produce the correct SQL, but it's not what `migrate` actually did:\r\n\r\n{{{#!sql\r\n--\r\n-- Custom state/database change combination\r\n--\r\nALTER TABLE \"app_confounder\" ADD COLUMN \"note\" text NOT NULL;\r\nSET CONSTRAINTS \"app_child_parent_id_5690a59f_fk\" IMMEDIATE; ALTER TABLE \"app_child\" DROP CONSTRAINT \"app_child_parent_id_5690a59f_fk\";\r\nALTER TABLE \"app_parent\" ALTER COLUMN \"id\" TYPE bigint USING \"id\"::bigint;\r\nALTER SEQUENCE IF EXISTS \"app_parent_id_seq\" AS bigint;\r\nALTER TABLE \"app_child\" ALTER COLUMN \"parent_id\" TYPE bigint USING \"parent_id\"::bigint;\r\nALTER TABLE \"app_child\" ADD CONSTRAINT \"app_child_parent_id_5690a59f_fk\" FOREIGN KEY (\"parent_id\") REFERENCES \"app_parent\" (\"id\") DEFERRABLE INITIALLY DEFERRED;\r\n}}}\r\n\r\nRunning the same migration without `SeparateDatabaseAndState` produces the correct schema, with types matching:\r\n\r\n{{{\r\n\\d app_child\r\n  Column   |  Type   \r\n-----------+---------\r\n parent_id | bigint\r\n\r\n\\d app_parent\r\n Column    |  Type  \r\n-----------+--------\r\n id        | bigint\r\n}}}\r\n\r\n\r\nNote that the `Confounder` operation actually does matter. If the PK `AlterField` operation goes first, it works as expected. An operation on `Parent` or `Child` instead of `Confounder` doesn't trigger it. It also matters that 0001 and 0002 are run together. If you apply 0001 and then 0002 in separate `migrate` commands, you get the correct types.\r\n\r\nIt also isn't postgres-specific, you can reproduce on sqlite with a `CharField` primary key going from `max_length=10` to `20`. `app_child.parent_id` will stay `varchar(10)`.\r\n\r\nI found this while fuzz testing a migration extension that manages database views with Django migrations. The fuzzer makes random model and view changes, runs `makemigrations`, and applies the migrations in every order their dependencies allow, forwards and backwards. It uses an oracle that compares the schema in the Postgres catalogs after each `migrate` with the schema the generated models describe, including column types. After one migration was unapplied and applied again, a foreign key column came out `integer` while the primary key it points at was `bigint`. The extension copies the same pattern `SeparateDatabaseAndState.database_forwards` uses, so I tried to find a minimal repro with `SeparateDatabaseAndState` alone."
+        }
+      }
+    },
+    "django:37494": {
+      "source": "django",
+      "ticket_id": 37494,
+      "watcher_issue_number": 162,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-10T11:55:08.405086+00:00",
+      "last_updated": "2026-11-10T11:55:08.405086+00:00",
+      "ticket_data": {
+        "id": 37494,
+        "source_id": "django",
+        "title": "Document that RunPython callables receive a StateApps instance",
+        "description": "The [https://docs.djangoproject.com/en/dev/ref/migration-operations/#django.db.migrations.operations.RunPython `RunPython` docs] say the first argument passed to code / reverse_code is \"an instance of django.apps.registry.Apps containing historical models\". \r\nAt runtime it is a `django.db.migrations.state.StateApps` (see `django/db/migrations/operations/special.py`, [https://github.com/django/django/blob/d4b02a7bf937b865e2ffc1584e36f1e753c689b9/django/db/migrations/operations/special.py#L194-L199 RunPython.database_forwards()].\r\n\r\nThis difference matters to users who follow the docs literally, especially when annotating migration functions:\r\n\r\n\r\n{{{\r\ndef forwards(apps: Apps, schema_editor: BaseDatabaseSchemaEditor) -> None:\r\n    Person = apps.get_model(\"myapp\", \"Person\")\r\n}}}\r\n\r\n\r\nApps is also the type of the global registry (`django.apps.apps`), whose `get_model()` returns the current models from models.py. \r\n\r\nWith the documented annotation, tools such as the django-stubs mypy plugin can't tell this historical registry apart from the global one. They resolve `get_model()` to the current model class, which may have different fields than the historical model (https://github.com/typeddjango/django-stubs/issues/3584).\r\n\r\nProposal: mention `django.db.migrations.state.StateApps` (as a subclass of Apps) in the RunPython docs.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 10, 2026, 4:51:07 AM",
+        "updated_at": "Nov 10, 2026, 4:53:54 AM",
+        "reporter": "Thibaut Decombe",
+        "owner": "",
+        "component": "Documentation",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37494",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37494",
+          "Summary": "Document that RunPython callables receive a StateApps instance",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "Documentation",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 10, 2026, 4:51:07 AM",
+          "Modified": "Nov 10, 2026, 4:53:54 AM",
+          "Reporter": "Thibaut Decombe",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "The [https://docs.djangoproject.com/en/dev/ref/migration-operations/#django.db.migrations.operations.RunPython `RunPython` docs] say the first argument passed to code / reverse_code is \"an instance of django.apps.registry.Apps containing historical models\". \r\nAt runtime it is a `django.db.migrations.state.StateApps` (see `django/db/migrations/operations/special.py`, [https://github.com/django/django/blob/d4b02a7bf937b865e2ffc1584e36f1e753c689b9/django/db/migrations/operations/special.py#L194-L199 RunPython.database_forwards()].\r\n\r\nThis difference matters to users who follow the docs literally, especially when annotating migration functions:\r\n\r\n\r\n{{{\r\ndef forwards(apps: Apps, schema_editor: BaseDatabaseSchemaEditor) -> None:\r\n    Person = apps.get_model(\"myapp\", \"Person\")\r\n}}}\r\n\r\n\r\nApps is also the type of the global registry (`django.apps.apps`), whose `get_model()` returns the current models from models.py. \r\n\r\nWith the documented annotation, tools such as the django-stubs mypy plugin can't tell this historical registry apart from the global one. They resolve `get_model()` to the current model class, which may have different fields than the historical model (https://github.com/typeddjango/django-stubs/issues/3584).\r\n\r\nProposal: mention `django.db.migrations.state.StateApps` (as a subclass of Apps) in the RunPython docs."
         }
       }
     }
