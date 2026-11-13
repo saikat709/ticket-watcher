@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37496
+      "last_seen_id": 37499
     }
   },
   "tracked": {
@@ -1513,6 +1513,157 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "`makemigrations --update` generates ephemeral migrations that get merged into each app's last migration. If one run produces new migrations in two apps and one depends on the other, the merged migration keeps the dependency on the ephemeral migration's name, which no longer exists after the merge. `migrate` then fails with `NodeNotFoundError`. I reproduced on 5.2, 6.1 and master.\r\n\r\n1. Two apps with one model each. Run `makemigrations`.\r\n{{{#!console\r\nMigrations for 'reports':\r\n  reports/migrations/0001_initial.py\r\n    + Create model Report\r\nMigrations for 'shop':\r\n  shop/migrations/0001_initial.py\r\n    + Create model Product\r\n}}}\r\n2. Add `Region` to `reports` and a foreign key to it on `shop.Product`:\r\n{{{#!python\r\nclass Region(models.Model):\r\n    pass\r\n}}}\r\n{{{#!python\r\nclass Product(models.Model):\r\n    region = models.ForeignKey(\"reports.Region\", models.CASCADE, null=True)\r\n}}}\r\n3. Run `makemigrations --update`.\r\n{{{#!console\r\nMigrations for 'reports':\r\n  reports/migrations/0001_initial_updated.py\r\n    + Create model Report\r\n    + Create model Region\r\nDeleted reports/migrations/0001_initial.py\r\nMigrations for 'shop':\r\n  shop/migrations/0001_initial_updated.py\r\n    + Create model Product\r\nDeleted shop/migrations/0001_initial.py\r\n}}}\r\n4. Run `migrate`.\r\n{{{#!console\r\ndjango.db.migrations.exceptions.NodeNotFoundError: Migration shop.0001_initial_updated dependencies reference nonexistent parent node ('reports', '0002_region')\r\n}}}\r\n\r\n`shop/0001_initial_updated.py` has:\r\n{{{#!python\r\n    dependencies = [\r\n        ('reports', '0002_region'),\r\n    ]\r\n}}}\r\n`reports.0002_region` was the ephemeral migration before the merge, never written to disk. The correct dependency is `reports.0001_initial_updated`. Without `--update`, the same change produces `reports.0002_region` and `shop.0002_product_region` with the right dependency, and `migrate` works.\r\n\r\nIt doesn't need a new model on the other side. A new foreign key from `shop.Product` to the existing `reports.Report` does the same thing if `reports` has any change at all in the same run, because `makemigrations` makes the new `shop` migration depend on the newest `reports` migration from that run, and `--update` merges that one away too.\r\n\r\nThe cause is in `write_to_last_migration_files()`. It refuses to update a migration that a migration on disk depends on, but a new migration from the same run is not on disk yet. When new migrations in two apps depend on each other, the dependency is copied onto the merged migration under the ephemeral migration's name, which is never written to disk.\r\n\r\nThe existing check catches the same dependency once it is on disk. Starting from the two migrations plain `makemigrations` produces in step 2, a change to `reports` alone is refused:\r\n{{{#!console\r\nCommandError: Cannot update migration 'reports.0002_region' that migrations 'shop.0002_product_region' depend on.\r\n}}}\r\n\r\n\r\nI haven't had too much time to investigate further, but played around with this patch that points dependencies on merged migrations at the migration they were merged into, and refuses an app with more than one new migration. It fixes the steps above on master, and refuses when a cycle would result before deleting anything:\r\n\r\n{{{#!diff\r\n--- a/django/core/management/commands/makemigrations.py\r\n+++ b/django/core/management/commands/makemigrations.py\r\n@@ -268,6 +268,14 @@\r\n         new_changes = {}\r\n         update_previous_migration_paths = {}\r\n         for app_label, app_migrations in changes.items():\r\n+            # More than one new migration in an app means the changes have a\r\n+            # dependency cycle through another app. Merged into one\r\n+            # migration per app the cycle comes back.\r\n+            if len(app_migrations) > 1:\r\n+                raise CommandError(\r\n+                    f\"Cannot update last migration of app {app_label}: its changes \"\r\n+                    f\"need {len(app_migrations)} migrations.\"\r\n+                )\r\n             # Find last migration.\r\n             leaf_migration_nodes = loader.graph.leaf_nodes(app=app_label)\r\n             if len(leaf_migration_nodes) == 0:\r\n@@ -332,6 +340,19 @@\r\n             new_changes[app_label] = [leaf_migration]\r\n             update_previous_migration_paths[app_label] = previous_migration_path\r\n\r\n+        # A dependency on a migration merged in this run points at the\r\n+        # migration it was merged into.\r\n+        merged = {\r\n+            (app_label, migration.name): (app_label, new_changes[app_label][0].name)\r\n+            for app_label, app_migrations in changes.items()\r\n+            for migration in app_migrations\r\n+        }\r\n+        for [leaf_migration] in new_changes.values():\r\n+            leaf_migration.dependencies = [\r\n+                merged.get(dependency, dependency)\r\n+                for dependency in leaf_migration.dependencies\r\n+            ]\r\n+\r\n         self.write_migration_files(new_changes, update_previous_migration_paths)\r\n\r\n     def write_migration_files(self, changes, update_previous_migration_paths=None):\r\n}}}\r\n\r\nI found this with the same fuzzer as #37493 and #37495. It runs `makemigrations --update` on random model changes across several apps in order to assert that applying migrations generated with `--update` has the same effect as generating new ones without `--update`. Any change with new migrations in two apps that depend on each other fails this way."
+        }
+      }
+    },
+    "django:37497": {
+      "source": "django",
+      "ticket_id": 37497,
+      "watcher_issue_number": 165,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-13T18:37:06.127409+00:00",
+      "last_updated": "2026-11-13T18:37:06.127409+00:00",
+      "ticket_data": {
+        "id": 37497,
+        "source_id": "django",
+        "title": "migrations.AddField(field=models.ForeignObject(...)) doesn't migrate backwards",
+        "description": "As per title, migrations that add a ForeignObject to a model crash when migrating backwards.\r\n\r\nExample models:\r\n{{{\r\nfrom django.db import models\r\n\r\nclass A(models.Model):\r\n    x = models.BigIntegerField(\r\n        unique=True,\r\n    )\r\n\r\nclass B(models.Model):\r\n    x = models.BigIntegerField()\r\n    ref = models.ForeignObject(\r\n        A,\r\n        on_delete=models.DO_NOTHING,\r\n        from_fields=(\"x\"),\r\n        to_fields=(\"x\"),\r\n        null=True,\r\n    )\r\n}}}\r\n\r\nTo reproduce:\r\n- Create A and B with only the field 'x';\r\n- makemigrations && migrate;\r\n- Add the ForeignObject;\r\n- makemigrations && migrate;\r\n- migrate back to the previous state.\r\n\r\nTraceback:\r\n{{{\r\n  File \".../lib/python3.13/site-packages/django/db/migrations/migration.py\", line 193, in unapply\r\n    operation.database_backwards(\r\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^\r\n        self.app_label, schema_editor, from_state, to_state\r\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n    )\r\n    ^\r\n  File \".../lib/python3.13/site-packages/django/db/migrations/operations/fields.py\", line 128, in database_backwards\r\n    schema_editor.remove_field(\r\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~^\r\n        from_model, from_model._meta.get_field(self.name)\r\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n    )\r\n    ^\r\n  File \".../lib/python3.13/site-packages/django/db/backends/sqlite3/schema.py\", line 350, in remove_field\r\n    and not (field.remote_field and field.db_constraint)\r\n                                    ^^^^^^^^^^^^^^^^^^^\r\nAttributeError: 'ForeignObject' object has no attribute 'db_constraint'\r\n}}}\r\n",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 13, 2026, 6:58:34 AM",
+        "updated_at": "Nov 13, 2026, 6:58:34 AM",
+        "reporter": "BestCrazyNoob",
+        "owner": "",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37497",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37497",
+          "Summary": "migrations.AddField(field=models.ForeignObject(...)) doesn't migrate backwards",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 13, 2026, 6:58:34 AM",
+          "Modified": "Nov 13, 2026, 6:58:34 AM",
+          "Reporter": "BestCrazyNoob",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "As per title, migrations that add a ForeignObject to a model crash when migrating backwards.\r\n\r\nExample models:\r\n{{{\r\nfrom django.db import models\r\n\r\nclass A(models.Model):\r\n    x = models.BigIntegerField(\r\n        unique=True,\r\n    )\r\n\r\nclass B(models.Model):\r\n    x = models.BigIntegerField()\r\n    ref = models.ForeignObject(\r\n        A,\r\n        on_delete=models.DO_NOTHING,\r\n        from_fields=(\"x\"),\r\n        to_fields=(\"x\"),\r\n        null=True,\r\n    )\r\n}}}\r\n\r\nTo reproduce:\r\n- Create A and B with only the field 'x';\r\n- makemigrations && migrate;\r\n- Add the ForeignObject;\r\n- makemigrations && migrate;\r\n- migrate back to the previous state.\r\n\r\nTraceback:\r\n{{{\r\n  File \".../lib/python3.13/site-packages/django/db/migrations/migration.py\", line 193, in unapply\r\n    operation.database_backwards(\r\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^\r\n        self.app_label, schema_editor, from_state, to_state\r\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n    )\r\n    ^\r\n  File \".../lib/python3.13/site-packages/django/db/migrations/operations/fields.py\", line 128, in database_backwards\r\n    schema_editor.remove_field(\r\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~^\r\n        from_model, from_model._meta.get_field(self.name)\r\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n    )\r\n    ^\r\n  File \".../lib/python3.13/site-packages/django/db/backends/sqlite3/schema.py\", line 350, in remove_field\r\n    and not (field.remote_field and field.db_constraint)\r\n                                    ^^^^^^^^^^^^^^^^^^^\r\nAttributeError: 'ForeignObject' object has no attribute 'db_constraint'\r\n}}}\r\n"
+        }
+      }
+    },
+    "django:37498": {
+      "source": "django",
+      "ticket_id": 37498,
+      "watcher_issue_number": 166,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-13T18:37:08.128874+00:00",
+      "last_updated": "2026-11-13T18:37:08.128874+00:00",
+      "ticket_data": {
+        "id": 37498,
+        "source_id": "django",
+        "title": "Improve GEOSGeometry.tuple performance",
+        "description": "In [https://github.com/django/django/pull/22262 PR], David has a proof of concept for improving the performance of the `GEOSGeometry.tuple` property for geometries with many coordinates, from 1.4x - 46x faster depending on the number of coordinates.\r\n\r\nAddressing this will make it more practical to use this property when rearchitecting some other geometry construction paths in GeoDjango.\r\n\r\n----\r\n\r\nUsing one of the fixtures (a Polygon, with 799 coords in one coordinate sequence) from the test suite.\r\n\r\nSet up\r\n{{{#!py\r\nIn [1]: from django.contrib.gis.gdal import DataSource\r\n  ...: from django.contrib.gis.geos import GEOSGeometry\r\n  ...:\u00a0\r\n  ...: source = DataSource(\"tests/gis_tests/data/counties/counties.shp\")\r\n  ...: geometry = GEOSGeometry(memoryview(source[0][1].geom.wkb))\r\n}}}\r\n\r\nCurrent\r\n\r\n{{{#!py\r\nIn [3]: %timeit geometry.tuple\r\n3.4 ms \u00b1 35.7 \u03bcs per loop (mean \u00b1 std. dev. of 7 runs, 100 loops each)\r\n}}}\r\n\r\nProposed\r\n\r\n{{{#!py\r\nIn [3]: %timeit geometry.tuple\r\n73.2 \u03bcs \u00b1 406 ns per loop (mean \u00b1 std. dev. of 7 runs, 10,000 loops each)\r\n}}}\r\n\r\nA ~46x speedup.\r\n\r\nThis is a favourable example as it is a single 'large' geometry. The impact will vary depending upon the geometry. A collection of many geometries with each with a small number of coordinates, would perform differently. For example this item from the test suite has 9 sub-geometries with 21 points.\r\n\r\n{{{#!py\r\nIn [1]: import json\r\n  ...: from pathlib import Path\r\n  ...: from django.contrib.gis.geos import GEOSGeometry\r\n  ...:\u00a0\r\n  ...: data = json.loads(\r\n  ...:     Path(\"tests/gis_tests/data/geometries.json\").read_text()\r\n  ...: )\r\n  ...: geometry = GEOSGeometry(data[\"multilinestrings\"][1][\"wkt\"])\r\n}}}\r\n\r\nCurrent\r\n\r\n{{{#!py\r\nIn [3]: %timeit geometry.tuple\r\n306 \u03bcs \u00b1 3.56 \u03bcs per loop (mean \u00b1 std. dev. of 7 runs, 1,000 loops each)\r\n}}}\r\n\r\nProposed\r\n\r\n{{{#!py\r\nIn [2]: %timeit geometry.tuple\r\n212 \u03bcs \u00b1 3.05 \u03bcs per loop (mean \u00b1 std. dev. of 7 runs, 1,000 loops each)\r\n}}}\r\n\r\nA 1.4x improvement.\r\n",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 13, 2026, 8:54:25 AM",
+        "updated_at": "Nov 13, 2026, 11:06:55 AM",
+        "reporter": "David Smith",
+        "owner": "David Smith",
+        "component": "GIS",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37498",
+        "pr_url": "https://github.com/django/django/pull/22262",
+        "pr_status": "open",
+        "raw_data": {
+          "id": "37498",
+          "Summary": "Improve GEOSGeometry.tuple performance",
+          "Type": "Cleanup/optimization",
+          "Status": "assigned",
+          "Component": "GIS",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 13, 2026, 8:54:25 AM",
+          "Modified": "Nov 13, 2026, 11:06:55 AM",
+          "Reporter": "David Smith",
+          "Owner": "David Smith",
+          "Triage Stage": "Accepted",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "In [https://github.com/django/django/pull/22262 PR], David has a proof of concept for improving the performance of the `GEOSGeometry.tuple` property for geometries with many coordinates, from 1.4x - 46x faster depending on the number of coordinates.\r\n\r\nAddressing this will make it more practical to use this property when rearchitecting some other geometry construction paths in GeoDjango.\r\n\r\n----\r\n\r\nUsing one of the fixtures (a Polygon, with 799 coords in one coordinate sequence) from the test suite.\r\n\r\nSet up\r\n{{{#!py\r\nIn [1]: from django.contrib.gis.gdal import DataSource\r\n  ...: from django.contrib.gis.geos import GEOSGeometry\r\n  ...:\u00a0\r\n  ...: source = DataSource(\"tests/gis_tests/data/counties/counties.shp\")\r\n  ...: geometry = GEOSGeometry(memoryview(source[0][1].geom.wkb))\r\n}}}\r\n\r\nCurrent\r\n\r\n{{{#!py\r\nIn [3]: %timeit geometry.tuple\r\n3.4 ms \u00b1 35.7 \u03bcs per loop (mean \u00b1 std. dev. of 7 runs, 100 loops each)\r\n}}}\r\n\r\nProposed\r\n\r\n{{{#!py\r\nIn [3]: %timeit geometry.tuple\r\n73.2 \u03bcs \u00b1 406 ns per loop (mean \u00b1 std. dev. of 7 runs, 10,000 loops each)\r\n}}}\r\n\r\nA ~46x speedup.\r\n\r\nThis is a favourable example as it is a single 'large' geometry. The impact will vary depending upon the geometry. A collection of many geometries with each with a small number of coordinates, would perform differently. For example this item from the test suite has 9 sub-geometries with 21 points.\r\n\r\n{{{#!py\r\nIn [1]: import json\r\n  ...: from pathlib import Path\r\n  ...: from django.contrib.gis.geos import GEOSGeometry\r\n  ...:\u00a0\r\n  ...: data = json.loads(\r\n  ...:     Path(\"tests/gis_tests/data/geometries.json\").read_text()\r\n  ...: )\r\n  ...: geometry = GEOSGeometry(data[\"multilinestrings\"][1][\"wkt\"])\r\n}}}\r\n\r\nCurrent\r\n\r\n{{{#!py\r\nIn [3]: %timeit geometry.tuple\r\n306 \u03bcs \u00b1 3.56 \u03bcs per loop (mean \u00b1 std. dev. of 7 runs, 1,000 loops each)\r\n}}}\r\n\r\nProposed\r\n\r\n{{{#!py\r\nIn [2]: %timeit geometry.tuple\r\n212 \u03bcs \u00b1 3.05 \u03bcs per loop (mean \u00b1 std. dev. of 7 runs, 1,000 loops each)\r\n}}}\r\n\r\nA 1.4x improvement.\r\n"
+        }
+      }
+    },
+    "django:37499": {
+      "source": "django",
+      "ticket_id": 37499,
+      "watcher_issue_number": 167,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-13T18:37:09.981834+00:00",
+      "last_updated": "2026-11-13T18:37:09.981834+00:00",
+      "ticket_data": {
+        "id": 37499,
+        "source_id": "django",
+        "title": "Error messages say \"unsaved\" when the check is whether the primary key is set",
+        "description": "Follow-up to #36259, see ticket:36259#comment:19.\r\n\r\nSeveral ORM errors call an object \"unsaved\", but the code only checks whether its primary key is set ({{{_is_pk_set()}}}). For most models these are the same. They differ when the primary key is set by hand or by a default. In comment:19, Jacob thought this wording may have led the earlier work on #36259 towards {{{_state.adding}}}.\r\n\r\nMessages that only check the primary key:\r\n * {{{save() prohibited to prevent data loss due to unsaved related object '...'.}}}\r\n * {{{Model instances passed to related filters must be saved.}}}\r\n * {{{QuerySet.contains() cannot be used on unsaved objects.}}}\r\n * {{{get_next/get_previous cannot be used on unsaved objects.}}}\r\n * {{{Unsaved model instance ... cannot be used in an ORM query.}}}\r\n * {{{Cannot retrieve deferred field '...' from an unsaved model.}}}\r\n\r\nRelated managers already use clearer wording: {{{... instance needs to have a primary key value before this relationship can be used.}}}\r\n\r\nProposal: reword these to talk about the primary key, for example {{{QuerySet.contains() cannot be used on objects without a primary key.}}} Only the text changes, not the behavior. Tests that check the old text would be updated.\r\n\r\nIs this worth doing, and should all of these change or only some?",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 13, 2026, 9:04:52 AM",
+        "updated_at": "Nov 13, 2026, 9:04:52 AM",
+        "reporter": "Alin Morosanu",
+        "owner": "Alin Morosanu",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37499",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37499",
+          "Summary": "Error messages say \"unsaved\" when the check is whether the primary key is set",
+          "Type": "Cleanup/optimization",
+          "Status": "assigned",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 13, 2026, 9:04:52 AM",
+          "Modified": "Nov 13, 2026, 9:04:52 AM",
+          "Reporter": "Alin Morosanu",
+          "Owner": "Alin Morosanu",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Follow-up to #36259, see ticket:36259#comment:19.\r\n\r\nSeveral ORM errors call an object \"unsaved\", but the code only checks whether its primary key is set ({{{_is_pk_set()}}}). For most models these are the same. They differ when the primary key is set by hand or by a default. In comment:19, Jacob thought this wording may have led the earlier work on #36259 towards {{{_state.adding}}}.\r\n\r\nMessages that only check the primary key:\r\n * {{{save() prohibited to prevent data loss due to unsaved related object '...'.}}}\r\n * {{{Model instances passed to related filters must be saved.}}}\r\n * {{{QuerySet.contains() cannot be used on unsaved objects.}}}\r\n * {{{get_next/get_previous cannot be used on unsaved objects.}}}\r\n * {{{Unsaved model instance ... cannot be used in an ORM query.}}}\r\n * {{{Cannot retrieve deferred field '...' from an unsaved model.}}}\r\n\r\nRelated managers already use clearer wording: {{{... instance needs to have a primary key value before this relationship can be used.}}}\r\n\r\nProposal: reword these to talk about the primary key, for example {{{QuerySet.contains() cannot be used on objects without a primary key.}}} Only the text changes, not the behavior. Tests that check the old text would be updated.\r\n\r\nIs this worth doing, and should all of these change or only some?"
         }
       }
     }
