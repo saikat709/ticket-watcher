@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37499
+      "last_seen_id": 37500
     }
   },
   "tracked": {
@@ -1664,6 +1664,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Follow-up to #36259, see ticket:36259#comment:19.\r\n\r\nSeveral ORM errors call an object \"unsaved\", but the code only checks whether its primary key is set ({{{_is_pk_set()}}}). For most models these are the same. They differ when the primary key is set by hand or by a default. In comment:19, Jacob thought this wording may have led the earlier work on #36259 towards {{{_state.adding}}}.\r\n\r\nMessages that only check the primary key:\r\n * {{{save() prohibited to prevent data loss due to unsaved related object '...'.}}}\r\n * {{{Model instances passed to related filters must be saved.}}}\r\n * {{{QuerySet.contains() cannot be used on unsaved objects.}}}\r\n * {{{get_next/get_previous cannot be used on unsaved objects.}}}\r\n * {{{Unsaved model instance ... cannot be used in an ORM query.}}}\r\n * {{{Cannot retrieve deferred field '...' from an unsaved model.}}}\r\n\r\nRelated managers already use clearer wording: {{{... instance needs to have a primary key value before this relationship can be used.}}}\r\n\r\nProposal: reword these to talk about the primary key, for example {{{QuerySet.contains() cannot be used on objects without a primary key.}}} Only the text changes, not the behavior. Tests that check the old text would be updated.\r\n\r\nIs this worth doing, and should all of these change or only some?"
+        }
+      }
+    },
+    "django:37500": {
+      "source": "django",
+      "ticket_id": 37500,
+      "watcher_issue_number": 168,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-14T05:19:54.820001+00:00",
+      "last_updated": "2026-11-14T05:19:54.820001+00:00",
+      "ticket_data": {
+        "id": 37500,
+        "source_id": "django",
+        "title": "Include the database alias in connection-failure error messages",
+        "description": "= Description =\r\n\r\nWhen a project configures more than one entry in `DATABASES`, a failed\r\nconnection raises `django.db.utils.OperationalError` whose message comes\r\nstraight from the database driver and only mentions host and port:\r\n\r\n{{{\r\ndjango.db.utils.OperationalError: connection failed: connection to server\r\n    at \"127.0.0.1\", port 5432 failed: Connection refused\r\n}}}\r\n\r\nNothing in the exception identifies ''which'' database alias failed\r\n(`default` vs any other entry in `DATABASES`), nor the configured `NAME`,\r\n`USER`, or `HOST` for that alias. In a multi-database setup the same\r\nhost:port may be correct for one alias and wrong for another, so the reader\r\ncannot tell which connection string was actually attempted. This is\r\nespecially painful when host/credentials come from environment variables \u2014\r\na stale or overridden `*_HOST` can silently point `default` at localhost\r\nwhile a second alias points at a remote server, and the error gives no hint\r\nwhich of the two failed.\r\n\r\n== Reproduction ==\r\n\r\n{{{#!python\r\nDATABASES = {\r\n    \"default\": {\r\n        \"ENGINE\": \"django.db.backends.postgresql\",\r\n        \"NAME\": \"app\",\r\n        \"USER\": \"app\",\r\n        \"HOST\": \"localhost\",   # nothing listening here\r\n        \"PORT\": 5432,\r\n    },\r\n    \"ecomdb\": {\r\n        \"ENGINE\": \"django.db.backends.postgresql\",\r\n        \"NAME\": \"etx_ecom\",\r\n        \"USER\": \"report_api\",\r\n        \"HOST\": \"192.168.80.72\",\r\n        \"PORT\": 5432,\r\n    },\r\n}\r\n\r\nUser.objects.get_by_natural_key(\"alice\")        # uses 'default'\r\nEcomRecords.objects.using(\"ecomdb\").exists()    # uses 'ecomdb'\r\n}}}\r\n\r\nWhichever connection fails, the raised message has the same shape; the only\r\nway to know which alias was involved is to read the traceback back to the\r\ncall site and cross-check `connections[alias].settings_dict` manually.\r\n\r\n= Proposal =\r\n\r\nEnrich the error as it propagates out of\r\n`BaseDatabaseWrapper.ensure_connection()` / `connect()` /\r\n`get_new_connection()` so the driver error is reported together with the\r\nconnection alias and the key settings for that alias, e.g.:\r\n\r\n{{{\r\ndjango.db.utils.OperationalError: could not connect to database 'ecomdb'\r\n    (postgresql 'etx_ecom' at 192.168.80.72:5432 as 'report_api'):\r\n    connection failed: connection to server at \"127.0.0.1\",\r\n    port 5432 failed: Connection refused\r\n}}}\r\n\r\nAn alternative or complementary approach is to attach the context\r\nprogrammatically instead of only in the message text \u2014 e.g.\r\n`BaseException.add_note()` (Python 3.11+) or an attribute such as\r\n`exc.django_connection_alias = self.alias` \u2014 so that logging,\r\nerror-reporting tools, and tests can pick the alias up without parsing the\r\nmessage.\r\n\r\n= Notes =\r\n\r\n * `django.db.backends.signals.connection_created` exists for ''successful''\r\n   connections, but there is no equivalent signal or hook on failure. Today\r\n   the only way to add the alias is to subclass each backend's\r\n   `DatabaseWrapper` under a custom `ENGINE` path \u2014 which also means the\r\n   workaround must be re-implemented per third-party backend rather than once\r\n   in Django itself.\r\n * Care should be taken not to include the connection `PASSWORD` in the\r\n   enriched message; `NAME`/`USER`/`HOST`/`PORT` are already visible in\r\n   `settings_dict` and match what drivers print today.\r\n",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 13, 2026, 8:08:56 PM",
+        "updated_at": "Nov 13, 2026, 8:08:56 PM",
+        "reporter": "Abdul Qoyyuum",
+        "owner": "",
+        "component": "Database layer (models, ORM)",
+        "priority": "Low",
+        "severity": "Low",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37500",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37500",
+          "Summary": "Include the database alias in connection-failure error messages",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Low",
+          "Resolution": "",
+          "Created": "Nov 13, 2026, 8:08:56 PM",
+          "Modified": "Nov 13, 2026, 8:08:56 PM",
+          "Reporter": "Abdul Qoyyuum",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "= Description =\r\n\r\nWhen a project configures more than one entry in `DATABASES`, a failed\r\nconnection raises `django.db.utils.OperationalError` whose message comes\r\nstraight from the database driver and only mentions host and port:\r\n\r\n{{{\r\ndjango.db.utils.OperationalError: connection failed: connection to server\r\n    at \"127.0.0.1\", port 5432 failed: Connection refused\r\n}}}\r\n\r\nNothing in the exception identifies ''which'' database alias failed\r\n(`default` vs any other entry in `DATABASES`), nor the configured `NAME`,\r\n`USER`, or `HOST` for that alias. In a multi-database setup the same\r\nhost:port may be correct for one alias and wrong for another, so the reader\r\ncannot tell which connection string was actually attempted. This is\r\nespecially painful when host/credentials come from environment variables \u2014\r\na stale or overridden `*_HOST` can silently point `default` at localhost\r\nwhile a second alias points at a remote server, and the error gives no hint\r\nwhich of the two failed.\r\n\r\n== Reproduction ==\r\n\r\n{{{#!python\r\nDATABASES = {\r\n    \"default\": {\r\n        \"ENGINE\": \"django.db.backends.postgresql\",\r\n        \"NAME\": \"app\",\r\n        \"USER\": \"app\",\r\n        \"HOST\": \"localhost\",   # nothing listening here\r\n        \"PORT\": 5432,\r\n    },\r\n    \"ecomdb\": {\r\n        \"ENGINE\": \"django.db.backends.postgresql\",\r\n        \"NAME\": \"etx_ecom\",\r\n        \"USER\": \"report_api\",\r\n        \"HOST\": \"192.168.80.72\",\r\n        \"PORT\": 5432,\r\n    },\r\n}\r\n\r\nUser.objects.get_by_natural_key(\"alice\")        # uses 'default'\r\nEcomRecords.objects.using(\"ecomdb\").exists()    # uses 'ecomdb'\r\n}}}\r\n\r\nWhichever connection fails, the raised message has the same shape; the only\r\nway to know which alias was involved is to read the traceback back to the\r\ncall site and cross-check `connections[alias].settings_dict` manually.\r\n\r\n= Proposal =\r\n\r\nEnrich the error as it propagates out of\r\n`BaseDatabaseWrapper.ensure_connection()` / `connect()` /\r\n`get_new_connection()` so the driver error is reported together with the\r\nconnection alias and the key settings for that alias, e.g.:\r\n\r\n{{{\r\ndjango.db.utils.OperationalError: could not connect to database 'ecomdb'\r\n    (postgresql 'etx_ecom' at 192.168.80.72:5432 as 'report_api'):\r\n    connection failed: connection to server at \"127.0.0.1\",\r\n    port 5432 failed: Connection refused\r\n}}}\r\n\r\nAn alternative or complementary approach is to attach the context\r\nprogrammatically instead of only in the message text \u2014 e.g.\r\n`BaseException.add_note()` (Python 3.11+) or an attribute such as\r\n`exc.django_connection_alias = self.alias` \u2014 so that logging,\r\nerror-reporting tools, and tests can pick the alias up without parsing the\r\nmessage.\r\n\r\n= Notes =\r\n\r\n * `django.db.backends.signals.connection_created` exists for ''successful''\r\n   connections, but there is no equivalent signal or hook on failure. Today\r\n   the only way to add the alias is to subclass each backend's\r\n   `DatabaseWrapper` under a custom `ENGINE` path \u2014 which also means the\r\n   workaround must be re-implemented per third-party backend rather than once\r\n   in Django itself.\r\n * Care should be taken not to include the connection `PASSWORD` in the\r\n   enriched message; `NAME`/`USER`/`HOST`/`PORT` are already visible in\r\n   `settings_dict` and match what drivers print today.\r\n"
         }
       }
     }
