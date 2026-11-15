@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37503
+      "last_seen_id": 37505
     }
   },
   "tracked": {
@@ -1865,6 +1865,106 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "See the [https://github.com/django/new-features/issues/124 new feature proposal] for a full discussion.\r\n\r\n`AddIndexConcurrently` and `RemoveIndexConcurrently` let `Meta.indexes` entries be created and dropped without locking writes to the table, but `UniqueConstraint` in `Meta.constraints` has no equivalent. Many `UniqueConstraint`s are built as `CREATE UNIQUE INDEX` (those with `expressions`, `condition`, `include`, or `opclasses`), so they can use `CONCURRENTLY` directly.\r\n\r\nThe proposal is to add `AddUniqueConstraintConcurrently` and `RemoveUniqueConstraintConcurrently` to `django.contrib.postgres.operations`, with `atomic = False` and the same in-transaction check as the existing concurrent index operations.\r\n\r\nThere's an open question about what to do with plain `fields=[...]` constraints, which are created with `ALTER TABLE ... ADD CONSTRAINT ... UNIQUE`. The options are:\r\n 1. Build the index with `CREATE UNIQUE INDEX CONCURRENTLY`, then attach it with `ALTER TABLE ... ADD CONSTRAINT ... UNIQUE USING INDEX`, which only takes a brief lock. This is the approach used by [https://django-pg-migration-tools.readthedocs.io/en/latest/usage/operations.html#SaferAddUniqueConstraint django-pg-migration-tools].\r\n 2. Raise an error.\r\n 3. Fall back to the non-concurrent behavior (the original proposal).\r\n\r\nOption 1 would allow covering every `UniqueConstraint`.\r\n\r\n"
+        }
+      }
+    },
+    "django:37504": {
+      "source": "django",
+      "ticket_id": 37504,
+      "watcher_issue_number": 172,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-15T21:23:51.835944+00:00",
+      "last_updated": "2026-11-15T21:23:51.835944+00:00",
+      "ticket_data": {
+        "id": 37504,
+        "source_id": "django",
+        "title": "Avoid circular import when importing django.db.backends.sqlite3.features directly",
+        "description": "Importing `django.db.backends.sqlite3.features` directly before `django.db.backends.sqlite3.base` raises an `ImportError` due to a circular import on `main` (tested on CPython 3.12.13 with `asgiref` installed):\r\n\r\n{{{\r\n$ python -c \"import django.db.backends.sqlite3.features\"\r\nImportError: cannot import name 'DatabaseFeatures' from partially initialized module 'django.db.backends.sqlite3.features' (most likely due to a circular import)\r\n}}}\r\n\r\n=== Root cause ===\r\n* `django/db/backends/sqlite3/features.py` (line 10) executes `from .base import Database`.\r\n* `django/db/backends/sqlite3/base.py` imports `DatabaseFeatures` from `.features` and already aliases `from sqlite3 import dbapi2 as Database` (line 11).\r\n\r\nNormal startup via `django/db/utils.py` hides the cycle because `.base` is loaded first, whereas modules that import `sqlite3.features` directly (such as `django/contrib/gis/db/backends/spatialite/features.py`) hit the circular import.\r\n\r\n=== Proposed fix ===\r\nIn `django/db/backends/sqlite3/features.py`, import `Database` directly from `sqlite3` instead of `.base`:\r\n\r\n{{{\r\nfrom sqlite3 import dbapi2 as Database\r\n}}}",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 15, 2026, 12:58:34 PM",
+        "updated_at": "Nov 15, 2026, 1:20:11 PM",
+        "reporter": "Alexis Rom\u00e1n",
+        "owner": "",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37504",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37504",
+          "Summary": "Avoid circular import when importing django.db.backends.sqlite3.features directly",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 15, 2026, 12:58:34 PM",
+          "Modified": "Nov 15, 2026, 1:20:11 PM",
+          "Reporter": "Alexis Rom\u00e1n",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Importing `django.db.backends.sqlite3.features` directly before `django.db.backends.sqlite3.base` raises an `ImportError` due to a circular import on `main` (tested on CPython 3.12.13 with `asgiref` installed):\r\n\r\n{{{\r\n$ python -c \"import django.db.backends.sqlite3.features\"\r\nImportError: cannot import name 'DatabaseFeatures' from partially initialized module 'django.db.backends.sqlite3.features' (most likely due to a circular import)\r\n}}}\r\n\r\n=== Root cause ===\r\n* `django/db/backends/sqlite3/features.py` (line 10) executes `from .base import Database`.\r\n* `django/db/backends/sqlite3/base.py` imports `DatabaseFeatures` from `.features` and already aliases `from sqlite3 import dbapi2 as Database` (line 11).\r\n\r\nNormal startup via `django/db/utils.py` hides the cycle because `.base` is loaded first, whereas modules that import `sqlite3.features` directly (such as `django/contrib/gis/db/backends/spatialite/features.py`) hit the circular import.\r\n\r\n=== Proposed fix ===\r\nIn `django/db/backends/sqlite3/features.py`, import `Database` directly from `sqlite3` instead of `.base`:\r\n\r\n{{{\r\nfrom sqlite3 import dbapi2 as Database\r\n}}}"
+        }
+      }
+    },
+    "django:37505": {
+      "source": "django",
+      "ticket_id": 37505,
+      "watcher_issue_number": 173,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-15T21:23:53.330970+00:00",
+      "last_updated": "2026-11-15T21:23:53.330970+00:00",
+      "ticket_data": {
+        "id": 37505,
+        "source_id": "django",
+        "title": "Django 6.1: TypeError in Query.add_select_col() when combining QuerySets with Meta.ordering referencing related model fields",
+        "description": "The following problem occurs with Django 6.1, PostgreSQL, Python 3.14.\r\n\r\nFor a model (with a regular primary key) and Meta.ordering referencing fields through a foreign key (`ordering = ('user__lastname', )`, say), QuerySet.difference() applied to two QuerySets of that model (e.g., as a trivial example, `A.objects.all().difference(A.objects.all())`) throws a TypeError during SQL compilation because query.selected is None.\r\n\r\nAdding .order_by() without arguments to the difference method resolves the problem.\r\n\r\nThe same query worked in Django 6.0. The problem might be related to #37466\r\n\r\nThanks for your work.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 15, 2026, 3:22:25 PM",
+        "updated_at": "Nov 15, 2026, 3:22:25 PM",
+        "reporter": "Ulrich G\u00f6rtz",
+        "owner": "",
+        "component": "Database layer (models, ORM)",
+        "priority": "Low",
+        "severity": "Low",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37505",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37505",
+          "Summary": "Django 6.1: TypeError in Query.add_select_col() when combining QuerySets with Meta.ordering referencing related model fields",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Low",
+          "Resolution": "",
+          "Created": "Nov 15, 2026, 3:22:25 PM",
+          "Modified": "Nov 15, 2026, 3:22:25 PM",
+          "Reporter": "Ulrich G\u00f6rtz",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "The following problem occurs with Django 6.1, PostgreSQL, Python 3.14.\r\n\r\nFor a model (with a regular primary key) and Meta.ordering referencing fields through a foreign key (`ordering = ('user__lastname', )`, say), QuerySet.difference() applied to two QuerySets of that model (e.g., as a trivial example, `A.objects.all().difference(A.objects.all())`) throws a TypeError during SQL compilation because query.selected is None.\r\n\r\nAdding .order_by() without arguments to the difference method resolves the problem.\r\n\r\nThe same query worked in Django 6.0. The problem might be related to #37466\r\n\r\nThanks for your work."
         }
       }
     }
