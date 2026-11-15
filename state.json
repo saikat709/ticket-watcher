@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37501
+      "last_seen_id": 37503
     }
   },
   "tracked": {
@@ -1764,6 +1764,107 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "I was reading a deep cut forum post and someone linked to Django's Cookbook Wiki (https://code.djangoproject.com/wiki/CookBook). \r\n\r\nI haven't looked through all the links, but a few things jumped out at me at first glance on the main table of contents page as potentials to update:\r\n- Text at the top that says \"Can someone 'in the know' please check which recipes are still relevant? Thanks.\"\r\n- Two broken links:\r\n  - FreeComment app?\r\n  - Making User info available outside requests?\r\n\r\nRelatedly, I'm not sure about how much this is used (or updated) by others. If it's still useful as a common reference, we might consider improving its discoverability in some way, e.g. consolidating these into the main documentation site or moving them there wholesale. This is one of the only times I've come across it, and I've poked around the Django community a decent amount. \r\n\r\nAlternatively, if they're not useful or out of date, updating, archiving or removing them might be considered. \r\n\r\nPS: when I went to copy/paste the link for the Cookbook page in this ticket, I found that I actually couldn't get to it from the \"Wiki\" tab in the top menu (I previously expected that I could and they were the same because when you're on the Cookbook page, the menu looks like its selecting \"Wiki\" in dark green). So the Wiki page (https://code.djangoproject.com/wiki) is both not the Cookbook page and also doesn't link to the Cookbook page either. This might be because it's been intentionally or unintentionally pseudo-archived in the past by removing links to it. If that was intentional, we might consider adding a note at the top of the Cookbook page that gives a heads up to stray wanderers that it's archived and not being maintained/updated."
+        }
+      }
+    },
+    "django:37502": {
+      "source": "django",
+      "ticket_id": 37502,
+      "watcher_issue_number": 170,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-15T09:39:04.745334+00:00",
+      "last_updated": "2026-11-15T09:39:04.745334+00:00",
+      "ticket_data": {
+        "id": 37502,
+        "source_id": "django",
+        "title": "Document which constraints model formsets validate across forms",
+        "description": "Model formsets validate unique, unique_together, unique_for_date|month|year, and UniqueConstraints with fields and no condition across forms in the formset (#9493, #30581). This is only mentioned in passing, in [https://docs.djangoproject.com/en/6.1/topics/forms/modelforms/#overriding-clean-on-a-modelformset Overriding clean() on a ModelFormSet], as the reason to call `super().clean()`. That passage lists only the first three. The `UniqueConstraint` support added in #30581 was never documented for formsets.\r\n\r\nThe docs also don't say:\r\n- that `violation_error_message` isn't used for cross-form errors; a generic \"Please correct the duplicate data for \u2026\" message is shown instead;\r\n- that other constraints (conditional or expression-based `UniqueConstraint`s, `ExclusionConstraint`) are checked only against existing rows, not across forms, so saving can raise `IntegrityError`.\r\n\r\n[https://github.com/django/django/pull/19249 PR]\r\n\r\nThanks Tim Schilling for the nudge to revive this work.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 14, 2026, 11:26:01 PM",
+        "updated_at": "Nov 14, 2026, 11:32:31 PM",
+        "reporter": "Clifford Gama",
+        "owner": "Clifford Gama",
+        "component": "Documentation",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37502",
+        "pr_url": "https://github.com/django/django/pull/19249",
+        "pr_status": "open",
+        "raw_data": {
+          "id": "37502",
+          "Summary": "Document which constraints model formsets validate across forms",
+          "Type": "Cleanup/optimization",
+          "Status": "assigned",
+          "Component": "Documentation",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 14, 2026, 11:26:01 PM",
+          "Modified": "Nov 14, 2026, 11:32:31 PM",
+          "Reporter": "Clifford Gama",
+          "Owner": "Clifford Gama",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Model formsets validate unique, unique_together, unique_for_date|month|year, and UniqueConstraints with fields and no condition across forms in the formset (#9493, #30581). This is only mentioned in passing, in [https://docs.djangoproject.com/en/6.1/topics/forms/modelforms/#overriding-clean-on-a-modelformset Overriding clean() on a ModelFormSet], as the reason to call `super().clean()`. That passage lists only the first three. The `UniqueConstraint` support added in #30581 was never documented for formsets.\r\n\r\nThe docs also don't say:\r\n- that `violation_error_message` isn't used for cross-form errors; a generic \"Please correct the duplicate data for \u2026\" message is shown instead;\r\n- that other constraints (conditional or expression-based `UniqueConstraint`s, `ExclusionConstraint`) are checked only against existing rows, not across forms, so saving can raise `IntegrityError`.\r\n\r\n[https://github.com/django/django/pull/19249 PR]\r\n\r\nThanks Tim Schilling for the nudge to revive this work."
+        }
+      }
+    },
+    "django:37503": {
+      "source": "django",
+      "ticket_id": 37503,
+      "watcher_issue_number": 171,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-15T09:39:06.285831+00:00",
+      "last_updated": "2026-11-15T09:39:06.285831+00:00",
+      "ticket_data": {
+        "id": 37503,
+        "source_id": "django",
+        "title": "Add AddUniqueConstraintConcurrently and RemoveUniqueConstraintConcurrently operations for PostgreSQL",
+        "description": "See the [https://github.com/django/new-features/issues/124 new feature proposal] for a full discussion.\r\n\r\n`AddIndexConcurrently` and `RemoveIndexConcurrently` let `Meta.indexes` entries be created and dropped without locking writes to the table, but `UniqueConstraint` in `Meta.constraints` has no equivalent. Many `UniqueConstraint`s are built as `CREATE UNIQUE INDEX` (those with `expressions`, `condition`, `include`, or `opclasses`), so they can use `CONCURRENTLY` directly.\r\n\r\nThe proposal is to add `AddUniqueConstraintConcurrently` and `RemoveUniqueConstraintConcurrently` to `django.contrib.postgres.operations`, with `atomic = False` and the same in-transaction check as the existing concurrent index operations.\r\n\r\nThere's an open question about what to do with plain `fields=[...]` constraints, which are created with `ALTER TABLE ... ADD CONSTRAINT ... UNIQUE`. The options are:\r\n 1. Build the index with `CREATE UNIQUE INDEX CONCURRENTLY`, then attach it with `ALTER TABLE ... ADD CONSTRAINT ... UNIQUE USING INDEX`, which only takes a brief lock. This is the approach used by [https://django-pg-migration-tools.readthedocs.io/en/latest/usage/operations.html#SaferAddUniqueConstraint django-pg-migration-tools].\r\n 2. Raise an error.\r\n 3. Fall back to the non-concurrent behavior (the original proposal).\r\n\r\nOption 1 would allow covering every `UniqueConstraint`.\r\n\r\n",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 15, 2026, 12:29:31 AM",
+        "updated_at": "Nov 15, 2026, 12:29:31 AM",
+        "reporter": "Clifford Gama",
+        "owner": "Clifford Gama",
+        "component": "contrib.postgres",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37503",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37503",
+          "Summary": "Add AddUniqueConstraintConcurrently and RemoveUniqueConstraintConcurrently operations for PostgreSQL",
+          "Type": "New feature",
+          "Status": "assigned",
+          "Component": "contrib.postgres",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 15, 2026, 12:29:31 AM",
+          "Modified": "Nov 15, 2026, 12:29:31 AM",
+          "Reporter": "Clifford Gama",
+          "Owner": "Clifford Gama",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "See the [https://github.com/django/new-features/issues/124 new feature proposal] for a full discussion.\r\n\r\n`AddIndexConcurrently` and `RemoveIndexConcurrently` let `Meta.indexes` entries be created and dropped without locking writes to the table, but `UniqueConstraint` in `Meta.constraints` has no equivalent. Many `UniqueConstraint`s are built as `CREATE UNIQUE INDEX` (those with `expressions`, `condition`, `include`, or `opclasses`), so they can use `CONCURRENTLY` directly.\r\n\r\nThe proposal is to add `AddUniqueConstraintConcurrently` and `RemoveUniqueConstraintConcurrently` to `django.contrib.postgres.operations`, with `atomic = False` and the same in-transaction check as the existing concurrent index operations.\r\n\r\nThere's an open question about what to do with plain `fields=[...]` constraints, which are created with `ALTER TABLE ... ADD CONSTRAINT ... UNIQUE`. The options are:\r\n 1. Build the index with `CREATE UNIQUE INDEX CONCURRENTLY`, then attach it with `ALTER TABLE ... ADD CONSTRAINT ... UNIQUE USING INDEX`, which only takes a brief lock. This is the approach used by [https://django-pg-migration-tools.readthedocs.io/en/latest/usage/operations.html#SaferAddUniqueConstraint django-pg-migration-tools].\r\n 2. Raise an error.\r\n 3. Fall back to the non-concurrent behavior (the original proposal).\r\n\r\nOption 1 would allow covering every `UniqueConstraint`.\r\n\r\n"
         }
       }
     }
