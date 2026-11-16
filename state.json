@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37505
+      "last_seen_id": 37506
     }
   },
   "tracked": {
@@ -1965,6 +1965,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "The following problem occurs with Django 6.1, PostgreSQL, Python 3.14.\r\n\r\nFor a model (with a regular primary key) and Meta.ordering referencing fields through a foreign key (`ordering = ('user__lastname', )`, say), QuerySet.difference() applied to two QuerySets of that model (e.g., as a trivial example, `A.objects.all().difference(A.objects.all())`) throws a TypeError during SQL compilation because query.selected is None.\r\n\r\nAdding .order_by() without arguments to the difference method resolves the problem.\r\n\r\nThe same query worked in Django 6.0. The problem might be related to #37466\r\n\r\nThanks for your work."
+        }
+      }
+    },
+    "django:37506": {
+      "source": "django",
+      "ticket_id": 37506,
+      "watcher_issue_number": 174,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-16T18:43:19.937185+00:00",
+      "last_updated": "2026-11-16T18:43:19.937185+00:00",
+      "ticket_data": {
+        "id": 37506,
+        "source_id": "django",
+        "title": "Oracle \"executemany()\" fails with mixed-length strings in Django 6.1.3, but works in Django 6.1.2",
+        "description": "== Description ==\r\n\r\nI encountered a regression after upgrading Django from 6.1.2 to 6.1.3.\r\n\r\nI use `cursor.executemany()` to insert data into an Oracle table. One of the columns is defined as `VARCHAR2(8000)` and some values exceed 4000 characters.\r\n\r\nThe same code works with Django 6.1.2 but fails with Django 6.1.3.\r\n\r\n== Environment ==\r\n\r\n * Django: 6.1.3 (works with 6.1.2)\r\n * python-oracledb: 26.1.0\r\n * Oracle database with `MAX_STRING_SIZE=EXTENDED`\r\n * Target column: `VARCHAR2(8000)`\r\n\r\n== Steps to reproduce ==\r\n\r\nCreate a table:\r\n\r\n{{{\r\nCREATE TABLE django_lob_test (\r\n    id NUMBER(10) NOT NULL PRIMARY KEY,\r\n    text_value VARCHAR2(8000)\r\n);\r\n}}}\r\n\r\nRun the following code using Django's database connection:\r\n\r\n{{{#!python\r\nfrom django.db import connection\r\n\r\nsmall_text = \"s\" * 3500\r\nlarge_text = \"L\" * 4199\r\n\r\nrows = [\r\n    [100, small_text],\r\n    [101, large_text],\r\n]\r\n\r\nwith connection.cursor() as cursor:\r\n    cursor.executemany(\r\n        \"INSERT INTO django_lob_test (id, text_value) VALUES (%s, %s)\",\r\n        rows,\r\n    )\r\n}}}\r\n\r\n== Actual results ==\r\n\r\nWith Django 6.1.3, the operation fails with:\r\n\r\n{{{\r\noracledb.exceptions.NotSupportedError:\r\nDPY-3013: unsupported Python type LOB for database type DB_TYPE_VARCHAR\r\n}}}\r\n\r\nReversing the order of the rows produces a different error:\r\n\r\n{{{\r\noracledb.exceptions.NotSupportedError:\r\nDPY-3013: unsupported Python type str for database type DB_TYPE_CLOB\r\n}}}\r\n\r\n== Additional tests ==\r\n\r\nI also tested the same inserts using the native python-oracledb cursor:\r\n\r\n{{{#!python\r\nraw_cursor = connection.connection.cursor()\r\n\r\nraw_cursor.executemany(\r\n    \"INSERT INTO django_lob_test (id, text_value) VALUES (:1, :2)\",\r\n    rows,\r\n)\r\n\r\nraw_cursor.close()\r\n}}}\r\n\r\nBoth row orders work successfully with the native cursor:\r\n\r\n * Short string first, long string second: SUCCESS\r\n * Long string first, short string second: SUCCESS\r\n\r\nThe issue does not occur with Django 6.1.2.\r\n\r\n== Possible relation to #37411 ==\r\n\r\nI noticed that Django 6.1.3 includes the fix for [https://code.djangoproject.com/ticket/37411 #37411 \u2013 Add support for python-oracledb version 26].\r\n\r\nLooking at the changes in that ticket, I noticed that `OracleParam` now converts strings longer than 4000 bytes into temporary LOB objects using `cursor.connection.createlob()`.\r\n\r\nI wonder if this change could be related to the issue, as the batch appears to contain a mixture of regular Python strings and LOB objects. I have not investigated the Django implementation in enough detail to confirm this, but thought it might be a useful starting point.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 16, 2026, 9:26:02 AM",
+        "updated_at": "Nov 16, 2026, 12:28:26 PM",
+        "reporter": "pm13",
+        "owner": "Reporter has right of first refusal",
+        "component": "Database layer (models, ORM)",
+        "priority": "Release blocker",
+        "severity": "Release blocker",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37506",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37506",
+          "Summary": "Oracle \"executemany()\" fails with mixed-length strings in Django 6.1.3, but works in Django 6.1.2",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Release blocker",
+          "Resolution": "",
+          "Created": "Nov 16, 2026, 9:26:02 AM",
+          "Modified": "Nov 16, 2026, 12:28:26 PM",
+          "Reporter": "pm13",
+          "Owner": "Reporter has right of first refusal",
+          "Triage Stage": "Accepted",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "== Description ==\r\n\r\nI encountered a regression after upgrading Django from 6.1.2 to 6.1.3.\r\n\r\nI use `cursor.executemany()` to insert data into an Oracle table. One of the columns is defined as `VARCHAR2(8000)` and some values exceed 4000 characters.\r\n\r\nThe same code works with Django 6.1.2 but fails with Django 6.1.3.\r\n\r\n== Environment ==\r\n\r\n * Django: 6.1.3 (works with 6.1.2)\r\n * python-oracledb: 26.1.0\r\n * Oracle database with `MAX_STRING_SIZE=EXTENDED`\r\n * Target column: `VARCHAR2(8000)`\r\n\r\n== Steps to reproduce ==\r\n\r\nCreate a table:\r\n\r\n{{{\r\nCREATE TABLE django_lob_test (\r\n    id NUMBER(10) NOT NULL PRIMARY KEY,\r\n    text_value VARCHAR2(8000)\r\n);\r\n}}}\r\n\r\nRun the following code using Django's database connection:\r\n\r\n{{{#!python\r\nfrom django.db import connection\r\n\r\nsmall_text = \"s\" * 3500\r\nlarge_text = \"L\" * 4199\r\n\r\nrows = [\r\n    [100, small_text],\r\n    [101, large_text],\r\n]\r\n\r\nwith connection.cursor() as cursor:\r\n    cursor.executemany(\r\n        \"INSERT INTO django_lob_test (id, text_value) VALUES (%s, %s)\",\r\n        rows,\r\n    )\r\n}}}\r\n\r\n== Actual results ==\r\n\r\nWith Django 6.1.3, the operation fails with:\r\n\r\n{{{\r\noracledb.exceptions.NotSupportedError:\r\nDPY-3013: unsupported Python type LOB for database type DB_TYPE_VARCHAR\r\n}}}\r\n\r\nReversing the order of the rows produces a different error:\r\n\r\n{{{\r\noracledb.exceptions.NotSupportedError:\r\nDPY-3013: unsupported Python type str for database type DB_TYPE_CLOB\r\n}}}\r\n\r\n== Additional tests ==\r\n\r\nI also tested the same inserts using the native python-oracledb cursor:\r\n\r\n{{{#!python\r\nraw_cursor = connection.connection.cursor()\r\n\r\nraw_cursor.executemany(\r\n    \"INSERT INTO django_lob_test (id, text_value) VALUES (:1, :2)\",\r\n    rows,\r\n)\r\n\r\nraw_cursor.close()\r\n}}}\r\n\r\nBoth row orders work successfully with the native cursor:\r\n\r\n * Short string first, long string second: SUCCESS\r\n * Long string first, short string second: SUCCESS\r\n\r\nThe issue does not occur with Django 6.1.2.\r\n\r\n== Possible relation to #37411 ==\r\n\r\nI noticed that Django 6.1.3 includes the fix for [https://code.djangoproject.com/ticket/37411 #37411 \u2013 Add support for python-oracledb version 26].\r\n\r\nLooking at the changes in that ticket, I noticed that `OracleParam` now converts strings longer than 4000 bytes into temporary LOB objects using `cursor.connection.createlob()`.\r\n\r\nI wonder if this change could be related to the issue, as the batch appears to contain a mixture of regular Python strings and LOB objects. I have not investigated the Django implementation in enough detail to confirm this, but thought it might be a useful starting point."
         }
       }
     }
