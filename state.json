@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37506
+      "last_seen_id": 37507
     }
   },
   "tracked": {
@@ -2015,6 +2015,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "== Description ==\r\n\r\nI encountered a regression after upgrading Django from 6.1.2 to 6.1.3.\r\n\r\nI use `cursor.executemany()` to insert data into an Oracle table. One of the columns is defined as `VARCHAR2(8000)` and some values exceed 4000 characters.\r\n\r\nThe same code works with Django 6.1.2 but fails with Django 6.1.3.\r\n\r\n== Environment ==\r\n\r\n * Django: 6.1.3 (works with 6.1.2)\r\n * python-oracledb: 26.1.0\r\n * Oracle database with `MAX_STRING_SIZE=EXTENDED`\r\n * Target column: `VARCHAR2(8000)`\r\n\r\n== Steps to reproduce ==\r\n\r\nCreate a table:\r\n\r\n{{{\r\nCREATE TABLE django_lob_test (\r\n    id NUMBER(10) NOT NULL PRIMARY KEY,\r\n    text_value VARCHAR2(8000)\r\n);\r\n}}}\r\n\r\nRun the following code using Django's database connection:\r\n\r\n{{{#!python\r\nfrom django.db import connection\r\n\r\nsmall_text = \"s\" * 3500\r\nlarge_text = \"L\" * 4199\r\n\r\nrows = [\r\n    [100, small_text],\r\n    [101, large_text],\r\n]\r\n\r\nwith connection.cursor() as cursor:\r\n    cursor.executemany(\r\n        \"INSERT INTO django_lob_test (id, text_value) VALUES (%s, %s)\",\r\n        rows,\r\n    )\r\n}}}\r\n\r\n== Actual results ==\r\n\r\nWith Django 6.1.3, the operation fails with:\r\n\r\n{{{\r\noracledb.exceptions.NotSupportedError:\r\nDPY-3013: unsupported Python type LOB for database type DB_TYPE_VARCHAR\r\n}}}\r\n\r\nReversing the order of the rows produces a different error:\r\n\r\n{{{\r\noracledb.exceptions.NotSupportedError:\r\nDPY-3013: unsupported Python type str for database type DB_TYPE_CLOB\r\n}}}\r\n\r\n== Additional tests ==\r\n\r\nI also tested the same inserts using the native python-oracledb cursor:\r\n\r\n{{{#!python\r\nraw_cursor = connection.connection.cursor()\r\n\r\nraw_cursor.executemany(\r\n    \"INSERT INTO django_lob_test (id, text_value) VALUES (:1, :2)\",\r\n    rows,\r\n)\r\n\r\nraw_cursor.close()\r\n}}}\r\n\r\nBoth row orders work successfully with the native cursor:\r\n\r\n * Short string first, long string second: SUCCESS\r\n * Long string first, short string second: SUCCESS\r\n\r\nThe issue does not occur with Django 6.1.2.\r\n\r\n== Possible relation to #37411 ==\r\n\r\nI noticed that Django 6.1.3 includes the fix for [https://code.djangoproject.com/ticket/37411 #37411 \u2013 Add support for python-oracledb version 26].\r\n\r\nLooking at the changes in that ticket, I noticed that `OracleParam` now converts strings longer than 4000 bytes into temporary LOB objects using `cursor.connection.createlob()`.\r\n\r\nI wonder if this change could be related to the issue, as the batch appears to contain a mixture of regular Python strings and LOB objects. I have not investigated the Django implementation in enough detail to confirm this, but thought it might be a useful starting point."
+        }
+      }
+    },
+    "django:37507": {
+      "source": "django",
+      "ticket_id": 37507,
+      "watcher_issue_number": 175,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-17T02:10:54.777933+00:00",
+      "last_updated": "2026-11-17T02:10:54.777933+00:00",
+      "ticket_data": {
+        "id": 37507,
+        "source_id": "django",
+        "title": "select_related removed from deletion queries",
+        "description": "Hi, following this discussion (https://forum.djangoproject.com/t/select-related-removed-when-performing-a-deletion/40857), there might be an issue with the preprocessing done on delete queries.\r\n\r\n\r\n== Issue description\r\n\r\nInside django/db/models/query.py:\r\n\r\n{{{\r\n# django/db/models/query.py\r\n\r\nclass QuerySet(AltersData):\r\n...\r\n    def delete(self):\r\n        \"\"\"Delete the records in the current QuerySet.\"\"\"\r\n         ...\r\n        # Disable non-supported fields.\r\n        del_query.query.select_for_update = False\r\n        del_query.query.select_related = False\r\n        del_query.query.clear_ordering(force=True)\r\n}}}\r\n\r\nWe can see that any `select_for_update`, `select_related` and ordering are removed from the query before the delete gets executed. It was probably added for performance's sake.\r\nWhile it makes sense to remove ordering and `select_for_update`, clearing the `select_related` has side effects: if you're accessing the related model inside `pre_delete` or `post_delete` signals, you are doing N+1 queries:\r\n\r\n\r\n{{{\r\nMyModel.objects.select_related(\"my_foreign_key\").filter(...).delete()\r\n...\r\n@receiver(post_delete, sender=MyModel)\r\ndef my_signal(sender, instance, **kwargs):\r\n    # not prefetched, so does a db look up for every instance\r\n    if instance.my_foreign_key:   \r\n     ...\r\n}}}\r\n\r\nThis might go unnoticed, unless you're using the new shiny `FETCH_RAISE` fetch mode option to raise an error instead of triggering a new query:\r\n\r\n{{{\r\nMyModel.objects.fetch_mode(models.FETCH_RAISE).select_related(\"my_foreign_key\").filter(...).delete()\r\n...\r\n@receiver(post_delete, sender=MyModel)\r\ndef my_signal(sender, instance, **kwargs):\r\n    # /!\\ will raise with FieldFetchBlocked\r\n    if instance.my_foreign_key:   \r\n     ...\r\n}}}\r\n\r\nConsidering `Queryset.delete()` will fetch and iterate on the result of the query, I don't think `select_related` should be cleared from delete queries.\r\nExcept maybe if `Collector._has_signal_listeners(model)` is False?\r\n\r\n\r\n== Workarounds\r\n\r\nEasy workarounds:\r\n- Use `prefetch_related` instead of `select_related` as this doesn't get cleared **(preferred solution, tested)**\r\n- Call `.fetch_mode(FETCH_PEERS)` before `.delete()` so the first access to the related field will trigger a full queryset and prevent a N+1 issue. (untested)\r\nMore convoluted workarounds:\r\n- replace signal handler with a normal function that handles bulk deletion (untested but will obviously work, you lose the convenience of signals though)\r\n- keep `select_related`, evaluate the queryset yourself and pass the list to `Collector.collect() / collector.delete()` so the cached related objects make it to the signal handlers (untested)",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 16, 2026, 1:07:40 PM",
+        "updated_at": "Nov 16, 2026, 1:53:01 PM",
+        "reporter": "Julie Rymer",
+        "owner": "",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37507",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37507",
+          "Summary": "select_related removed from deletion queries",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 16, 2026, 1:07:40 PM",
+          "Modified": "Nov 16, 2026, 1:53:01 PM",
+          "Reporter": "Julie Rymer",
+          "Owner": "",
+          "Triage Stage": "Accepted",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Hi, following this discussion (https://forum.djangoproject.com/t/select-related-removed-when-performing-a-deletion/40857), there might be an issue with the preprocessing done on delete queries.\r\n\r\n\r\n== Issue description\r\n\r\nInside django/db/models/query.py:\r\n\r\n{{{\r\n# django/db/models/query.py\r\n\r\nclass QuerySet(AltersData):\r\n...\r\n    def delete(self):\r\n        \"\"\"Delete the records in the current QuerySet.\"\"\"\r\n         ...\r\n        # Disable non-supported fields.\r\n        del_query.query.select_for_update = False\r\n        del_query.query.select_related = False\r\n        del_query.query.clear_ordering(force=True)\r\n}}}\r\n\r\nWe can see that any `select_for_update`, `select_related` and ordering are removed from the query before the delete gets executed. It was probably added for performance's sake.\r\nWhile it makes sense to remove ordering and `select_for_update`, clearing the `select_related` has side effects: if you're accessing the related model inside `pre_delete` or `post_delete` signals, you are doing N+1 queries:\r\n\r\n\r\n{{{\r\nMyModel.objects.select_related(\"my_foreign_key\").filter(...).delete()\r\n...\r\n@receiver(post_delete, sender=MyModel)\r\ndef my_signal(sender, instance, **kwargs):\r\n    # not prefetched, so does a db look up for every instance\r\n    if instance.my_foreign_key:   \r\n     ...\r\n}}}\r\n\r\nThis might go unnoticed, unless you're using the new shiny `FETCH_RAISE` fetch mode option to raise an error instead of triggering a new query:\r\n\r\n{{{\r\nMyModel.objects.fetch_mode(models.FETCH_RAISE).select_related(\"my_foreign_key\").filter(...).delete()\r\n...\r\n@receiver(post_delete, sender=MyModel)\r\ndef my_signal(sender, instance, **kwargs):\r\n    # /!\\ will raise with FieldFetchBlocked\r\n    if instance.my_foreign_key:   \r\n     ...\r\n}}}\r\n\r\nConsidering `Queryset.delete()` will fetch and iterate on the result of the query, I don't think `select_related` should be cleared from delete queries.\r\nExcept maybe if `Collector._has_signal_listeners(model)` is False?\r\n\r\n\r\n== Workarounds\r\n\r\nEasy workarounds:\r\n- Use `prefetch_related` instead of `select_related` as this doesn't get cleared **(preferred solution, tested)**\r\n- Call `.fetch_mode(FETCH_PEERS)` before `.delete()` so the first access to the related field will trigger a full queryset and prevent a N+1 issue. (untested)\r\nMore convoluted workarounds:\r\n- replace signal handler with a normal function that handles bulk deletion (untested but will obviously work, you lose the convenience of signals though)\r\n- keep `select_related`, evaluate the queryset yourself and pass the list to `Collector.collect() / collector.delete()` so the cached related objects make it to the signal handlers (untested)"
         }
       }
     }
