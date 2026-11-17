@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37507
+      "last_seen_id": 37510
     }
   },
   "tracked": {
@@ -2065,6 +2065,156 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Hi, following this discussion (https://forum.djangoproject.com/t/select-related-removed-when-performing-a-deletion/40857), there might be an issue with the preprocessing done on delete queries.\r\n\r\n\r\n== Issue description\r\n\r\nInside django/db/models/query.py:\r\n\r\n{{{\r\n# django/db/models/query.py\r\n\r\nclass QuerySet(AltersData):\r\n...\r\n    def delete(self):\r\n        \"\"\"Delete the records in the current QuerySet.\"\"\"\r\n         ...\r\n        # Disable non-supported fields.\r\n        del_query.query.select_for_update = False\r\n        del_query.query.select_related = False\r\n        del_query.query.clear_ordering(force=True)\r\n}}}\r\n\r\nWe can see that any `select_for_update`, `select_related` and ordering are removed from the query before the delete gets executed. It was probably added for performance's sake.\r\nWhile it makes sense to remove ordering and `select_for_update`, clearing the `select_related` has side effects: if you're accessing the related model inside `pre_delete` or `post_delete` signals, you are doing N+1 queries:\r\n\r\n\r\n{{{\r\nMyModel.objects.select_related(\"my_foreign_key\").filter(...).delete()\r\n...\r\n@receiver(post_delete, sender=MyModel)\r\ndef my_signal(sender, instance, **kwargs):\r\n    # not prefetched, so does a db look up for every instance\r\n    if instance.my_foreign_key:   \r\n     ...\r\n}}}\r\n\r\nThis might go unnoticed, unless you're using the new shiny `FETCH_RAISE` fetch mode option to raise an error instead of triggering a new query:\r\n\r\n{{{\r\nMyModel.objects.fetch_mode(models.FETCH_RAISE).select_related(\"my_foreign_key\").filter(...).delete()\r\n...\r\n@receiver(post_delete, sender=MyModel)\r\ndef my_signal(sender, instance, **kwargs):\r\n    # /!\\ will raise with FieldFetchBlocked\r\n    if instance.my_foreign_key:   \r\n     ...\r\n}}}\r\n\r\nConsidering `Queryset.delete()` will fetch and iterate on the result of the query, I don't think `select_related` should be cleared from delete queries.\r\nExcept maybe if `Collector._has_signal_listeners(model)` is False?\r\n\r\n\r\n== Workarounds\r\n\r\nEasy workarounds:\r\n- Use `prefetch_related` instead of `select_related` as this doesn't get cleared **(preferred solution, tested)**\r\n- Call `.fetch_mode(FETCH_PEERS)` before `.delete()` so the first access to the related field will trigger a full queryset and prevent a N+1 issue. (untested)\r\nMore convoluted workarounds:\r\n- replace signal handler with a normal function that handles bulk deletion (untested but will obviously work, you lose the convenience of signals though)\r\n- keep `select_related`, evaluate the queryset yourself and pass the list to `Collector.collect() / collector.delete()` so the cached related objects make it to the signal handlers (untested)"
+        }
+      }
+    },
+    "django:37508": {
+      "source": "django",
+      "ticket_id": 37508,
+      "watcher_issue_number": 176,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-17T19:28:01.061847+00:00",
+      "last_updated": "2026-11-17T19:28:01.061847+00:00",
+      "ticket_data": {
+        "id": 37508,
+        "source_id": "django",
+        "title": "FETCH_PEERS: a deleted peer breaks related object access on other peers",
+        "description": "#37436 made `FETCH_PEERS` tolerate peers whose rows were deleted, but only for deferred fields. Related objects still have two problems.\r\n\r\n=== 1. A deleted peer makes other peers fail ===\r\n\r\nModels:\r\n\r\n{{{#!python\r\nfrom django.contrib.contenttypes.fields import GenericForeignKey\r\nfrom django.contrib.contenttypes.models import ContentType\r\nfrom django.db import models\r\n\r\n\r\nclass Author(models.Model):\r\n    name = models.CharField(max_length=100)\r\n\r\n\r\nclass Book(models.Model):\r\n    title = models.CharField(max_length=100)\r\n    author = models.ForeignKey(Author, models.CASCADE)\r\n\r\n\r\nclass Tag(models.Model):\r\n    content_type = models.ForeignKey(ContentType, models.CASCADE)\r\n    object_id = models.PositiveIntegerField()\r\n    content_object = GenericForeignKey()\r\n}}}\r\n\r\n{{{#!python\r\nbook1, book2 = Book.objects.only(\"title\").fetch_mode(FETCH_PEERS).order_by(\"pk\")\r\nBook.objects.filter(pk=book1.pk).delete()  # e.g. by another request\r\nbook2.author.name\r\n}}}\r\n\r\n`book2` and its author both exist, but this raises the error of the deleted peer:\r\n\r\n{{{\r\nBook.DoesNotExist: Book matching query does not exist.\r\n}}}\r\n\r\nEvery later access raises it again, because the deleted peer stays in the peer list. With `FETCH_ONE`, `book2.author.name` returns `'Bob'`. A `GenericForeignKey` behaves the same way: `tag2.content_object` raises `Tag.DoesNotExist`.\r\n\r\nCause: `fetch_many()` on `ForwardManyToOneDescriptor` and `GenericForeignKeyDescriptor` passes all peers to `prefetch_related_objects()`. The prefetch reads the deferred `author_id` of the deleted peer, and `DeferredAttribute` raises `DoesNotExist` for it.\r\n\r\n#37436 says \"The missing peer should not cause an unrelated peer's deferred-field access to fail.\" The same should hold for related objects.\r\n\r\n=== 2. A non-null foreign key returns None ===\r\n\r\n{{{#!python\r\nbook1, book2 = Book.objects.fetch_mode(FETCH_PEERS).order_by(\"pk\")\r\nAuthor.objects.filter(pk=book2.author_id).delete()\r\nbook2.author\r\n}}}\r\n\r\n`FETCH_PEERS` returns `None`, although `author` isn't nullable. `FETCH_ONE` raises `Author.DoesNotExist`. `prefetch_related()` raises `RelatedObjectDoesNotExist`. `ForwardManyToOneDescriptor.__get__()` returns right after `fetch()` and skips its `not self.field.null` check.\r\n\r\n=== Possible fix ===\r\n\r\nIn `fetch_many()`, skip peers whose own row is gone (their local related value raises `DoesNotExist`). In `__get__()`, run the null check after fetching too. I have a draft patch with tests and can submit it if this is accepted.\r\n",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 17, 2026, 11:45:30 AM",
+        "updated_at": "Nov 17, 2026, 11:45:30 AM",
+        "reporter": "Akshat Gupta",
+        "owner": "",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37508",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37508",
+          "Summary": "FETCH_PEERS: a deleted peer breaks related object access on other peers",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 17, 2026, 11:45:30 AM",
+          "Modified": "Nov 17, 2026, 11:45:30 AM",
+          "Reporter": "Akshat Gupta",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "#37436 made `FETCH_PEERS` tolerate peers whose rows were deleted, but only for deferred fields. Related objects still have two problems.\r\n\r\n=== 1. A deleted peer makes other peers fail ===\r\n\r\nModels:\r\n\r\n{{{#!python\r\nfrom django.contrib.contenttypes.fields import GenericForeignKey\r\nfrom django.contrib.contenttypes.models import ContentType\r\nfrom django.db import models\r\n\r\n\r\nclass Author(models.Model):\r\n    name = models.CharField(max_length=100)\r\n\r\n\r\nclass Book(models.Model):\r\n    title = models.CharField(max_length=100)\r\n    author = models.ForeignKey(Author, models.CASCADE)\r\n\r\n\r\nclass Tag(models.Model):\r\n    content_type = models.ForeignKey(ContentType, models.CASCADE)\r\n    object_id = models.PositiveIntegerField()\r\n    content_object = GenericForeignKey()\r\n}}}\r\n\r\n{{{#!python\r\nbook1, book2 = Book.objects.only(\"title\").fetch_mode(FETCH_PEERS).order_by(\"pk\")\r\nBook.objects.filter(pk=book1.pk).delete()  # e.g. by another request\r\nbook2.author.name\r\n}}}\r\n\r\n`book2` and its author both exist, but this raises the error of the deleted peer:\r\n\r\n{{{\r\nBook.DoesNotExist: Book matching query does not exist.\r\n}}}\r\n\r\nEvery later access raises it again, because the deleted peer stays in the peer list. With `FETCH_ONE`, `book2.author.name` returns `'Bob'`. A `GenericForeignKey` behaves the same way: `tag2.content_object` raises `Tag.DoesNotExist`.\r\n\r\nCause: `fetch_many()` on `ForwardManyToOneDescriptor` and `GenericForeignKeyDescriptor` passes all peers to `prefetch_related_objects()`. The prefetch reads the deferred `author_id` of the deleted peer, and `DeferredAttribute` raises `DoesNotExist` for it.\r\n\r\n#37436 says \"The missing peer should not cause an unrelated peer's deferred-field access to fail.\" The same should hold for related objects.\r\n\r\n=== 2. A non-null foreign key returns None ===\r\n\r\n{{{#!python\r\nbook1, book2 = Book.objects.fetch_mode(FETCH_PEERS).order_by(\"pk\")\r\nAuthor.objects.filter(pk=book2.author_id).delete()\r\nbook2.author\r\n}}}\r\n\r\n`FETCH_PEERS` returns `None`, although `author` isn't nullable. `FETCH_ONE` raises `Author.DoesNotExist`. `prefetch_related()` raises `RelatedObjectDoesNotExist`. `ForwardManyToOneDescriptor.__get__()` returns right after `fetch()` and skips its `not self.field.null` check.\r\n\r\n=== Possible fix ===\r\n\r\nIn `fetch_many()`, skip peers whose own row is gone (their local related value raises `DoesNotExist`). In `__get__()`, run the null check after fetching too. I have a draft patch with tests and can submit it if this is accepted.\r\n"
+        }
+      }
+    },
+    "django:37509": {
+      "source": "django",
+      "ticket_id": 37509,
+      "watcher_issue_number": 177,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-17T19:28:02.676800+00:00",
+      "last_updated": "2026-11-17T19:28:02.676800+00:00",
+      "ticket_data": {
+        "id": 37509,
+        "source_id": "django",
+        "title": "FETCH_PEERS: GenericForeignKey returns a stale object after changing object_id or content_type",
+        "description": "With `FETCH_PEERS`, a `GenericForeignKey` keeps returning the old object after its `object_id` or `content_type` changes.\r\n\r\nModels:\r\n\r\n{{{#!python\r\nfrom django.contrib.contenttypes.fields import GenericForeignKey\r\nfrom django.contrib.contenttypes.models import ContentType\r\nfrom django.db import models\r\n\r\n\r\nclass Author(models.Model):\r\n    name = models.CharField(max_length=100)\r\n\r\n\r\nclass Book(models.Model):\r\n    title = models.CharField(max_length=100)\r\n    author = models.ForeignKey(Author, models.CASCADE)\r\n\r\n\r\nclass Tag(models.Model):\r\n    content_type = models.ForeignKey(ContentType, models.CASCADE)\r\n    object_id = models.PositiveIntegerField()\r\n    content_object = GenericForeignKey()\r\n}}}\r\n\r\n{{{#!python\r\nalice = Author.objects.create(name=\"Alice\")\r\nbob = Author.objects.create(name=\"Bob\")\r\nTag.objects.create(content_object=alice)\r\nTag.objects.create(content_object=alice)\r\n\r\ntag1, tag2 = Tag.objects.fetch_mode(FETCH_PEERS).order_by(\"pk\")\r\ntag1.content_object\r\ntag1.object_id = bob.pk\r\ntag1.content_object.name\r\n}}}\r\n\r\nThis returns `'Alice'`. With `FETCH_ONE` it returns `'Bob'`.\r\n\r\nChanging the content type is worse. After setting `tag1.content_type` to `Book` and `tag1.object_id` to a book's pk, `tag1.content_object` still returns the `Author`, an object of the wrong model.\r\n\r\nCause: `GenericForeignKeyDescriptor.__get__()` sees that the cached object no longer matches, but it doesn't clear the cache before calling `fetch()`. `fetch_many()` skips every instance that has a cached value, including this one, so nothing is fetched and the stale object is returned.\r\n\r\nClearing the cache with `self.field.delete_cached_value(instance)` before fetching fixes it. I can submit a patch with a test if this is accepted.\r\n",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 17, 2026, 11:48:24 AM",
+        "updated_at": "Nov 17, 2026, 11:48:24 AM",
+        "reporter": "Akshat Gupta",
+        "owner": "",
+        "component": "contrib.contenttypes",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37509",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37509",
+          "Summary": "FETCH_PEERS: GenericForeignKey returns a stale object after changing object_id or content_type",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "contrib.contenttypes",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 17, 2026, 11:48:24 AM",
+          "Modified": "Nov 17, 2026, 11:48:24 AM",
+          "Reporter": "Akshat Gupta",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "With `FETCH_PEERS`, a `GenericForeignKey` keeps returning the old object after its `object_id` or `content_type` changes.\r\n\r\nModels:\r\n\r\n{{{#!python\r\nfrom django.contrib.contenttypes.fields import GenericForeignKey\r\nfrom django.contrib.contenttypes.models import ContentType\r\nfrom django.db import models\r\n\r\n\r\nclass Author(models.Model):\r\n    name = models.CharField(max_length=100)\r\n\r\n\r\nclass Book(models.Model):\r\n    title = models.CharField(max_length=100)\r\n    author = models.ForeignKey(Author, models.CASCADE)\r\n\r\n\r\nclass Tag(models.Model):\r\n    content_type = models.ForeignKey(ContentType, models.CASCADE)\r\n    object_id = models.PositiveIntegerField()\r\n    content_object = GenericForeignKey()\r\n}}}\r\n\r\n{{{#!python\r\nalice = Author.objects.create(name=\"Alice\")\r\nbob = Author.objects.create(name=\"Bob\")\r\nTag.objects.create(content_object=alice)\r\nTag.objects.create(content_object=alice)\r\n\r\ntag1, tag2 = Tag.objects.fetch_mode(FETCH_PEERS).order_by(\"pk\")\r\ntag1.content_object\r\ntag1.object_id = bob.pk\r\ntag1.content_object.name\r\n}}}\r\n\r\nThis returns `'Alice'`. With `FETCH_ONE` it returns `'Bob'`.\r\n\r\nChanging the content type is worse. After setting `tag1.content_type` to `Book` and `tag1.object_id` to a book's pk, `tag1.content_object` still returns the `Author`, an object of the wrong model.\r\n\r\nCause: `GenericForeignKeyDescriptor.__get__()` sees that the cached object no longer matches, but it doesn't clear the cache before calling `fetch()`. `fetch_many()` skips every instance that has a cached value, including this one, so nothing is fetched and the stale object is returned.\r\n\r\nClearing the cache with `self.field.delete_cached_value(instance)` before fetching fixes it. I can submit a patch with a test if this is accepted.\r\n"
+        }
+      }
+    },
+    "django:37510": {
+      "source": "django",
+      "ticket_id": 37510,
+      "watcher_issue_number": 178,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-17T19:28:04.378130+00:00",
+      "last_updated": "2026-11-17T19:28:04.378130+00:00",
+      "ticket_data": {
+        "id": 37510,
+        "source_id": "django",
+        "title": "Parallel test runner should report failure for work interrupted on a dead worker",
+        "description": "When manually testing the fix for #27734 (06463d3c11b3ce132075283d5f9368a269d66343), we engineered parallel test workers to die by creating them with `maxtasksperchild=1`. Now I realize that all we did was engineer a failure ''after'' the work has been completed and reported back to the test suite.\r\n\r\nWhat we should have tested was a worker that dies *before* it reports success. Before #27734, we would have a loud failure. After #27734, we recover gracefully, but without reporting the results of the tests that were underway. This would lead to a misleading successful run, or more likely, a hang while waiting for the result.\r\n\r\nI think we can keep the work from #27734 to recover gracefully and finish running all suites, but only as long as we actually report a failure for the interrupted tests.\r\n\r\nBug in 06463d3c11b3ce132075283d5f9368a269d66343.\r\n\r\n{{{#!diff\r\ndiff --git a/tests/test_runner/test_parallel.py b/tests/test_runner/test_parallel.py\r\nindex df8532d4c6..0f29dca018 100644\r\n--- a/tests/test_runner/test_parallel.py\r\n+++ b/tests/test_runner/test_parallel.py\r\n@@ -376,3 +376,19 @@ class ParallelTestSuiteTest(SimpleTestCase):\r\n             pts.run(test_result)\r\n \r\n         self.assertIn(\"ValueError: woops\", test_result.errors[0][1])\r\n+\r\n+    def test_worker_exit_fails_run(self):\r\n+        suite = ParallelTestSuite([TestSuite([TestCase()])], processes=1)\r\n+        suite.serialized_aliases = set()\r\n+        result = TestResult()\r\n+        with mock.patch(\"multiprocessing.Pool\") as mock_pool:\r\n+            pool = mock_pool.return_value.__enter__.return_value\r\n+            pool._pool = [mock.Mock(pid=101, exitcode=17)]\r\n+            pool.imap_unordered.return_value.next.side_effect = [\r\n+                multiprocessing.TimeoutError,\r\n+                AssertionError(\"The runner kept waiting after a worker died.\"),\r\n+            ]\r\n+            suite.run(result)\r\n+\r\n+        msg = \"--parallel was unable to run all tests due to dead workers.\"\r\n+        self.assertIn(msg, result.errors[0][1])\r\n}}}\r\n{{{#!py\r\nAssertionError: The runner kept waiting after a worker died.\r\n}}}",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 17, 2026, 12:58:11 PM",
+        "updated_at": "Nov 17, 2026, 12:59:11 PM",
+        "reporter": "Jacob Walls",
+        "owner": "",
+        "component": "Testing framework",
+        "priority": "Release blocker",
+        "severity": "Release blocker",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37510",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37510",
+          "Summary": "Parallel test runner should report failure for work interrupted on a dead worker",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Testing framework",
+          "Severity": "Release blocker",
+          "Resolution": "",
+          "Created": "Nov 17, 2026, 12:58:11 PM",
+          "Modified": "Nov 17, 2026, 12:59:11 PM",
+          "Reporter": "Jacob Walls",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "When manually testing the fix for #27734 (06463d3c11b3ce132075283d5f9368a269d66343), we engineered parallel test workers to die by creating them with `maxtasksperchild=1`. Now I realize that all we did was engineer a failure ''after'' the work has been completed and reported back to the test suite.\r\n\r\nWhat we should have tested was a worker that dies *before* it reports success. Before #27734, we would have a loud failure. After #27734, we recover gracefully, but without reporting the results of the tests that were underway. This would lead to a misleading successful run, or more likely, a hang while waiting for the result.\r\n\r\nI think we can keep the work from #27734 to recover gracefully and finish running all suites, but only as long as we actually report a failure for the interrupted tests.\r\n\r\nBug in 06463d3c11b3ce132075283d5f9368a269d66343.\r\n\r\n{{{#!diff\r\ndiff --git a/tests/test_runner/test_parallel.py b/tests/test_runner/test_parallel.py\r\nindex df8532d4c6..0f29dca018 100644\r\n--- a/tests/test_runner/test_parallel.py\r\n+++ b/tests/test_runner/test_parallel.py\r\n@@ -376,3 +376,19 @@ class ParallelTestSuiteTest(SimpleTestCase):\r\n             pts.run(test_result)\r\n \r\n         self.assertIn(\"ValueError: woops\", test_result.errors[0][1])\r\n+\r\n+    def test_worker_exit_fails_run(self):\r\n+        suite = ParallelTestSuite([TestSuite([TestCase()])], processes=1)\r\n+        suite.serialized_aliases = set()\r\n+        result = TestResult()\r\n+        with mock.patch(\"multiprocessing.Pool\") as mock_pool:\r\n+            pool = mock_pool.return_value.__enter__.return_value\r\n+            pool._pool = [mock.Mock(pid=101, exitcode=17)]\r\n+            pool.imap_unordered.return_value.next.side_effect = [\r\n+                multiprocessing.TimeoutError,\r\n+                AssertionError(\"The runner kept waiting after a worker died.\"),\r\n+            ]\r\n+            suite.run(result)\r\n+\r\n+        msg = \"--parallel was unable to run all tests due to dead workers.\"\r\n+        self.assertIn(msg, result.errors[0][1])\r\n}}}\r\n{{{#!py\r\nAssertionError: The runner kept waiting after a worker died.\r\n}}}"
         }
       }
     }
