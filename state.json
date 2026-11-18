@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37510
+      "last_seen_id": 37512
     }
   },
   "tracked": {
@@ -2215,6 +2215,106 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "When manually testing the fix for #27734 (06463d3c11b3ce132075283d5f9368a269d66343), we engineered parallel test workers to die by creating them with `maxtasksperchild=1`. Now I realize that all we did was engineer a failure ''after'' the work has been completed and reported back to the test suite.\r\n\r\nWhat we should have tested was a worker that dies *before* it reports success. Before #27734, we would have a loud failure. After #27734, we recover gracefully, but without reporting the results of the tests that were underway. This would lead to a misleading successful run, or more likely, a hang while waiting for the result.\r\n\r\nI think we can keep the work from #27734 to recover gracefully and finish running all suites, but only as long as we actually report a failure for the interrupted tests.\r\n\r\nBug in 06463d3c11b3ce132075283d5f9368a269d66343.\r\n\r\n{{{#!diff\r\ndiff --git a/tests/test_runner/test_parallel.py b/tests/test_runner/test_parallel.py\r\nindex df8532d4c6..0f29dca018 100644\r\n--- a/tests/test_runner/test_parallel.py\r\n+++ b/tests/test_runner/test_parallel.py\r\n@@ -376,3 +376,19 @@ class ParallelTestSuiteTest(SimpleTestCase):\r\n             pts.run(test_result)\r\n \r\n         self.assertIn(\"ValueError: woops\", test_result.errors[0][1])\r\n+\r\n+    def test_worker_exit_fails_run(self):\r\n+        suite = ParallelTestSuite([TestSuite([TestCase()])], processes=1)\r\n+        suite.serialized_aliases = set()\r\n+        result = TestResult()\r\n+        with mock.patch(\"multiprocessing.Pool\") as mock_pool:\r\n+            pool = mock_pool.return_value.__enter__.return_value\r\n+            pool._pool = [mock.Mock(pid=101, exitcode=17)]\r\n+            pool.imap_unordered.return_value.next.side_effect = [\r\n+                multiprocessing.TimeoutError,\r\n+                AssertionError(\"The runner kept waiting after a worker died.\"),\r\n+            ]\r\n+            suite.run(result)\r\n+\r\n+        msg = \"--parallel was unable to run all tests due to dead workers.\"\r\n+        self.assertIn(msg, result.errors[0][1])\r\n}}}\r\n{{{#!py\r\nAssertionError: The runner kept waiting after a worker died.\r\n}}}"
+        }
+      }
+    },
+    "django:37511": {
+      "source": "django",
+      "ticket_id": 37511,
+      "watcher_issue_number": 179,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-18T01:45:35.573238+00:00",
+      "last_updated": "2026-11-18T01:45:35.573238+00:00",
+      "ticket_data": {
+        "id": 37511,
+        "source_id": "django",
+        "title": "Update admin's jQuery to 3.8.X.",
+        "description": "We should bump admin's jQuery to the latest 3.8.X release before 6.2 alpha 1 release.\r\n\r\nSee:\r\n- [https://blog.jquery.com/2023/05/11/jquery-3-7-0-released-staying-in-order/ \u200b\u200bRelease notes].\r\n- Previous upgrade: #34560.\r\n\r\nPotentially we could also upgrade to the 4.x series, but that would be much more work.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 17, 2026, 2:38:38 PM",
+        "updated_at": "Nov 17, 2026, 5:45:41 PM",
+        "reporter": "Adam Johnson",
+        "owner": "Jacob Walls",
+        "component": "contrib.admin",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37511",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37511",
+          "Summary": "Update admin's jQuery to 3.8.X.",
+          "Type": "New feature",
+          "Status": "assigned",
+          "Component": "contrib.admin",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 17, 2026, 2:38:38 PM",
+          "Modified": "Nov 17, 2026, 5:45:41 PM",
+          "Reporter": "Adam Johnson",
+          "Owner": "Jacob Walls",
+          "Triage Stage": "Accepted",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "We should bump admin's jQuery to the latest 3.8.X release before 6.2 alpha 1 release.\r\n\r\nSee:\r\n- [https://blog.jquery.com/2023/05/11/jquery-3-7-0-released-staying-in-order/ \u200b\u200bRelease notes].\r\n- Previous upgrade: #34560.\r\n\r\nPotentially we could also upgrade to the 4.x series, but that would be much more work."
+        }
+      }
+    },
+    "django:37512": {
+      "source": "django",
+      "ticket_id": 37512,
+      "watcher_issue_number": 180,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-18T01:45:36.935977+00:00",
+      "last_updated": "2026-11-18T01:45:36.935977+00:00",
+      "ticket_data": {
+        "id": 37512,
+        "source_id": "django",
+        "title": "Gunicorn now complains about HEAD responses with bodies",
+        "description": "This is a boundary issues between Django and Gunicorn resulting from changes in Gunicorn 26.1.0.\r\n\r\nWay back in version 1.9, Django dropped its behavior of removing bodies in responses to HEAD requests on the basis that most WSGI servers already did that work.  See https://code.djangoproject.com/ticket/26052\r\n\r\nGunicorn 26.1.0 introduced warning logging when the application includes a body in responses to HEAD requests.  See https://github.com/benoitc/gunicorn/commit/9bc5891b4b06f25a8ce0e707053dcb2fb9bf638c\r\n\r\nAs a result, logs now get polluted with these warnings.  Gunicorn doesn't offer a simple way to control that warning (would need to craft a custom logging configuration to target the warning for exclusion).\r\n\r\nAs an application owner, Gunicorn is signalling that applications returning bodies to HEAD requests are a \"problem to be solved by the application.\"  But Django explicitly removed this behavior because it was redundant with the common WSGI server implementations.\r\n\r\nI don't know if either side is more correct than the other, but a conversation between the Django and Gunicorn teams is probably the most effective way to find a user-friendly resolution.  Otherwise each project can point the finger back at the other and the user experience will suffer indefinitely.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 17, 2026, 5:53:02 PM",
+        "updated_at": "Nov 17, 2026, 5:53:02 PM",
+        "reporter": "Kyle Dickerson",
+        "owner": "",
+        "component": "HTTP handling",
+        "priority": "Low",
+        "severity": "Low",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37512",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37512",
+          "Summary": "Gunicorn now complains about HEAD responses with bodies",
+          "Type": "Uncategorized",
+          "Status": "new",
+          "Component": "HTTP handling",
+          "Severity": "Low",
+          "Resolution": "",
+          "Created": "Nov 17, 2026, 5:53:02 PM",
+          "Modified": "Nov 17, 2026, 5:53:02 PM",
+          "Reporter": "Kyle Dickerson",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "This is a boundary issues between Django and Gunicorn resulting from changes in Gunicorn 26.1.0.\r\n\r\nWay back in version 1.9, Django dropped its behavior of removing bodies in responses to HEAD requests on the basis that most WSGI servers already did that work.  See https://code.djangoproject.com/ticket/26052\r\n\r\nGunicorn 26.1.0 introduced warning logging when the application includes a body in responses to HEAD requests.  See https://github.com/benoitc/gunicorn/commit/9bc5891b4b06f25a8ce0e707053dcb2fb9bf638c\r\n\r\nAs a result, logs now get polluted with these warnings.  Gunicorn doesn't offer a simple way to control that warning (would need to craft a custom logging configuration to target the warning for exclusion).\r\n\r\nAs an application owner, Gunicorn is signalling that applications returning bodies to HEAD requests are a \"problem to be solved by the application.\"  But Django explicitly removed this behavior because it was redundant with the common WSGI server implementations.\r\n\r\nI don't know if either side is more correct than the other, but a conversation between the Django and Gunicorn teams is probably the most effective way to find a user-friendly resolution.  Otherwise each project can point the finger back at the other and the user experience will suffer indefinitely."
         }
       }
     }
