@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37512
+      "last_seen_id": 37514
     }
   },
   "tracked": {
@@ -2315,6 +2315,106 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "This is a boundary issues between Django and Gunicorn resulting from changes in Gunicorn 26.1.0.\r\n\r\nWay back in version 1.9, Django dropped its behavior of removing bodies in responses to HEAD requests on the basis that most WSGI servers already did that work.  See https://code.djangoproject.com/ticket/26052\r\n\r\nGunicorn 26.1.0 introduced warning logging when the application includes a body in responses to HEAD requests.  See https://github.com/benoitc/gunicorn/commit/9bc5891b4b06f25a8ce0e707053dcb2fb9bf638c\r\n\r\nAs a result, logs now get polluted with these warnings.  Gunicorn doesn't offer a simple way to control that warning (would need to craft a custom logging configuration to target the warning for exclusion).\r\n\r\nAs an application owner, Gunicorn is signalling that applications returning bodies to HEAD requests are a \"problem to be solved by the application.\"  But Django explicitly removed this behavior because it was redundant with the common WSGI server implementations.\r\n\r\nI don't know if either side is more correct than the other, but a conversation between the Django and Gunicorn teams is probably the most effective way to find a user-friendly resolution.  Otherwise each project can point the finger back at the other and the user experience will suffer indefinitely."
+        }
+      }
+    },
+    "django:37513": {
+      "source": "django",
+      "ticket_id": 37513,
+      "watcher_issue_number": 181,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-18T09:25:09.437674+00:00",
+      "last_updated": "2026-11-18T09:25:09.437674+00:00",
+      "ticket_data": {
+        "id": 37513,
+        "source_id": "django",
+        "title": "FETCH_PEERS: a non-null ForeignKey returns None when the related row is missing",
+        "description": "Split from #37508.\r\n\r\nWith `FETCH_PEERS`, a non-null foreign key returns `None` when the related row no longer exists. `FETCH_ONE` and `prefetch_related()` both raise an exception instead.\r\n\r\nModels:\r\n\r\n{{{#!python\r\nfrom django.db import models\r\n\r\n\r\nclass Author(models.Model):\r\n    name = models.CharField(max_length=100)\r\n\r\n\r\nclass Book(models.Model):\r\n    title = models.CharField(max_length=100)\r\n    author = models.ForeignKey(Author, models.CASCADE)\r\n}}}\r\n\r\n{{{#!python\r\nbook1, book2 = Book.objects.fetch_mode(FETCH_PEERS).order_by(\"pk\")\r\nAuthor.objects.filter(pk=book2.author_id).delete()  # e.g. by another request\r\nbook2.author\r\n}}}\r\n\r\nResults:\r\n\r\n{{{\r\nFETCH_PEERS       -> None\r\nFETCH_ONE         -> Author.DoesNotExist: Author matching query does not exist.\r\nprefetch_related  -> Book.author.RelatedObjectDoesNotExist: Book has no author.\r\n}}}\r\n\r\n`author` isn't nullable, so `None` breaks the descriptor's contract. Code like `book.author.name` fails with an `AttributeError` on `None` instead of a `DoesNotExist` that callers can catch.\r\n\r\nCause: `ForwardManyToOneDescriptor.__get__()` returns right after `instance._state.fetch_mode.fetch(self, instance)`. That skips the `rel_obj is None and not self.field.null` check that runs on the cached path. `prefetch_related()` takes the cached path, which is why it raises.\r\n\r\nFix: assign the fetched value to `rel_obj` and fall through to the null check. A nullable foreign key would still return `None`, as `prefetch_related()` does.\r\n",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 17, 2026, 11:37:41 PM",
+        "updated_at": "Nov 17, 2026, 11:37:41 PM",
+        "reporter": "Akshat Gupta",
+        "owner": "",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37513",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37513",
+          "Summary": "FETCH_PEERS: a non-null ForeignKey returns None when the related row is missing",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 17, 2026, 11:37:41 PM",
+          "Modified": "Nov 17, 2026, 11:37:41 PM",
+          "Reporter": "Akshat Gupta",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Split from #37508.\r\n\r\nWith `FETCH_PEERS`, a non-null foreign key returns `None` when the related row no longer exists. `FETCH_ONE` and `prefetch_related()` both raise an exception instead.\r\n\r\nModels:\r\n\r\n{{{#!python\r\nfrom django.db import models\r\n\r\n\r\nclass Author(models.Model):\r\n    name = models.CharField(max_length=100)\r\n\r\n\r\nclass Book(models.Model):\r\n    title = models.CharField(max_length=100)\r\n    author = models.ForeignKey(Author, models.CASCADE)\r\n}}}\r\n\r\n{{{#!python\r\nbook1, book2 = Book.objects.fetch_mode(FETCH_PEERS).order_by(\"pk\")\r\nAuthor.objects.filter(pk=book2.author_id).delete()  # e.g. by another request\r\nbook2.author\r\n}}}\r\n\r\nResults:\r\n\r\n{{{\r\nFETCH_PEERS       -> None\r\nFETCH_ONE         -> Author.DoesNotExist: Author matching query does not exist.\r\nprefetch_related  -> Book.author.RelatedObjectDoesNotExist: Book has no author.\r\n}}}\r\n\r\n`author` isn't nullable, so `None` breaks the descriptor's contract. Code like `book.author.name` fails with an `AttributeError` on `None` instead of a `DoesNotExist` that callers can catch.\r\n\r\nCause: `ForwardManyToOneDescriptor.__get__()` returns right after `instance._state.fetch_mode.fetch(self, instance)`. That skips the `rel_obj is None and not self.field.null` check that runs on the cached path. `prefetch_related()` takes the cached path, which is why it raises.\r\n\r\nFix: assign the fetched value to `rel_obj` and fall through to the null check. A nullable foreign key would still return `None`, as `prefetch_related()` does.\r\n"
+        }
+      }
+    },
+    "django:37514": {
+      "source": "django",
+      "ticket_id": 37514,
+      "watcher_issue_number": 182,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-18T09:25:10.812502+00:00",
+      "last_updated": "2026-11-18T09:25:10.812502+00:00",
+      "ticket_data": {
+        "id": 37514,
+        "source_id": "django",
+        "title": "UserAdmin allows adding users without change permission through _saveasnew",
+        "description": "`UserAdmin` requires both add and change permissions to create users. See https://github.com/django/django/blob/9e2e5a31e2ef2e8673d3c2a38d2a391dbf42cf23/django/contrib/auth/admin.py#L122-L129\r\n\r\nHowever, the additional change permission check can be bypassed by posting to a user\u2019s change URL with `_saveasnew`.\r\nThe POST is processed even with the default `save_as=False`.\r\n\r\nHere is a test to show the behavior:\r\n\r\n{{{#!diff\r\n--- a/tests/auth_tests/test_views.py\r\n+++ b/tests/auth_tests/test_views.py\r\n@@ -1507,6 +1507,28 @@ class ChangelistTests(MessagesTestMixin, AuthViewsTestCase):\r\n             )\r\n         self.assertEqual(response.status_code, 400)\r\n \r\n+    def test_save_as_new_requires_change_permission(self):\r\n+        user = User.objects.create_user(username=\"add_only\", is_staff=True)\r\n+        add_permission = Permission.objects.get(codename=\"add_user\")\r\n+        user.user_permissions.add(add_permission)\r\n+        self.client.force_login(user)\r\n+\r\n+        data = {\r\n+            \"username\": \"new_user\",\r\n+            \"usable_password\": \"true\",\r\n+            \"password1\": \"a-long-test-password-123\",\r\n+            \"password2\": \"a-long-test-password-123\",\r\n+            \"_saveasnew\": \"Save as new\",\r\n+        }\r\n+        for url in [\r\n+            reverse(\"admin:auth_user_add\"),\r\n+            reverse(\"admin:auth_user_change\", args=[user.pk])\r\n+        ]:\r\n+            with self.subTest(url=url):\r\n+                response = self.client.post(url, data)\r\n+                self.assertEqual(response.status_code, 403)\r\n+                self.assertFalse(User.objects.filter(username=\"new_user\").exists())\r\n+\r\n     def test_user_change_email(self):\r\n         data = self.get_user_data(self.admin)\r\n}}}\r\n\r\nThis was reviewed by the Django Security Team and is being handled as a permissions consistency bug rather than a security issue. With the default UserAdmin, this path still uses the restricted user creation form: submitted privilege fields such as is_superuser are ignored, and the created account is an ordinary user.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 18, 2026, 2:27:42 AM",
+        "updated_at": "Nov 18, 2026, 2:27:42 AM",
+        "reporter": "Sarah Boyce",
+        "owner": "",
+        "component": "contrib.auth",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37514",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37514",
+          "Summary": "UserAdmin allows adding users without change permission through _saveasnew",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "contrib.auth",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 18, 2026, 2:27:42 AM",
+          "Modified": "Nov 18, 2026, 2:27:42 AM",
+          "Reporter": "Sarah Boyce",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "`UserAdmin` requires both add and change permissions to create users. See https://github.com/django/django/blob/9e2e5a31e2ef2e8673d3c2a38d2a391dbf42cf23/django/contrib/auth/admin.py#L122-L129\r\n\r\nHowever, the additional change permission check can be bypassed by posting to a user\u2019s change URL with `_saveasnew`.\r\nThe POST is processed even with the default `save_as=False`.\r\n\r\nHere is a test to show the behavior:\r\n\r\n{{{#!diff\r\n--- a/tests/auth_tests/test_views.py\r\n+++ b/tests/auth_tests/test_views.py\r\n@@ -1507,6 +1507,28 @@ class ChangelistTests(MessagesTestMixin, AuthViewsTestCase):\r\n             )\r\n         self.assertEqual(response.status_code, 400)\r\n \r\n+    def test_save_as_new_requires_change_permission(self):\r\n+        user = User.objects.create_user(username=\"add_only\", is_staff=True)\r\n+        add_permission = Permission.objects.get(codename=\"add_user\")\r\n+        user.user_permissions.add(add_permission)\r\n+        self.client.force_login(user)\r\n+\r\n+        data = {\r\n+            \"username\": \"new_user\",\r\n+            \"usable_password\": \"true\",\r\n+            \"password1\": \"a-long-test-password-123\",\r\n+            \"password2\": \"a-long-test-password-123\",\r\n+            \"_saveasnew\": \"Save as new\",\r\n+        }\r\n+        for url in [\r\n+            reverse(\"admin:auth_user_add\"),\r\n+            reverse(\"admin:auth_user_change\", args=[user.pk])\r\n+        ]:\r\n+            with self.subTest(url=url):\r\n+                response = self.client.post(url, data)\r\n+                self.assertEqual(response.status_code, 403)\r\n+                self.assertFalse(User.objects.filter(username=\"new_user\").exists())\r\n+\r\n     def test_user_change_email(self):\r\n         data = self.get_user_data(self.admin)\r\n}}}\r\n\r\nThis was reviewed by the Django Security Team and is being handled as a permissions consistency bug rather than a security issue. With the default UserAdmin, this path still uses the restricted user creation form: submitted privilege fields such as is_superuser are ignored, and the created account is an ordinary user."
         }
       }
     }
