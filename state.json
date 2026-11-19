@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37514
+      "last_seen_id": 37515
     }
   },
   "tracked": {
@@ -2415,6 +2415,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "`UserAdmin` requires both add and change permissions to create users. See https://github.com/django/django/blob/9e2e5a31e2ef2e8673d3c2a38d2a391dbf42cf23/django/contrib/auth/admin.py#L122-L129\r\n\r\nHowever, the additional change permission check can be bypassed by posting to a user\u2019s change URL with `_saveasnew`.\r\nThe POST is processed even with the default `save_as=False`.\r\n\r\nHere is a test to show the behavior:\r\n\r\n{{{#!diff\r\n--- a/tests/auth_tests/test_views.py\r\n+++ b/tests/auth_tests/test_views.py\r\n@@ -1507,6 +1507,28 @@ class ChangelistTests(MessagesTestMixin, AuthViewsTestCase):\r\n             )\r\n         self.assertEqual(response.status_code, 400)\r\n \r\n+    def test_save_as_new_requires_change_permission(self):\r\n+        user = User.objects.create_user(username=\"add_only\", is_staff=True)\r\n+        add_permission = Permission.objects.get(codename=\"add_user\")\r\n+        user.user_permissions.add(add_permission)\r\n+        self.client.force_login(user)\r\n+\r\n+        data = {\r\n+            \"username\": \"new_user\",\r\n+            \"usable_password\": \"true\",\r\n+            \"password1\": \"a-long-test-password-123\",\r\n+            \"password2\": \"a-long-test-password-123\",\r\n+            \"_saveasnew\": \"Save as new\",\r\n+        }\r\n+        for url in [\r\n+            reverse(\"admin:auth_user_add\"),\r\n+            reverse(\"admin:auth_user_change\", args=[user.pk])\r\n+        ]:\r\n+            with self.subTest(url=url):\r\n+                response = self.client.post(url, data)\r\n+                self.assertEqual(response.status_code, 403)\r\n+                self.assertFalse(User.objects.filter(username=\"new_user\").exists())\r\n+\r\n     def test_user_change_email(self):\r\n         data = self.get_user_data(self.admin)\r\n}}}\r\n\r\nThis was reviewed by the Django Security Team and is being handled as a permissions consistency bug rather than a security issue. With the default UserAdmin, this path still uses the restricted user creation form: submitted privilege fields such as is_superuser are ignored, and the created account is an ordinary user."
+        }
+      }
+    },
+    "django:37515": {
+      "source": "django",
+      "ticket_id": 37515,
+      "watcher_issue_number": 183,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-19T00:34:25.988788+00:00",
+      "last_updated": "2026-11-19T00:34:25.988788+00:00",
+      "ticket_data": {
+        "id": 37515,
+        "source_id": "django",
+        "title": "DomainNameValidator accepts Unicode line/paragraph separators in domains",
+        "description": "`django/core/validators.py` builds `hostname_re` / `domain_re` / `tld_re` using the raw codepoint range `[a-z\\u00a1-\\uffff0-9-]`. That range includes\r\nUnicode line and paragraph separators and several invisible space characters (U+2028, U+2029, U+1680, U+2000\u2013200A, U+3000, U+FEFF), so they are accepted whenever they appear in a non-final domain label.\r\n\r\n`EmailValidator` and `URLValidator` reuse these regexes, so `EmailField.is_valid()` returns `True` for such values.\r\n\r\nTwo consequences:\r\n\r\n1. `send_mail()` on a validated address raises an uncaught `ValueError` (\"Header values may not contain linefeed or carriage return characters\") from Python's `email.policy` serialization. `PasswordResetForm.send_mail` swallows it via a broad `except Exception`; other callers surface it as a 500.\r\n1. `django/core/mail/backends/smtp.py` `prep_address()` silently strips the separators, so the envelope recipient differs from the validated address (`user@example\\u2028.com` \u2192 `user@example.com`).\r\n\r\nPOC script and its output attached.\r\n\r\n== Suggested fix\r\nIn `DomainNameValidator.__call__()`, reject characters whose `unicodedata.category(ch)[0]` is `C` or `Z`, or narrow the `\\u00a1-\\uffff` range to actual letter/digit categories. This covers `EmailValidator`, `URLValidator`, and `simple_url_2_re` consumers.\r\n\r\nRegression cases: `user@example\\u2028.com`, `exa\\u1680mple.com`, `http://example\\u2029.com/`.\r\n\r\n== Acknowledgement\r\nThis was a report received by the security team. The reporter did not respond when asked to open a ticket, so I'm opening it. I edited the report a little.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 18, 2026, 3:26:40 PM",
+        "updated_at": "Nov 18, 2026, 3:28:52 PM",
+        "reporter": "Shai Berger",
+        "owner": "",
+        "component": "Forms",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37515",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37515",
+          "Summary": "DomainNameValidator accepts Unicode line/paragraph separators in domains",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Forms",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 18, 2026, 3:26:40 PM",
+          "Modified": "Nov 18, 2026, 3:28:52 PM",
+          "Reporter": "Shai Berger",
+          "Owner": "",
+          "Triage Stage": "Accepted",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "`django/core/validators.py` builds `hostname_re` / `domain_re` / `tld_re` using the raw codepoint range `[a-z\\u00a1-\\uffff0-9-]`. That range includes\r\nUnicode line and paragraph separators and several invisible space characters (U+2028, U+2029, U+1680, U+2000\u2013200A, U+3000, U+FEFF), so they are accepted whenever they appear in a non-final domain label.\r\n\r\n`EmailValidator` and `URLValidator` reuse these regexes, so `EmailField.is_valid()` returns `True` for such values.\r\n\r\nTwo consequences:\r\n\r\n1. `send_mail()` on a validated address raises an uncaught `ValueError` (\"Header values may not contain linefeed or carriage return characters\") from Python's `email.policy` serialization. `PasswordResetForm.send_mail` swallows it via a broad `except Exception`; other callers surface it as a 500.\r\n1. `django/core/mail/backends/smtp.py` `prep_address()` silently strips the separators, so the envelope recipient differs from the validated address (`user@example\\u2028.com` \u2192 `user@example.com`).\r\n\r\nPOC script and its output attached.\r\n\r\n== Suggested fix\r\nIn `DomainNameValidator.__call__()`, reject characters whose `unicodedata.category(ch)[0]` is `C` or `Z`, or narrow the `\\u00a1-\\uffff` range to actual letter/digit categories. This covers `EmailValidator`, `URLValidator`, and `simple_url_2_re` consumers.\r\n\r\nRegression cases: `user@example\\u2028.com`, `exa\\u1680mple.com`, `http://example\\u2029.com/`.\r\n\r\n== Acknowledgement\r\nThis was a report received by the security team. The reporter did not respond when asked to open a ticket, so I'm opening it. I edited the report a little."
         }
       }
     }
