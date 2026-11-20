@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37524
+      "last_seen_id": 37528
     }
   },
   "tracked": {
@@ -2867,6 +2867,206 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "`HttpResponse.delete_cookie()` adds the `Secure` flag when the cookie name starts with `__Secure-`, `__Host-` or `__Http-`, and the `HttpOnly` flag when it starts with `__Http-` or `__Host-Http-` (#28989, #37467). It compares the prefixes case-sensitively:\r\n\r\n{{{#!python\r\nsecure = key.startswith((\"__Secure-\", \"__Host-\", \"__Http-\")) or (...)\r\nhttponly = key.startswith((\"__Http-\", \"__Host-Http-\"))\r\n}}}\r\n\r\nUser agents match these prefixes case-insensitively. draft-ietf-httpbis-rfc6265bis-22, section 5.4 (\"Cookie Name Prefixes\"): \"UAs MUST match the prefix string case-insensitively\", and section 5.7 (\"Storage Model\"), steps 20 and 21: \"If the cookie-name begins with a case-insensitive match for the string \"__Secure-\", abort this algorithm and ignore the cookie entirely unless the cookie's secure-only-flag is true.\" draft-ietf-httpbis-layered-cookies-02, section 5.4.3 (\"Store a Cookie\"), steps 13 to 16, does the same for `__Secure-`, `__Host-`, `__Http-` and `__Host-Http-`: \"If cookie's name, byte-lowercased, starts with __secure- and cookie's secure is false, then return null.\"\r\n\r\nSo a browser treats a cookie named `__host-sid` or `__SECURE-sid` as prefixed, but Django deletes it without `Secure` (or without `HttpOnly` for `__http-`), and the browser ignores the deletion. The cookie stays.\r\n\r\nReproduction:\r\n\r\n{{{#!python\r\nfrom django.conf import settings\r\nsettings.configure()\r\nfrom django.http import HttpResponse\r\n\r\nr = HttpResponse()\r\nfor name in (\"__host-sid\", \"__SECURE-sid\", \"__http-sid\", \"__host-http-sid\"):\r\n    r.delete_cookie(name)\r\n    print(r.cookies[name].output())\r\n}}}\r\n\r\nActual:\r\n{{{\r\nSet-Cookie: __host-sid=\"\"; expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; Path=/\r\nSet-Cookie: __SECURE-sid=\"\"; expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; Path=/\r\nSet-Cookie: __http-sid=\"\"; expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; Path=/\r\nSet-Cookie: __host-http-sid=\"\"; expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; Path=/\r\n}}}\r\n\r\nExpected: `Secure` on all four, and `HttpOnly` on the last two, as Django already does for `__Host-sid`, `__Secure-sid`, `__Http-sid` and `__Host-Http-sid`.\r\n\r\nVersions affected: every version since the prefix check was added in #28989 (Django 2.1); #37467 (308b6d6ac0, main only) added `__Http-` and `__Host-Http-` with the same case-sensitive match. Not a regression.\r\n\r\n`set_cookie()` has no prefix logic, so only `delete_cookie()` is affected.\r\n\r\nSuggested fix: compare against the lowercased name:\r\n\r\n{{{#!python\r\nlower_key = key.lower()\r\nsecure = lower_key.startswith((\"__secure-\", \"__host-\", \"__http-\")) or (...)\r\nhttponly = lower_key.startswith((\"__http-\", \"__host-http-\"))\r\n}}}\r\n\r\nAI disclosure: I found and reproduced this with Claude Code (Anthropic)."
+        }
+      }
+    },
+    "django:37525": {
+      "source": "django",
+      "ticket_id": 37525,
+      "watcher_issue_number": 192,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-20T13:41:34.800135+00:00",
+      "last_updated": "2026-11-20T13:41:34.800135+00:00",
+      "ticket_data": {
+        "id": 37525,
+        "source_id": "django",
+        "title": "Annotation names resolve after a relation in lookups, e.g. filter(publisher__other_name=...)",
+        "description": "`Query.names_to_path()` accepts an annotation name at any position in a lookup path. A name after a relation should resolve on the related model, but if the base query has an annotation with that name, Django uses the annotation's output field instead. When that field is a model field, the query compares the related table's column of the same name.\r\n\r\nThe `_filtered_relations` branch next to it already checks `pos == 0`; the annotation branch does not.\r\n\r\nModels:\r\n\r\n{{{#!python\r\nclass Publisher(models.Model):\r\n    name = models.CharField(max_length=255)\r\n\r\n\r\nclass Book(models.Model):\r\n    isbn = models.CharField(max_length=9)\r\n    name = models.CharField(max_length=255)\r\n    publisher = models.ForeignKey(Publisher, models.CASCADE)\r\n}}}\r\n\r\nReproduction:\r\n\r\n{{{#!python\r\n>>> qs = Book.objects.annotate(other_name=F(\"name\"))\r\n>>> print(qs.filter(publisher__other_name=\"Apress\").query)\r\nSELECT ... FROM \"app_book\" INNER JOIN \"app_publisher\"\r\nON (\"app_book\".\"publisher_id\" = \"app_publisher\".\"id\")\r\nWHERE \"app_publisher\".\"name\" = Apress\r\n}}}\r\n\r\nPublisher has no field `other_name`, yet the query runs and filters on `Publisher.name`, so it returns wrong rows. If the related model has no column of that name, the database raises an error instead:\r\n\r\n{{{#!python\r\n>>> list(Book.objects.annotate(other_isbn=F(\"isbn\")).filter(publisher__other_isbn=\"1\"))\r\nOperationalError: no such column: app_publisher.isbn\r\n}}}\r\n\r\nThe same happens with `exclude()`, `order_by(\"publisher__other_name\")` and `F(\"publisher__other_name\")`. On main it also happens in `values(\"publisher__other_name\")` and with `alias()` instead of `annotate()`.\r\n\r\nExpected: `FieldError`, as 6.1 raises for the `alias()` and `values()` cases:\r\n\r\n{{{\r\nFieldError: Unsupported lookup 'other_name' for ForeignKey or join on the field not permitted.\r\nFieldError: Cannot resolve keyword 'other_name' into field. Choices are: ...\r\n}}}\r\n\r\nVersions:\r\n\r\n|| || stable/6.1.x || main ||\r\n|| `annotate()` + `filter()`, `exclude()`, `order_by()`, `F()` || wrong SQL || wrong SQL ||\r\n|| `annotate()` + `values()` || FieldError || wrong SQL ||\r\n|| `alias()` + `filter()`, `exclude()`, `order_by()`, `values()`, `F()` || FieldError || wrong SQL ||\r\n\r\nThe `annotate()` cases in the first row date from 1f7b25c1a7a85426675a04380f37b180edc08bbc (#24986, Django 1.9). The other rows are a regression in be6cf832293779d8aeaeddca8c47a37ba1530898 (#37274), which changed the check from `self.annotation_select` to `self.annotations`. That commit is on main only.\r\n\r\nSuggested fix: match annotation names only at the start of the path, as the filtered relation branch does:\r\n\r\n{{{#!diff\r\n-                if name in self.annotations:\r\n+                if pos == 0 and name in self.annotations:\r\n}}}\r\n\r\nI have a patch with tests ready. Django's PR limit stops me from opening a PR while my earlier ones ([https://github.com/django/django/pull/21642 PR 21642], [https://github.com/django/django/pull/22007 PR 22007], [https://github.com/django/django/pull/22247 PR 22247]) are open, so I'll open it as soon as one of them is merged.\r\n\r\nAI disclosure: I found and reproduced this with Claude Code (Anthropic).",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 20, 2026, 4:22:35 AM",
+        "updated_at": "Nov 20, 2026, 7:28:48 AM",
+        "reporter": "Mariano Ignacio Baragiola",
+        "owner": "Mariano Ignacio Baragiola",
+        "component": "Database layer (models, ORM)",
+        "priority": "Release blocker",
+        "severity": "Release blocker",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37525",
+        "pr_url": "https://github.com/django/django/pull/21642",
+        "pr_status": "open",
+        "raw_data": {
+          "id": "37525",
+          "Summary": "Annotation names resolve after a relation in lookups, e.g. filter(publisher__other_name=...)",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Release blocker",
+          "Resolution": "",
+          "Created": "Nov 20, 2026, 4:22:35 AM",
+          "Modified": "Nov 20, 2026, 7:28:48 AM",
+          "Reporter": "Mariano Ignacio Baragiola",
+          "Owner": "Mariano Ignacio Baragiola",
+          "Triage Stage": "Accepted",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "`Query.names_to_path()` accepts an annotation name at any position in a lookup path. A name after a relation should resolve on the related model, but if the base query has an annotation with that name, Django uses the annotation's output field instead. When that field is a model field, the query compares the related table's column of the same name.\r\n\r\nThe `_filtered_relations` branch next to it already checks `pos == 0`; the annotation branch does not.\r\n\r\nModels:\r\n\r\n{{{#!python\r\nclass Publisher(models.Model):\r\n    name = models.CharField(max_length=255)\r\n\r\n\r\nclass Book(models.Model):\r\n    isbn = models.CharField(max_length=9)\r\n    name = models.CharField(max_length=255)\r\n    publisher = models.ForeignKey(Publisher, models.CASCADE)\r\n}}}\r\n\r\nReproduction:\r\n\r\n{{{#!python\r\n>>> qs = Book.objects.annotate(other_name=F(\"name\"))\r\n>>> print(qs.filter(publisher__other_name=\"Apress\").query)\r\nSELECT ... FROM \"app_book\" INNER JOIN \"app_publisher\"\r\nON (\"app_book\".\"publisher_id\" = \"app_publisher\".\"id\")\r\nWHERE \"app_publisher\".\"name\" = Apress\r\n}}}\r\n\r\nPublisher has no field `other_name`, yet the query runs and filters on `Publisher.name`, so it returns wrong rows. If the related model has no column of that name, the database raises an error instead:\r\n\r\n{{{#!python\r\n>>> list(Book.objects.annotate(other_isbn=F(\"isbn\")).filter(publisher__other_isbn=\"1\"))\r\nOperationalError: no such column: app_publisher.isbn\r\n}}}\r\n\r\nThe same happens with `exclude()`, `order_by(\"publisher__other_name\")` and `F(\"publisher__other_name\")`. On main it also happens in `values(\"publisher__other_name\")` and with `alias()` instead of `annotate()`.\r\n\r\nExpected: `FieldError`, as 6.1 raises for the `alias()` and `values()` cases:\r\n\r\n{{{\r\nFieldError: Unsupported lookup 'other_name' for ForeignKey or join on the field not permitted.\r\nFieldError: Cannot resolve keyword 'other_name' into field. Choices are: ...\r\n}}}\r\n\r\nVersions:\r\n\r\n|| || stable/6.1.x || main ||\r\n|| `annotate()` + `filter()`, `exclude()`, `order_by()`, `F()` || wrong SQL || wrong SQL ||\r\n|| `annotate()` + `values()` || FieldError || wrong SQL ||\r\n|| `alias()` + `filter()`, `exclude()`, `order_by()`, `values()`, `F()` || FieldError || wrong SQL ||\r\n\r\nThe `annotate()` cases in the first row date from 1f7b25c1a7a85426675a04380f37b180edc08bbc (#24986, Django 1.9). The other rows are a regression in be6cf832293779d8aeaeddca8c47a37ba1530898 (#37274), which changed the check from `self.annotation_select` to `self.annotations`. That commit is on main only.\r\n\r\nSuggested fix: match annotation names only at the start of the path, as the filtered relation branch does:\r\n\r\n{{{#!diff\r\n-                if name in self.annotations:\r\n+                if pos == 0 and name in self.annotations:\r\n}}}\r\n\r\nI have a patch with tests ready. Django's PR limit stops me from opening a PR while my earlier ones ([https://github.com/django/django/pull/21642 PR 21642], [https://github.com/django/django/pull/22007 PR 22007], [https://github.com/django/django/pull/22247 PR 22247]) are open, so I'll open it as soon as one of them is merged.\r\n\r\nAI disclosure: I found and reproduced this with Claude Code (Anthropic)."
+        }
+      }
+    },
+    "django:37526": {
+      "source": "django",
+      "ticket_id": 37526,
+      "watcher_issue_number": 193,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-20T13:41:36.216657+00:00",
+      "last_updated": "2026-11-20T13:41:36.216657+00:00",
+      "ticket_data": {
+        "id": 37526,
+        "source_id": "django",
+        "title": "XOR fallback treats NULL operands as false, so filter() and exclude() can return the same row",
+        "description": "On databases without a native `XOR` (`supports_logical_xor = False`: SQLite, PostgreSQL, Oracle), `WhereNode.as_sql()` rewrites `a ^ b ^ ...` as `(a OR b OR ...) AND 1 = MOD(CASE WHEN a THEN 1 ELSE 0 END + ..., 2)`. The `ELSE 0` counts a `NULL` (unknown) operand as false. As a result:\r\n\r\n * `exclude(q)` can return rows that `filter(q)` also returns.\r\n * `filter(q)` returns rows that MariaDB and MySQL do not, since their native `XOR` gives `NULL` when either side is `NULL`.\r\n\r\n{{{#!python\r\nclass Number(models.Model):\r\n    num = models.IntegerField(null=True)\r\n    other_num = models.IntegerField()\r\n}}}\r\n\r\n{{{#!python\r\nfor num, other_num in [(1, 1), (2, 1), (None, 1), (1, 2), (None, 2)]:\r\n    Number.objects.create(num=num, other_num=other_num)  # pks 1-5\r\n\r\nq = ~Q(num=1) ^ Q(other_num=1)\r\nNumber.objects.filter(q)   # pks [1, 5]\r\nNumber.objects.exclude(q)  # Actual: [2, 4, 5]    Expected: [2, 4]\r\n\r\nNumber.objects.filter(Q(num=1) ^ Q(other_num=1))\r\n# Actual: [2, 3, 4]    MySQL: [2, 4]\r\n}}}\r\n\r\nRow 5 is in both `filter(q)` and `exclude(q)`. In `exclude(q)` the operand `~Q(num=1)` compiles to `NOT (num = 1)`, which is `NULL` for row 5. The fallback counts it as 0, so the `XOR` is false and `exclude()` keeps the row. MySQL gives `NULL XOR FALSE = NULL` and drops it.\r\n\r\nVersions: every version since `XOR` support landed in 4.1 (c6b4d62fa2, #29865); #34604 (b81e974e9e) changed the sum to a parity check but kept `ELSE 0`. Reproduced on main on SQLite and PostgreSQL 16; stable/6.1.x and stable/6.0.x have the same code. Not a regression.\r\n\r\nSuggested fix: map each operand to `CASE WHEN c THEN 1 WHEN NOT c THEN 0 END`, so a `NULL` operand makes the sum, and the `XOR`, `NULL`. For any number of operands this matches native `XOR` and SQL three-valued logic, and `filter(q)` and `exclude(q)` can no longer overlap.\r\n\r\nThis is a trade-off that needs a decision. Today a plain `XOR` without `~` splits rows cleanly between `filter()` and `exclude()`, because `exclude()` adds `IS NOT NULL` to each operand. With the fix, a `NULL` operand makes the row match neither, as on MySQL. For example, `Q(num__isnull=True) ^ Q(num=1)` (\"num is NULL or 1, but not both\") matches rows 3 and 5 today and matches neither of them with the fix, nor on MySQL. The fix also changes annotations (`annotate(x=Q(num=1) ^ Q(other_num=1))` gives `None` for row 3 instead of `True`) and check constraints (`CheckConstraint(condition=Q(num=1) ^ Q(other_num=1))` stops rejecting rows where `num` is `NULL`; constraints already in the database keep the old SQL). The other choice is to keep two-valued operands and fix `exclude()` instead, which keeps the results we have today but leaves these databases out of step with MySQL.\r\n\r\nThe operand's SQL and params then appear three times (once in the `OR`, twice in the `CASE`) instead of twice, so a subquery operand may run more often.\r\n\r\nRelated: #37520 is adding a shared NULL-keeping template, `CASE WHEN {sql} THEN 1 WHEN NOT ({sql}) THEN 0 END`, for `NegatedExpression`, `Lookup`/`WhereNode.select_format()` and `GeneratedField`. The `XOR` fallback is a separate case (a sum of operands in `WHERE`), but it could use the same template once that lands.\r\n\r\nI have a patch with tests for the suggested fix ready. Django's PR limit stops me from opening a PR while my earlier ones ([https://github.com/django/django/pull/21642 PR 21642], [https://github.com/django/django/pull/22007 PR 22007], [https://github.com/django/django/pull/22247 PR 22247]) are open, so I'll open it as soon as one of them is merged and the approach is agreed.\r\n\r\nAI disclosure: I found and reproduced this with Claude Code (Anthropic).",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 20, 2026, 4:23:39 AM",
+        "updated_at": "Nov 20, 2026, 4:23:39 AM",
+        "reporter": "Mariano Ignacio Baragiola",
+        "owner": "Mariano Ignacio Baragiola",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37526",
+        "pr_url": "https://github.com/django/django/pull/21642",
+        "pr_status": "open",
+        "raw_data": {
+          "id": "37526",
+          "Summary": "XOR fallback treats NULL operands as false, so filter() and exclude() can return the same row",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 20, 2026, 4:23:39 AM",
+          "Modified": "Nov 20, 2026, 4:23:39 AM",
+          "Reporter": "Mariano Ignacio Baragiola",
+          "Owner": "Mariano Ignacio Baragiola",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "On databases without a native `XOR` (`supports_logical_xor = False`: SQLite, PostgreSQL, Oracle), `WhereNode.as_sql()` rewrites `a ^ b ^ ...` as `(a OR b OR ...) AND 1 = MOD(CASE WHEN a THEN 1 ELSE 0 END + ..., 2)`. The `ELSE 0` counts a `NULL` (unknown) operand as false. As a result:\r\n\r\n * `exclude(q)` can return rows that `filter(q)` also returns.\r\n * `filter(q)` returns rows that MariaDB and MySQL do not, since their native `XOR` gives `NULL` when either side is `NULL`.\r\n\r\n{{{#!python\r\nclass Number(models.Model):\r\n    num = models.IntegerField(null=True)\r\n    other_num = models.IntegerField()\r\n}}}\r\n\r\n{{{#!python\r\nfor num, other_num in [(1, 1), (2, 1), (None, 1), (1, 2), (None, 2)]:\r\n    Number.objects.create(num=num, other_num=other_num)  # pks 1-5\r\n\r\nq = ~Q(num=1) ^ Q(other_num=1)\r\nNumber.objects.filter(q)   # pks [1, 5]\r\nNumber.objects.exclude(q)  # Actual: [2, 4, 5]    Expected: [2, 4]\r\n\r\nNumber.objects.filter(Q(num=1) ^ Q(other_num=1))\r\n# Actual: [2, 3, 4]    MySQL: [2, 4]\r\n}}}\r\n\r\nRow 5 is in both `filter(q)` and `exclude(q)`. In `exclude(q)` the operand `~Q(num=1)` compiles to `NOT (num = 1)`, which is `NULL` for row 5. The fallback counts it as 0, so the `XOR` is false and `exclude()` keeps the row. MySQL gives `NULL XOR FALSE = NULL` and drops it.\r\n\r\nVersions: every version since `XOR` support landed in 4.1 (c6b4d62fa2, #29865); #34604 (b81e974e9e) changed the sum to a parity check but kept `ELSE 0`. Reproduced on main on SQLite and PostgreSQL 16; stable/6.1.x and stable/6.0.x have the same code. Not a regression.\r\n\r\nSuggested fix: map each operand to `CASE WHEN c THEN 1 WHEN NOT c THEN 0 END`, so a `NULL` operand makes the sum, and the `XOR`, `NULL`. For any number of operands this matches native `XOR` and SQL three-valued logic, and `filter(q)` and `exclude(q)` can no longer overlap.\r\n\r\nThis is a trade-off that needs a decision. Today a plain `XOR` without `~` splits rows cleanly between `filter()` and `exclude()`, because `exclude()` adds `IS NOT NULL` to each operand. With the fix, a `NULL` operand makes the row match neither, as on MySQL. For example, `Q(num__isnull=True) ^ Q(num=1)` (\"num is NULL or 1, but not both\") matches rows 3 and 5 today and matches neither of them with the fix, nor on MySQL. The fix also changes annotations (`annotate(x=Q(num=1) ^ Q(other_num=1))` gives `None` for row 3 instead of `True`) and check constraints (`CheckConstraint(condition=Q(num=1) ^ Q(other_num=1))` stops rejecting rows where `num` is `NULL`; constraints already in the database keep the old SQL). The other choice is to keep two-valued operands and fix `exclude()` instead, which keeps the results we have today but leaves these databases out of step with MySQL.\r\n\r\nThe operand's SQL and params then appear three times (once in the `OR`, twice in the `CASE`) instead of twice, so a subquery operand may run more often.\r\n\r\nRelated: #37520 is adding a shared NULL-keeping template, `CASE WHEN {sql} THEN 1 WHEN NOT ({sql}) THEN 0 END`, for `NegatedExpression`, `Lookup`/`WhereNode.select_format()` and `GeneratedField`. The `XOR` fallback is a separate case (a sum of operands in `WHERE`), but it could use the same template once that lands.\r\n\r\nI have a patch with tests for the suggested fix ready. Django's PR limit stops me from opening a PR while my earlier ones ([https://github.com/django/django/pull/21642 PR 21642], [https://github.com/django/django/pull/22007 PR 22007], [https://github.com/django/django/pull/22247 PR 22247]) are open, so I'll open it as soon as one of them is merged and the approach is agreed.\r\n\r\nAI disclosure: I found and reproduced this with Claude Code (Anthropic)."
+        }
+      }
+    },
+    "django:37527": {
+      "source": "django",
+      "ticket_id": 37527,
+      "watcher_issue_number": 194,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-20T13:41:37.571570+00:00",
+      "last_updated": "2026-11-20T13:41:37.571570+00:00",
+      "ticket_data": {
+        "id": 37527,
+        "source_id": "django",
+        "title": "MinimumLengthValidator error message is not translated to Czech (cs) when LANGUAGE_CODE = 'cs'",
+        "description": "# Description\r\nWhen `LANGUAGE_CODE` is set to `'cs'` (Czech) and `USE_I18N = True` (without `LocaleMiddleware`), the validation error message from `MinimumLengthValidator` (`\"This password is too short. It must contain at least %(min_length)d characters.\"`) is rendered in English instead of Czech.\r\n\r\nThis reproduces both in standard Django forms (`UserCreationForm`) and with third-party packages like `django-allauth`.\r\n\r\n# Steps to Reproduce\r\n1. Create a clean Django project.\r\n2. In `settings.py`, set `LANGUAGE_CODE = 'cs'` and `USE_I18N = True`. Ensure `LocaleMiddleware` is **not** in `MIDDLEWARE` (so browser `Accept-Language` headers do not interfere).\r\n3. Ensure `django.contrib.auth.password_validation.MinimumLengthValidator` is active in `AUTH_PASSWORD_VALIDATORS`.\r\n4. Render a registration/password form (e.g., `UserCreationForm`) and submit a password shorter than 8 characters.\r\n5. Inspect `{{ form.password1.errors }}` (or `{{ form.password2.errors }}`).\r\n\r\n# Expected Behavior\r\nThe error message should be translated into Czech.\r\n\r\n# Actual Behavior\r\nThe error message is rendered in English:\r\n`This password is too short. It must contain at least 8 characters.`\r\n\r\n# Environment\r\n* **Django version:** [6.1.3]\r\n* **Python version:** [3.14.10]\r\n\r\nThank you for developing and maintaining such a great framework!",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 20, 2026, 4:37:35 AM",
+        "updated_at": "Nov 20, 2026, 4:37:35 AM",
+        "reporter": "bomot",
+        "owner": "",
+        "component": "contrib.auth",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37527",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37527",
+          "Summary": "MinimumLengthValidator error message is not translated to Czech (cs) when LANGUAGE_CODE = 'cs'",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "contrib.auth",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 20, 2026, 4:37:35 AM",
+          "Modified": "Nov 20, 2026, 4:37:35 AM",
+          "Reporter": "bomot",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "# Description\r\nWhen `LANGUAGE_CODE` is set to `'cs'` (Czech) and `USE_I18N = True` (without `LocaleMiddleware`), the validation error message from `MinimumLengthValidator` (`\"This password is too short. It must contain at least %(min_length)d characters.\"`) is rendered in English instead of Czech.\r\n\r\nThis reproduces both in standard Django forms (`UserCreationForm`) and with third-party packages like `django-allauth`.\r\n\r\n# Steps to Reproduce\r\n1. Create a clean Django project.\r\n2. In `settings.py`, set `LANGUAGE_CODE = 'cs'` and `USE_I18N = True`. Ensure `LocaleMiddleware` is **not** in `MIDDLEWARE` (so browser `Accept-Language` headers do not interfere).\r\n3. Ensure `django.contrib.auth.password_validation.MinimumLengthValidator` is active in `AUTH_PASSWORD_VALIDATORS`.\r\n4. Render a registration/password form (e.g., `UserCreationForm`) and submit a password shorter than 8 characters.\r\n5. Inspect `{{ form.password1.errors }}` (or `{{ form.password2.errors }}`).\r\n\r\n# Expected Behavior\r\nThe error message should be translated into Czech.\r\n\r\n# Actual Behavior\r\nThe error message is rendered in English:\r\n`This password is too short. It must contain at least 8 characters.`\r\n\r\n# Environment\r\n* **Django version:** [6.1.3]\r\n* **Python version:** [3.14.10]\r\n\r\nThank you for developing and maintaining such a great framework!"
+        }
+      }
+    },
+    "django:37528": {
+      "source": "django",
+      "ticket_id": 37528,
+      "watcher_issue_number": 195,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-20T13:41:39.034915+00:00",
+      "last_updated": "2026-11-20T13:41:39.034915+00:00",
+      "ticket_data": {
+        "id": 37528,
+        "source_id": "django",
+        "title": "makemigrations writes invalid Python for a zero-valued IntFlag default",
+        "description": "`makemigrations` succeeds when an `IntegerField` default is a zero-valued `enum.IntFlag` member, but writes `models.IntegerField(default=)`. Django then raises a `SyntaxError` when it imports the migration, before it can show the migration plan.\r\n\r\nReproduced on Django `6.2.dev20261119224235` (main, `c67d872765e05ebd009fadf7de8d834b01bae9e4`), CPython `3.12.15`, with in-memory SQLite.\r\n\r\nIn an empty directory, create `sample/__init__.py` (empty) and the following files.\r\n\r\n`settings.py`:\r\n{{{\r\n#!python\r\nSECRET_KEY = \"fixture\"\r\nINSTALLED_APPS = [\"sample\"]\r\nDATABASES = {\"default\": {\"ENGINE\": \"django.db.backends.sqlite3\", \"NAME\": \":memory:\"}}\r\n}}}\r\n\r\n`sample/models.py`:\r\n{{{\r\n#!python\r\nimport enum\r\n\r\nfrom django.db import models\r\n\r\n\r\nclass Options(enum.IntFlag):\r\n    NONE = 0\r\n    FIRST = 1\r\n    SECOND = 2\r\n\r\n\r\nclass Example(models.Model):\r\n    options = models.IntegerField(default=Options.NONE)\r\n}}}\r\n\r\nFrom that directory, with the indicated Django checkout on the Python import path, run:\r\n{{{\r\nexport DJANGO_SETTINGS_MODULE=settings\r\npython -m django makemigrations sample --no-header\r\npython -m django migrate --plan\r\n}}}\r\n\r\nThe first command creates `sample/migrations/0001_initial.py`. The second fails while importing it:\r\n{{{\r\n  File \".../sample/migrations/0001_initial.py\", line 17\r\n    ('options', models.IntegerField(default=)),\r\n                                    ^^^^^^^^\r\nSyntaxError: expected argument value expression\r\n}}}\r\n\r\nThe [https://docs.djangoproject.com/en/dev/topics/migrations/#migration-serializing migration docs] list `enum.Flag` instances as serializable. The generated migration should import and preserve the zero-valued default. `EnumSerializer` joins member lookups with ` | `, but `list(Options.NONE)` is empty, so there is no expression after `default=`.\r\n\r\nIn fresh copies of the app, `Options.FIRST` loads as `1` as expected, but `Options(5)` also loads as `1` in migration state: both defaults serialize to `Options['FIRST']`, dropping the unnamed bit `4` from `Options(5)`. Related: #33916 added support for serializing flag combinations.\r\n\r\nI used Claude Code (Opus 5.5) and OpenCode (Sol 6.2 and Astra 6.2) for debugging, regression tests, and writing.\r\n",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 20, 2026, 7:38:09 AM",
+        "updated_at": "Nov 20, 2026, 7:38:09 AM",
+        "reporter": "cleissonom",
+        "owner": "",
+        "component": "Migrations",
+        "priority": "Low",
+        "severity": "Low",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37528",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37528",
+          "Summary": "makemigrations writes invalid Python for a zero-valued IntFlag default",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "Migrations",
+          "Severity": "Low",
+          "Resolution": "",
+          "Created": "Nov 20, 2026, 7:38:09 AM",
+          "Modified": "Nov 20, 2026, 7:38:09 AM",
+          "Reporter": "cleissonom",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "`makemigrations` succeeds when an `IntegerField` default is a zero-valued `enum.IntFlag` member, but writes `models.IntegerField(default=)`. Django then raises a `SyntaxError` when it imports the migration, before it can show the migration plan.\r\n\r\nReproduced on Django `6.2.dev20261119224235` (main, `c67d872765e05ebd009fadf7de8d834b01bae9e4`), CPython `3.12.15`, with in-memory SQLite.\r\n\r\nIn an empty directory, create `sample/__init__.py` (empty) and the following files.\r\n\r\n`settings.py`:\r\n{{{\r\n#!python\r\nSECRET_KEY = \"fixture\"\r\nINSTALLED_APPS = [\"sample\"]\r\nDATABASES = {\"default\": {\"ENGINE\": \"django.db.backends.sqlite3\", \"NAME\": \":memory:\"}}\r\n}}}\r\n\r\n`sample/models.py`:\r\n{{{\r\n#!python\r\nimport enum\r\n\r\nfrom django.db import models\r\n\r\n\r\nclass Options(enum.IntFlag):\r\n    NONE = 0\r\n    FIRST = 1\r\n    SECOND = 2\r\n\r\n\r\nclass Example(models.Model):\r\n    options = models.IntegerField(default=Options.NONE)\r\n}}}\r\n\r\nFrom that directory, with the indicated Django checkout on the Python import path, run:\r\n{{{\r\nexport DJANGO_SETTINGS_MODULE=settings\r\npython -m django makemigrations sample --no-header\r\npython -m django migrate --plan\r\n}}}\r\n\r\nThe first command creates `sample/migrations/0001_initial.py`. The second fails while importing it:\r\n{{{\r\n  File \".../sample/migrations/0001_initial.py\", line 17\r\n    ('options', models.IntegerField(default=)),\r\n                                    ^^^^^^^^\r\nSyntaxError: expected argument value expression\r\n}}}\r\n\r\nThe [https://docs.djangoproject.com/en/dev/topics/migrations/#migration-serializing migration docs] list `enum.Flag` instances as serializable. The generated migration should import and preserve the zero-valued default. `EnumSerializer` joins member lookups with ` | `, but `list(Options.NONE)` is empty, so there is no expression after `default=`.\r\n\r\nIn fresh copies of the app, `Options.FIRST` loads as `1` as expected, but `Options(5)` also loads as `1` in migration state: both defaults serialize to `Options['FIRST']`, dropping the unnamed bit `4` from `Options(5)`. Related: #33916 added support for serializing flag combinations.\r\n\r\nI used Claude Code (Opus 5.5) and OpenCode (Sol 6.2 and Astra 6.2) for debugging, regression tests, and writing.\r\n"
         }
       }
     }
