@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37528
+      "last_seen_id": 37530
     }
   },
   "tracked": {
@@ -3067,6 +3067,107 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "`makemigrations` succeeds when an `IntegerField` default is a zero-valued `enum.IntFlag` member, but writes `models.IntegerField(default=)`. Django then raises a `SyntaxError` when it imports the migration, before it can show the migration plan.\r\n\r\nReproduced on Django `6.2.dev20261119224235` (main, `c67d872765e05ebd009fadf7de8d834b01bae9e4`), CPython `3.12.15`, with in-memory SQLite.\r\n\r\nIn an empty directory, create `sample/__init__.py` (empty) and the following files.\r\n\r\n`settings.py`:\r\n{{{\r\n#!python\r\nSECRET_KEY = \"fixture\"\r\nINSTALLED_APPS = [\"sample\"]\r\nDATABASES = {\"default\": {\"ENGINE\": \"django.db.backends.sqlite3\", \"NAME\": \":memory:\"}}\r\n}}}\r\n\r\n`sample/models.py`:\r\n{{{\r\n#!python\r\nimport enum\r\n\r\nfrom django.db import models\r\n\r\n\r\nclass Options(enum.IntFlag):\r\n    NONE = 0\r\n    FIRST = 1\r\n    SECOND = 2\r\n\r\n\r\nclass Example(models.Model):\r\n    options = models.IntegerField(default=Options.NONE)\r\n}}}\r\n\r\nFrom that directory, with the indicated Django checkout on the Python import path, run:\r\n{{{\r\nexport DJANGO_SETTINGS_MODULE=settings\r\npython -m django makemigrations sample --no-header\r\npython -m django migrate --plan\r\n}}}\r\n\r\nThe first command creates `sample/migrations/0001_initial.py`. The second fails while importing it:\r\n{{{\r\n  File \".../sample/migrations/0001_initial.py\", line 17\r\n    ('options', models.IntegerField(default=)),\r\n                                    ^^^^^^^^\r\nSyntaxError: expected argument value expression\r\n}}}\r\n\r\nThe [https://docs.djangoproject.com/en/dev/topics/migrations/#migration-serializing migration docs] list `enum.Flag` instances as serializable. The generated migration should import and preserve the zero-valued default. `EnumSerializer` joins member lookups with ` | `, but `list(Options.NONE)` is empty, so there is no expression after `default=`.\r\n\r\nIn fresh copies of the app, `Options.FIRST` loads as `1` as expected, but `Options(5)` also loads as `1` in migration state: both defaults serialize to `Options['FIRST']`, dropping the unnamed bit `4` from `Options(5)`. Related: #33916 added support for serializing flag combinations.\r\n\r\nI used Claude Code (Opus 5.5) and OpenCode (Sol 6.2 and Astra 6.2) for debugging, regression tests, and writing.\r\n"
+        }
+      }
+    },
+    "django:37529": {
+      "source": "django",
+      "ticket_id": 37529,
+      "watcher_issue_number": 196,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-20T21:36:24.382655+00:00",
+      "last_updated": "2026-11-20T21:36:24.382655+00:00",
+      "ticket_data": {
+        "id": 37529,
+        "source_id": "django",
+        "title": "ValueError for timeout=0 with pylibmc 1.8.0",
+        "description": "pylibmc 1.8.0 from 2026-11-18 raises `ValueError: time must not be negative` during `cache.tests.PyLibMCCacheTests.test_zero_timeout`.\r\n\r\n[https://github.com/lericson/pylibmc/releases/tag/1.8.0 Release notes] and [https://github.com/lericson/pylibmc/issues/202 PR]\r\n\r\nDjango interprets a timeout of 0 as \"immediately expire\". This was re-confirmed when adding the redis backend, see 7f33c1e22dbc34a7afae7967783725b10f1f13b1:\r\n\r\n{{{#!py\r\n        elif int(timeout) == 0:\r\n            # Other cache backends treat 0 as set-and-expire. To achieve this\r\n            # in memcache backends, a negative timeout must be passed.\r\n            timeout = -1\r\n}}}\r\n\r\nI suggest we adapt the pylibmc backend to continue supporting this contract even when 1.8.0 is in use by adjusting it to `delete()` instead when the timeout is zero, following the example of the redis backend:\r\n\r\n{{{#!py\r\n        if timeout == 0:\r\n            client.delete(key)\r\n        else:\r\n            client.set(key, value, ex=timeout)\r\n}}}\r\n\r\nThis will also have the benefit of fixing the semantic when binary mode is enabled, as apparently negative values meant cache forever (and indeed this is why the `ValueError` was added to `pylibmc`).\r\n\r\nSuggest backporting to 6.1. Another commit could make `pylibmc` 1.7 the minimum for the main branch as it's the first version to declare support for Python 3.12, but won't backport it.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 20, 2026, 8:27:44 AM",
+        "updated_at": "Nov 20, 2026, 10:20:26 AM",
+        "reporter": "Jacob Walls",
+        "owner": "Jacob Walls",
+        "component": "Core (Cache system)",
+        "priority": "Release blocker",
+        "severity": "Release blocker",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37529",
+        "pr_url": "https://github.com/django/django/pull/22319",
+        "pr_status": "open",
+        "raw_data": {
+          "id": "37529",
+          "Summary": "ValueError for timeout=0 with pylibmc 1.8.0",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Core (Cache system)",
+          "Severity": "Release blocker",
+          "Resolution": "",
+          "Created": "Nov 20, 2026, 8:27:44 AM",
+          "Modified": "Nov 20, 2026, 10:20:26 AM",
+          "Reporter": "Jacob Walls",
+          "Owner": "Jacob Walls",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "pylibmc 1.8.0 from 2026-11-18 raises `ValueError: time must not be negative` during `cache.tests.PyLibMCCacheTests.test_zero_timeout`.\r\n\r\n[https://github.com/lericson/pylibmc/releases/tag/1.8.0 Release notes] and [https://github.com/lericson/pylibmc/issues/202 PR]\r\n\r\nDjango interprets a timeout of 0 as \"immediately expire\". This was re-confirmed when adding the redis backend, see 7f33c1e22dbc34a7afae7967783725b10f1f13b1:\r\n\r\n{{{#!py\r\n        elif int(timeout) == 0:\r\n            # Other cache backends treat 0 as set-and-expire. To achieve this\r\n            # in memcache backends, a negative timeout must be passed.\r\n            timeout = -1\r\n}}}\r\n\r\nI suggest we adapt the pylibmc backend to continue supporting this contract even when 1.8.0 is in use by adjusting it to `delete()` instead when the timeout is zero, following the example of the redis backend:\r\n\r\n{{{#!py\r\n        if timeout == 0:\r\n            client.delete(key)\r\n        else:\r\n            client.set(key, value, ex=timeout)\r\n}}}\r\n\r\nThis will also have the benefit of fixing the semantic when binary mode is enabled, as apparently negative values meant cache forever (and indeed this is why the `ValueError` was added to `pylibmc`).\r\n\r\nSuggest backporting to 6.1. Another commit could make `pylibmc` 1.7 the minimum for the main branch as it's the first version to declare support for Python 3.12, but won't backport it."
+        }
+      }
+    },
+    "django:37530": {
+      "source": "django",
+      "ticket_id": 37530,
+      "watcher_issue_number": 197,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-20T21:36:25.854994+00:00",
+      "last_updated": "2026-11-20T21:36:25.854994+00:00",
+      "ticket_data": {
+        "id": 37530,
+        "source_id": "django",
+        "title": "The multiline `endcomment` closes the block early, leaving the final, single-line `endcomment` outside it.",
+        "description": "The [https://docs.djangoproject.com/en/dev/releases/6.2/#multiline-template-tag-parsing Django 6.2 release notes] say that setting `allow_multiline_tags=False` restores the previous template parsing behavior. However, the template below compiles on Django 6.1 but fails on 6.2 even with this setting.\r\n\r\nTo reproduce on the Django 6.2 development version:\r\n\r\n{{{\r\n#!python\r\nfrom django.template import Context, Engine\r\n\r\nsource = \"{% comment %}x{%\\nendcomment %}y{% endcomment %}z\"\r\nprint(Engine(allow_multiline_tags=False).from_string(source).render(Context()))\r\n}}}\r\n\r\nExpected output: `z`. The first `endcomment` has its `{%` and `%}` on separate lines, so it should remain comment text. The final, single-line `endcomment` should close the block. On Django 6.1.3, the same template prints `z` using `Engine()` without the new option.\r\n\r\nOn `main` at `c67d872765e05ebd009fadf7de8d834b01bae9e4` (6.2 alpha 0), it raises:\r\n\r\n{{{\r\nTemplateSyntaxError: Invalid block tag on line 2: 'endcomment'. Did you forget to register or load this tag?\r\n}}}\r\n\r\nThe multiline `endcomment` closes the block early, leaving the final, single-line `endcomment` outside it. Both versions were tested with Python 3.14.6.\r\n\r\n`Lexer._tag_re_split()` uses separate patterns to match closing tags inside `comment` and `verbatim` blocks. These patterns still match across newlines when `allow_multiline_tags=False`. This also affects named and unnamed `verbatim` blocks: they end early instead of rendering the multiline lookalike as literal text.\r\n\r\nWith `allow_multiline_tags=True`, a multiline closing tag on its own ends each block as expected. #37518 concerns a missing space between `endverbatim` and the block name in the default mode.\r\n\r\nAI disclosure: OpenAI GPT-6.2 (Astra and Sol, via OpenCode) was used to investigate and reproduce the bug.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 20, 2026, 9:29:36 AM",
+        "updated_at": "Nov 20, 2026, 9:29:36 AM",
+        "reporter": "Cleisson",
+        "owner": "Cleisson",
+        "component": "Template system",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37530",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37530",
+          "Summary": "The multiline `endcomment` closes the block early, leaving the final, single-line `endcomment` outside it.",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Template system",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 20, 2026, 9:29:36 AM",
+          "Modified": "Nov 20, 2026, 9:29:36 AM",
+          "Reporter": "Cleisson",
+          "Owner": "Cleisson",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "The [https://docs.djangoproject.com/en/dev/releases/6.2/#multiline-template-tag-parsing Django 6.2 release notes] say that setting `allow_multiline_tags=False` restores the previous template parsing behavior. However, the template below compiles on Django 6.1 but fails on 6.2 even with this setting.\r\n\r\nTo reproduce on the Django 6.2 development version:\r\n\r\n{{{\r\n#!python\r\nfrom django.template import Context, Engine\r\n\r\nsource = \"{% comment %}x{%\\nendcomment %}y{% endcomment %}z\"\r\nprint(Engine(allow_multiline_tags=False).from_string(source).render(Context()))\r\n}}}\r\n\r\nExpected output: `z`. The first `endcomment` has its `{%` and `%}` on separate lines, so it should remain comment text. The final, single-line `endcomment` should close the block. On Django 6.1.3, the same template prints `z` using `Engine()` without the new option.\r\n\r\nOn `main` at `c67d872765e05ebd009fadf7de8d834b01bae9e4` (6.2 alpha 0), it raises:\r\n\r\n{{{\r\nTemplateSyntaxError: Invalid block tag on line 2: 'endcomment'. Did you forget to register or load this tag?\r\n}}}\r\n\r\nThe multiline `endcomment` closes the block early, leaving the final, single-line `endcomment` outside it. Both versions were tested with Python 3.14.6.\r\n\r\n`Lexer._tag_re_split()` uses separate patterns to match closing tags inside `comment` and `verbatim` blocks. These patterns still match across newlines when `allow_multiline_tags=False`. This also affects named and unnamed `verbatim` blocks: they end early instead of rendering the multiline lookalike as literal text.\r\n\r\nWith `allow_multiline_tags=True`, a multiline closing tag on its own ends each block as expected. #37518 concerns a missing space between `endverbatim` and the block name in the default mode.\r\n\r\nAI disclosure: OpenAI GPT-6.2 (Astra and Sol, via OpenCode) was used to investigate and reproduce the bug."
         }
       }
     }
