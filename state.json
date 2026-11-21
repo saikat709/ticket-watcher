@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37530
+      "last_seen_id": 37532
     }
   },
   "tracked": {
@@ -3168,6 +3168,106 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "The [https://docs.djangoproject.com/en/dev/releases/6.2/#multiline-template-tag-parsing Django 6.2 release notes] say that setting `allow_multiline_tags=False` restores the previous template parsing behavior. However, the template below compiles on Django 6.1 but fails on 6.2 even with this setting.\r\n\r\nTo reproduce on the Django 6.2 development version:\r\n\r\n{{{\r\n#!python\r\nfrom django.template import Context, Engine\r\n\r\nsource = \"{% comment %}x{%\\nendcomment %}y{% endcomment %}z\"\r\nprint(Engine(allow_multiline_tags=False).from_string(source).render(Context()))\r\n}}}\r\n\r\nExpected output: `z`. The first `endcomment` has its `{%` and `%}` on separate lines, so it should remain comment text. The final, single-line `endcomment` should close the block. On Django 6.1.3, the same template prints `z` using `Engine()` without the new option.\r\n\r\nOn `main` at `c67d872765e05ebd009fadf7de8d834b01bae9e4` (6.2 alpha 0), it raises:\r\n\r\n{{{\r\nTemplateSyntaxError: Invalid block tag on line 2: 'endcomment'. Did you forget to register or load this tag?\r\n}}}\r\n\r\nThe multiline `endcomment` closes the block early, leaving the final, single-line `endcomment` outside it. Both versions were tested with Python 3.14.6.\r\n\r\n`Lexer._tag_re_split()` uses separate patterns to match closing tags inside `comment` and `verbatim` blocks. These patterns still match across newlines when `allow_multiline_tags=False`. This also affects named and unnamed `verbatim` blocks: they end early instead of rendering the multiline lookalike as literal text.\r\n\r\nWith `allow_multiline_tags=True`, a multiline closing tag on its own ends each block as expected. #37518 concerns a missing space between `endverbatim` and the block name in the default mode.\r\n\r\nAI disclosure: OpenAI GPT-6.2 (Astra and Sol, via OpenCode) was used to investigate and reproduce the bug."
+        }
+      }
+    },
+    "django:37531": {
+      "source": "django",
+      "ticket_id": 37531,
+      "watcher_issue_number": 198,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-21T17:40:43.187451+00:00",
+      "last_updated": "2026-11-21T17:40:43.187451+00:00",
+      "ticket_data": {
+        "id": 37531,
+        "source_id": "django",
+        "title": "Model formsets raise TypeError with sliced querysets ordered by a non-unique field",
+        "description": "Model formsets raise `TypeError: Cannot reorder a query once a slice has been taken.` when given a sliced queryset ordered by a non-unique field.\r\n\r\nThis worked in Django 6.0.10, but fails in 6.1, 6.1.3, and on main at `c67d872765`.\r\n\r\nTo reproduce, use an `Author` model with a non-unique `name` field and run the following against an empty table:\r\n\r\n{{{\r\n#!python\r\nfrom django.forms import modelformset_factory\r\nfor name in [\"Walt\", \"Charles\", \"Arthur\", \"Paul\"]:\r\n    Author.objects.create(name=name)\r\nAuthorFormSet = modelformset_factory(Author, fields=[\"name\"], extra=0)\r\nformset = AuthorFormSet(queryset=Author.objects.order_by(\"name\")[1:3])\r\n[form.instance.name for form in formset.forms]\r\n}}}\r\n\r\nExpected result: `[\"Charles\", \"Paul\"]`, preserving the order of the supplied queryset.\r\n\r\nActual result: `TypeError: Cannot reorder a query once a slice has been taken.`\r\n\r\nI traced the regression to [https://github.com/django/django/commit/856c915326768962806705ca7733e4abbb8f794f 856c915326], introduced for #37004. The change makes `BaseModelFormSet.get_queryset()` append `pk` when the queryset isn\u2019t totally ordered. For sliced querysets, this triggers an `order_by()` call after the slice, which Django doesn\u2019t allow.\r\n\r\nI confirmed this with a SQLite regression test that passes on the parent of that commit and fails on the commit itself.\r\n\r\nI\u2019ve also prepared a patch on my fork.\r\n\r\nThe regression test fails on main at `c67d872765` and passes with the patch on both SQLite and PostgreSQL 18.6. Both model formset test modules also pass on PostgreSQL.\r\n\r\nIf the ticket is accepted, I\u2019ll open a pull request with the fix.\r\n\r\nI used OpenAI Codex with GPT-6.2 Astra and GPT-6.2 Sol to investigate and reproduce the regression, prepare the patch, and run the tests.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 21, 2026, 8:50:00 AM",
+        "updated_at": "Nov 21, 2026, 8:50:00 AM",
+        "reporter": "Cleisson",
+        "owner": "Cleisson",
+        "component": "Forms",
+        "priority": "Release blocker",
+        "severity": "Release blocker",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37531",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37531",
+          "Summary": "Model formsets raise TypeError with sliced querysets ordered by a non-unique field",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Forms",
+          "Severity": "Release blocker",
+          "Resolution": "",
+          "Created": "Nov 21, 2026, 8:50:00 AM",
+          "Modified": "Nov 21, 2026, 8:50:00 AM",
+          "Reporter": "Cleisson",
+          "Owner": "Cleisson",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Model formsets raise `TypeError: Cannot reorder a query once a slice has been taken.` when given a sliced queryset ordered by a non-unique field.\r\n\r\nThis worked in Django 6.0.10, but fails in 6.1, 6.1.3, and on main at `c67d872765`.\r\n\r\nTo reproduce, use an `Author` model with a non-unique `name` field and run the following against an empty table:\r\n\r\n{{{\r\n#!python\r\nfrom django.forms import modelformset_factory\r\nfor name in [\"Walt\", \"Charles\", \"Arthur\", \"Paul\"]:\r\n    Author.objects.create(name=name)\r\nAuthorFormSet = modelformset_factory(Author, fields=[\"name\"], extra=0)\r\nformset = AuthorFormSet(queryset=Author.objects.order_by(\"name\")[1:3])\r\n[form.instance.name for form in formset.forms]\r\n}}}\r\n\r\nExpected result: `[\"Charles\", \"Paul\"]`, preserving the order of the supplied queryset.\r\n\r\nActual result: `TypeError: Cannot reorder a query once a slice has been taken.`\r\n\r\nI traced the regression to [https://github.com/django/django/commit/856c915326768962806705ca7733e4abbb8f794f 856c915326], introduced for #37004. The change makes `BaseModelFormSet.get_queryset()` append `pk` when the queryset isn\u2019t totally ordered. For sliced querysets, this triggers an `order_by()` call after the slice, which Django doesn\u2019t allow.\r\n\r\nI confirmed this with a SQLite regression test that passes on the parent of that commit and fails on the commit itself.\r\n\r\nI\u2019ve also prepared a patch on my fork.\r\n\r\nThe regression test fails on main at `c67d872765` and passes with the patch on both SQLite and PostgreSQL 18.6. Both model formset test modules also pass on PostgreSQL.\r\n\r\nIf the ticket is accepted, I\u2019ll open a pull request with the fix.\r\n\r\nI used OpenAI Codex with GPT-6.2 Astra and GPT-6.2 Sol to investigate and reproduce the regression, prepare the patch, and run the tests."
+        }
+      }
+    },
+    "django:37532": {
+      "source": "django",
+      "ticket_id": 37532,
+      "watcher_issue_number": 199,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-21T17:40:44.531614+00:00",
+      "last_updated": "2026-11-21T17:40:44.531614+00:00",
+      "ticket_data": {
+        "id": 37532,
+        "source_id": "django",
+        "title": "GDALRaster._preprocess_input doesn't handle RecursionError from deeply nested JSON",
+        "description": "== Problem ==\r\n\r\n`GDALRaster._preprocess_input` (django/contrib/gis/gdal/raster/source.py:243)\r\ncalls `json.loads(ds_input)` without catching `RecursionError`. While Python's\r\njson C parser is mostly iterative, `json.loads()` may still raise\r\n`RecursionError` rather than `JSONDecodeError` when input nesting exceeds the\r\ninterpreter's recursion limit (the same behavior that motivated the fix in\r\n#37491 / CVE-2026-114582 for `ExternalCRSBlocker.check()` in\r\ndjango/contrib/gis/gdal/geojson.py).\r\n\r\n== Sibling already fixed ==\r\n\r\n`ExternalCRSBlocker.check()` was patched 9 days ago (commit d3954c9, Nov 12)\r\nto catch `RecursionError` and reraise as `ValueError(\"GeoJSON input is nested\r\ntoo deeply.\")`. The form fields `JSONField` and `HStoreField` also catch\r\n`RecursionError` (tests/forms_tests/field_tests/test_jsonfield.py:33-39 and\r\ntests/postgres_tests/test_hstore.py:377-382).\r\n\r\n`GDALRaster._preprocess_input` is the direct sibling in the same module area\r\nand missed the same treatment.\r\n\r\n== Proposed fix ==\r\n\r\nWrap `json.loads(ds_input)` in `try/except RecursionError` and reraise as\r\n`ValueError(\"Raster JSON input is nested too deeply.\")`, mirroring the\r\ngeojson.py fix.\r\n\r\n== Reproduction ==\r\n\r\nConstructing `GDALRaster(deeply_nested_json_string)` (e.g. via direct API\r\ncall or any code path that passes attacker-controlled JSON to GDALRaster)\r\ncurrently propagates an uncaught `RecursionError` to the caller. With the\r\nproposed fix, callers receive a `ValueError` they can handle as a bad-input\r\ncondition (the form field already catches `ValueError`).",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 21, 2026, 10:55:06 AM",
+        "updated_at": "Nov 21, 2026, 10:55:06 AM",
+        "reporter": "Rishaank Gupta ",
+        "owner": "",
+        "component": "GIS",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37532",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37532",
+          "Summary": "GDALRaster._preprocess_input doesn't handle RecursionError from deeply nested JSON",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "GIS",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 21, 2026, 10:55:06 AM",
+          "Modified": "Nov 21, 2026, 10:55:06 AM",
+          "Reporter": "Rishaank Gupta ",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "== Problem ==\r\n\r\n`GDALRaster._preprocess_input` (django/contrib/gis/gdal/raster/source.py:243)\r\ncalls `json.loads(ds_input)` without catching `RecursionError`. While Python's\r\njson C parser is mostly iterative, `json.loads()` may still raise\r\n`RecursionError` rather than `JSONDecodeError` when input nesting exceeds the\r\ninterpreter's recursion limit (the same behavior that motivated the fix in\r\n#37491 / CVE-2026-114582 for `ExternalCRSBlocker.check()` in\r\ndjango/contrib/gis/gdal/geojson.py).\r\n\r\n== Sibling already fixed ==\r\n\r\n`ExternalCRSBlocker.check()` was patched 9 days ago (commit d3954c9, Nov 12)\r\nto catch `RecursionError` and reraise as `ValueError(\"GeoJSON input is nested\r\ntoo deeply.\")`. The form fields `JSONField` and `HStoreField` also catch\r\n`RecursionError` (tests/forms_tests/field_tests/test_jsonfield.py:33-39 and\r\ntests/postgres_tests/test_hstore.py:377-382).\r\n\r\n`GDALRaster._preprocess_input` is the direct sibling in the same module area\r\nand missed the same treatment.\r\n\r\n== Proposed fix ==\r\n\r\nWrap `json.loads(ds_input)` in `try/except RecursionError` and reraise as\r\n`ValueError(\"Raster JSON input is nested too deeply.\")`, mirroring the\r\ngeojson.py fix.\r\n\r\n== Reproduction ==\r\n\r\nConstructing `GDALRaster(deeply_nested_json_string)` (e.g. via direct API\r\ncall or any code path that passes attacker-controlled JSON to GDALRaster)\r\ncurrently propagates an uncaught `RecursionError` to the caller. With the\r\nproposed fix, callers receive a `ValueError` they can handle as a bad-input\r\ncondition (the form field already catches `ValueError`)."
         }
       }
     }
