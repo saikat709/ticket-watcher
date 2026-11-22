@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37532
+      "last_seen_id": 37533
     }
   },
   "tracked": {
@@ -3268,6 +3268,57 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "== Problem ==\r\n\r\n`GDALRaster._preprocess_input` (django/contrib/gis/gdal/raster/source.py:243)\r\ncalls `json.loads(ds_input)` without catching `RecursionError`. While Python's\r\njson C parser is mostly iterative, `json.loads()` may still raise\r\n`RecursionError` rather than `JSONDecodeError` when input nesting exceeds the\r\ninterpreter's recursion limit (the same behavior that motivated the fix in\r\n#37491 / CVE-2026-114582 for `ExternalCRSBlocker.check()` in\r\ndjango/contrib/gis/gdal/geojson.py).\r\n\r\n== Sibling already fixed ==\r\n\r\n`ExternalCRSBlocker.check()` was patched 9 days ago (commit d3954c9, Nov 12)\r\nto catch `RecursionError` and reraise as `ValueError(\"GeoJSON input is nested\r\ntoo deeply.\")`. The form fields `JSONField` and `HStoreField` also catch\r\n`RecursionError` (tests/forms_tests/field_tests/test_jsonfield.py:33-39 and\r\ntests/postgres_tests/test_hstore.py:377-382).\r\n\r\n`GDALRaster._preprocess_input` is the direct sibling in the same module area\r\nand missed the same treatment.\r\n\r\n== Proposed fix ==\r\n\r\nWrap `json.loads(ds_input)` in `try/except RecursionError` and reraise as\r\n`ValueError(\"Raster JSON input is nested too deeply.\")`, mirroring the\r\ngeojson.py fix.\r\n\r\n== Reproduction ==\r\n\r\nConstructing `GDALRaster(deeply_nested_json_string)` (e.g. via direct API\r\ncall or any code path that passes attacker-controlled JSON to GDALRaster)\r\ncurrently propagates an uncaught `RecursionError` to the caller. With the\r\nproposed fix, callers receive a `ValueError` they can handle as a bad-input\r\ncondition (the form field already catches `ValueError`)."
+        }
+      }
+    },
+    "django:37533": {
+      "source": "django",
+      "ticket_id": 37533,
+      "watcher_issue_number": 200,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-22T17:57:19.748359+00:00",
+      "last_updated": "2026-11-22T17:57:19.748359+00:00",
+      "ticket_data": {
+        "id": 37533,
+        "source_id": "django",
+        "title": "Admin calendar and time picker hover/focus style has insufficient contrast in the light theme",
+        "description": "In the admin's calendar and time picker, a hovered or keyboard-focused day or time is shown with white text on `var(--primary)`, which is `#79aec8` in the light theme. That's a contrast ratio of 2.41:1, below the WCAG 2.1 AA minimum of 4.5:1 for normal text ([https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html SC 1.4.3]). Calendar days are 12px and time options 13px, both normal weight.\r\n\r\nBoth use the same rule in `django/contrib/admin/static/admin/css/widgets.css` (unchanged at c67d872765 on main):\r\n{{{\r\n.calendar td a:focus,\r\n.timelist a:focus,\r\n.calendar td a:hover,\r\n.timelist a:hover {\r\n    background: var(--primary);\r\n    color: white;\r\n}\r\n}}}\r\n\r\nComputed colours on the demo at https://thibaudcolas.github.io/django_admin_tests/latest/english/admin/auth/user/1/change/ (Django 6.2.dev20261022174430), Chromium 143 on macOS, light theme: white on `#79aec8` for both hover and keyboard focus, on a calendar day and on a time option. On current main (c67d872765, run locally in Firefox), a time option reached with Tab has computed white on `#79aec8`, and Firefox's accessibility inspector shows 2.41 on hover for both a calendar day and a time option. In the dark theme, the same hover/focus pair is white on `#264b5d` (9.35:1).\r\n\r\nSteps to reproduce:\r\n 1. Open a change form with a date and time field in the light theme, for example a user's \"Last login\".\r\n 2. Open the calendar (calendar icon) or the time picker (clock icon), then hover over a day or time, or Tab to one.\r\n\r\nRelated: #34036 moved `.calendar td.selected a` to `var(--secondary)` but left this rule. [https://github.com/django/django/pull/12967 PR #12967] (for #31617, closed) proposed `#609ab6` for this rule, which would still be about 3.09:1. #36192 ([https://github.com/django/django/pull/21350 PR #21350]) changes these selectors from `a` to `button`, so a fix would touch the same lines.\r\n\r\nThibaud Colas pointed this out to me on Discord. I'm a Djangonaut in Session 7 and would like to work on it.\r\n",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 22, 2026, 4:47:02 AM",
+        "updated_at": "Nov 22, 2026, 4:53:17 AM",
+        "reporter": "Alin Morosanu",
+        "owner": "",
+        "component": "contrib.admin",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed",
+          "ui/ux"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37533",
+        "pr_url": "https://github.com/django/django/pull/12967",
+        "pr_status": "closed",
+        "raw_data": {
+          "id": "37533",
+          "Summary": "Admin calendar and time picker hover/focus style has insufficient contrast in the light theme",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "contrib.admin",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 22, 2026, 4:47:02 AM",
+          "Modified": "Nov 22, 2026, 4:53:17 AM",
+          "Reporter": "Alin Morosanu",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "1",
+          "Description": "In the admin's calendar and time picker, a hovered or keyboard-focused day or time is shown with white text on `var(--primary)`, which is `#79aec8` in the light theme. That's a contrast ratio of 2.41:1, below the WCAG 2.1 AA minimum of 4.5:1 for normal text ([https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html SC 1.4.3]). Calendar days are 12px and time options 13px, both normal weight.\r\n\r\nBoth use the same rule in `django/contrib/admin/static/admin/css/widgets.css` (unchanged at c67d872765 on main):\r\n{{{\r\n.calendar td a:focus,\r\n.timelist a:focus,\r\n.calendar td a:hover,\r\n.timelist a:hover {\r\n    background: var(--primary);\r\n    color: white;\r\n}\r\n}}}\r\n\r\nComputed colours on the demo at https://thibaudcolas.github.io/django_admin_tests/latest/english/admin/auth/user/1/change/ (Django 6.2.dev20261022174430), Chromium 143 on macOS, light theme: white on `#79aec8` for both hover and keyboard focus, on a calendar day and on a time option. On current main (c67d872765, run locally in Firefox), a time option reached with Tab has computed white on `#79aec8`, and Firefox's accessibility inspector shows 2.41 on hover for both a calendar day and a time option. In the dark theme, the same hover/focus pair is white on `#264b5d` (9.35:1).\r\n\r\nSteps to reproduce:\r\n 1. Open a change form with a date and time field in the light theme, for example a user's \"Last login\".\r\n 2. Open the calendar (calendar icon) or the time picker (clock icon), then hover over a day or time, or Tab to one.\r\n\r\nRelated: #34036 moved `.calendar td.selected a` to `var(--secondary)` but left this rule. [https://github.com/django/django/pull/12967 PR #12967] (for #31617, closed) proposed `#609ab6` for this rule, which would still be about 3.09:1. #36192 ([https://github.com/django/django/pull/21350 PR #21350]) changes these selectors from `a` to `button`, so a fix would touch the same lines.\r\n\r\nThibaud Colas pointed this out to me on Discord. I'm a Djangonaut in Session 7 and would like to work on it.\r\n"
         }
       }
     }
