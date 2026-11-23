@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37533
+      "last_seen_id": 37535
     }
   },
   "tracked": {
@@ -3319,6 +3319,57 @@
           "Needs documentation": "0",
           "UI/UX": "1",
           "Description": "In the admin's calendar and time picker, a hovered or keyboard-focused day or time is shown with white text on `var(--primary)`, which is `#79aec8` in the light theme. That's a contrast ratio of 2.41:1, below the WCAG 2.1 AA minimum of 4.5:1 for normal text ([https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html SC 1.4.3]). Calendar days are 12px and time options 13px, both normal weight.\r\n\r\nBoth use the same rule in `django/contrib/admin/static/admin/css/widgets.css` (unchanged at c67d872765 on main):\r\n{{{\r\n.calendar td a:focus,\r\n.timelist a:focus,\r\n.calendar td a:hover,\r\n.timelist a:hover {\r\n    background: var(--primary);\r\n    color: white;\r\n}\r\n}}}\r\n\r\nComputed colours on the demo at https://thibaudcolas.github.io/django_admin_tests/latest/english/admin/auth/user/1/change/ (Django 6.2.dev20261022174430), Chromium 143 on macOS, light theme: white on `#79aec8` for both hover and keyboard focus, on a calendar day and on a time option. On current main (c67d872765, run locally in Firefox), a time option reached with Tab has computed white on `#79aec8`, and Firefox's accessibility inspector shows 2.41 on hover for both a calendar day and a time option. In the dark theme, the same hover/focus pair is white on `#264b5d` (9.35:1).\r\n\r\nSteps to reproduce:\r\n 1. Open a change form with a date and time field in the light theme, for example a user's \"Last login\".\r\n 2. Open the calendar (calendar icon) or the time picker (clock icon), then hover over a day or time, or Tab to one.\r\n\r\nRelated: #34036 moved `.calendar td.selected a` to `var(--secondary)` but left this rule. [https://github.com/django/django/pull/12967 PR #12967] (for #31617, closed) proposed `#609ab6` for this rule, which would still be about 3.09:1. #36192 ([https://github.com/django/django/pull/21350 PR #21350]) changes these selectors from `a` to `button`, so a fix would touch the same lines.\r\n\r\nThibaud Colas pointed this out to me on Discord. I'm a Djangonaut in Session 7 and would like to work on it.\r\n"
+        }
+      }
+    },
+    "django:37535": {
+      "source": "django",
+      "ticket_id": 37535,
+      "watcher_issue_number": 201,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-23T13:47:45.861012+00:00",
+      "last_updated": "2026-11-23T13:47:45.861012+00:00",
+      "ticket_data": {
+        "id": 37535,
+        "source_id": "django",
+        "title": "Model._perform_unique_checks() uses the default connection's features instead of the routed database's",
+        "description": "`Model._perform_unique_checks()` decides whether to skip a lookup for an empty string using `connection.features.interprets_empty_strings_as_nulls`, where `connection` is the default database connection.\r\n\r\nHowever, the uniqueness query that follows is routed through `DATABASE_ROUTERS` (via `model_class._default_manager.db`). When reads are routed to a database whose backend differs from the default one (for example Oracle alongside PostgreSQL), the empty-string check uses the wrong backend's behavior, so validation can skip or run the uniqueness query incorrectly.\r\n\r\nThere was already a `TODO: Handle multiple backends with different feature flags` at that spot. Other code, such as `UniqueConstraint.validate()` and related managers, already resolves `features` from the routed database alias.\r\n\r\nSteps to reproduce: configure two databases with different values of `features.interprets_empty_strings_as_nulls`, add a router whose `db_for_read()` returns the non-default alias, and call `validate_unique()` on an instance with an empty string in a unique `CharField`. Whether the query runs depends on the default database rather than the routed one.\r\n\r\nPatch: https://github.com/nehmtech/django/tree/unique-checks-routed-db-features",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 23, 2026, 3:24:06 AM",
+        "updated_at": "Nov 23, 2026, 7:47:35 AM",
+        "reporter": "Nehemiah Wekesa",
+        "owner": "Nehemiah Wekesa",
+        "component": "Database layer (models, ORM)",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted",
+          "has-patch"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37535",
+        "pr_url": "https://github.com/django/django/pull/22327",
+        "pr_status": "open",
+        "raw_data": {
+          "id": "37535",
+          "Summary": "Model._perform_unique_checks() uses the default connection's features instead of the routed database's",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Database layer (models, ORM)",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 23, 2026, 3:24:06 AM",
+          "Modified": "Nov 23, 2026, 7:47:35 AM",
+          "Reporter": "Nehemiah Wekesa",
+          "Owner": "Nehemiah Wekesa",
+          "Triage Stage": "Accepted",
+          "Has patch": "1",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "`Model._perform_unique_checks()` decides whether to skip a lookup for an empty string using `connection.features.interprets_empty_strings_as_nulls`, where `connection` is the default database connection.\r\n\r\nHowever, the uniqueness query that follows is routed through `DATABASE_ROUTERS` (via `model_class._default_manager.db`). When reads are routed to a database whose backend differs from the default one (for example Oracle alongside PostgreSQL), the empty-string check uses the wrong backend's behavior, so validation can skip or run the uniqueness query incorrectly.\r\n\r\nThere was already a `TODO: Handle multiple backends with different feature flags` at that spot. Other code, such as `UniqueConstraint.validate()` and related managers, already resolves `features` from the routed database alias.\r\n\r\nSteps to reproduce: configure two databases with different values of `features.interprets_empty_strings_as_nulls`, add a router whose `db_for_read()` returns the non-default alias, and call `validate_unique()` on an instance with an empty string in a unique `CharField`. Whether the query runs depends on the default database rather than the routed one.\r\n\r\nPatch: https://github.com/nehmtech/django/tree/unique-checks-routed-db-features"
         }
       }
     }
