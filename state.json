@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37536
+      "last_seen_id": 37537
     }
   },
   "tracked": {
@@ -3420,6 +3420,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "After upgrading from Django 6.0.10 to 6.1, an existing admin changelist can fail to render when `ModelAdmin.get_queryset()` uses `only()` and `list_display` includes a deferred foreign key. The changelist should display the row and load the deferred relation on access, as it does on 6.0.10.\r\n\r\nSave the script below as `repro.py` and run `python repro.py` in an environment with Django installed. It uses in-memory SQLite and needs no project or database setup. The `Control` disables the implicit join with `list_select_related = ()`.\r\n\r\n{{{#!python\r\nfrom types import SimpleNamespace\r\n\r\nimport django\r\nfrom django.conf import settings\r\n\r\nsettings.configure(\r\n    SECRET_KEY=\"demo\",\r\n    ROOT_URLCONF=__name__,\r\n    DATABASES={\"default\": {\"ENGINE\": \"django.db.backends.sqlite3\", \"NAME\": \":memory:\"}},\r\n    INSTALLED_APPS=[\"django.contrib.contenttypes\", \"django.contrib.auth\", \"django.contrib.admin\"],\r\n)\r\nurlpatterns = []\r\ndjango.setup()\r\nfrom django.contrib import admin\r\nfrom django.db import connection, models\r\nfrom django.test import RequestFactory\r\n\r\nclass Author(models.Model):\r\n    name = models.CharField(max_length=20)\r\n    class Meta:\r\n        app_label = \"demo\"\r\n    def __str__(self):\r\n        return self.name\r\n\r\nclass Book(models.Model):\r\n    title = models.CharField(max_length=40)\r\n    author = models.ForeignKey(Author, null=True, on_delete=models.CASCADE)\r\n    class Meta:\r\n        app_label = \"demo\"\r\n\r\nclass BookAdmin(admin.ModelAdmin):\r\n    list_display = (\"title\", \"author\")\r\n    def get_queryset(self, request):\r\n        return super().get_queryset(request).only(\"title\")\r\n\r\nwith connection.schema_editor() as schema:\r\n    schema.create_model(Author)\r\n    schema.create_model(Book)\r\nBook.objects.create(title=\"Novel\", author=Author.objects.create(name=\"Writer\"))\r\nrequest = RequestFactory().get(\"/\")\r\nrequest.user = SimpleNamespace(is_active=True, is_staff=True, has_perm=lambda *args: True)\r\nfor form in [type(\"Control\",(BookAdmin,),{\"list_select_related\": ()}), BookAdmin]:\r\n    changelist = form(Book, admin.AdminSite()).get_changelist_instance(request)\r\n    try:\r\n        print(django.get_version(), form.__name__, [(obj.title,str(obj.author)) for obj in changelist.result_list], flush=True)\r\n    except Exception as exc:\r\n        print(django.get_version(), form.__name__, type(exc).__name__, str(exc), flush=True)\r\n}}}\r\n\r\nOn Django 6.0.10, both admin classes return `[('Novel', 'Writer')]`. On Django 6.1 and 6.1.3, the control still returns the row, but the default admin raises:\r\n\r\n{{{\r\nFieldError: Field Book.author cannot be both deferred and traversed using select_related at the same time.\r\n}}}\r\n\r\nThe same result occurs on main at f14af5a88472ca10e2e94b37d6c17ee48cbdeb4d. The script passes on 4d455ae2d7689ce066dfffef9fc29a6f6d3ed33e and first fails at 0c634de4e6950ec6fb83ab420b4af9c645b28acd (#36593). That commit changed the default changelist to pass the displayed foreign key explicitly to `select_related()`. The ORM rejects the resulting query because `only(\"title\")` defers that field.\r\n\r\nA separate Django test exercising `ModelAdmin.changelist_view()` on main also fails with the same `FieldError` before the response can render (one test, SQLite).\r\n\r\nThis is a release-blocker candidate because a Django upgrade can leave the affected model's entire changelist unavailable until the application changes its admin configuration. Setting `list_select_related = ()` restores access in the example.\r\n\r\nOpenAI Codex with GPT-6.2 Astra and GPT-6.2 Sol assisted with investigating the regression, writing and running the reproduction."
+        }
+      }
+    },
+    "django:37537": {
+      "source": "django",
+      "ticket_id": 37537,
+      "watcher_issue_number": 203,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-24T11:11:57.698572+00:00",
+      "last_updated": "2026-11-24T11:11:57.698572+00:00",
+      "ticket_data": {
+        "id": 37537,
+        "source_id": "django",
+        "title": "CSP build_policy should support lazy URLs",
+        "description": "When setting a lazy URL (reverse_lazy) in `SECURE_CSP_REPORT_ONLY[\"report-uri\"]`, the `build_policy` function crashes with the following traceback:\r\n{{{\r\nFile \"<venv>/lib/python3.13/site-packages/django/utils/csp.py\", line 124, in build_policy\r\n    rendered_value = \" \".join(values)\r\nTypeError: sequence item 0: expected str instance, __proxy__ found\r\n}}}\r\n\r\nIt should be rather straightforward to force resolution of lazy values before joining.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 24, 2026, 3:25:31 AM",
+        "updated_at": "Nov 24, 2026, 3:25:31 AM",
+        "reporter": "Claude Paroz",
+        "owner": "",
+        "component": "CSP",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37537",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37537",
+          "Summary": "CSP build_policy should support lazy URLs",
+          "Type": "Bug",
+          "Status": "new",
+          "Component": "CSP",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 24, 2026, 3:25:31 AM",
+          "Modified": "Nov 24, 2026, 3:25:31 AM",
+          "Reporter": "Claude Paroz",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "When setting a lazy URL (reverse_lazy) in `SECURE_CSP_REPORT_ONLY[\"report-uri\"]`, the `build_policy` function crashes with the following traceback:\r\n{{{\r\nFile \"<venv>/lib/python3.13/site-packages/django/utils/csp.py\", line 124, in build_policy\r\n    rendered_value = \" \".join(values)\r\nTypeError: sequence item 0: expected str instance, __proxy__ found\r\n}}}\r\n\r\nIt should be rather straightforward to force resolution of lazy values before joining."
         }
       }
     }
