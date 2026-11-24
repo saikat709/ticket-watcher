@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37535
+      "last_seen_id": 37536
     }
   },
   "tracked": {
@@ -3370,6 +3370,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "`Model._perform_unique_checks()` decides whether to skip a lookup for an empty string using `connection.features.interprets_empty_strings_as_nulls`, where `connection` is the default database connection.\r\n\r\nHowever, the uniqueness query that follows is routed through `DATABASE_ROUTERS` (via `model_class._default_manager.db`). When reads are routed to a database whose backend differs from the default one (for example Oracle alongside PostgreSQL), the empty-string check uses the wrong backend's behavior, so validation can skip or run the uniqueness query incorrectly.\r\n\r\nThere was already a `TODO: Handle multiple backends with different feature flags` at that spot. Other code, such as `UniqueConstraint.validate()` and related managers, already resolves `features` from the routed database alias.\r\n\r\nSteps to reproduce: configure two databases with different values of `features.interprets_empty_strings_as_nulls`, add a router whose `db_for_read()` returns the non-default alias, and call `validate_unique()` on an instance with an empty string in a unique `CharField`. Whether the query runs depends on the default database rather than the routed one.\r\n\r\nPatch: https://github.com/nehmtech/django/tree/unique-checks-routed-db-features"
+        }
+      }
+    },
+    "django:37536": {
+      "source": "django",
+      "ticket_id": 37536,
+      "watcher_issue_number": 202,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-24T01:19:18.083644+00:00",
+      "last_updated": "2026-11-24T01:19:18.083644+00:00",
+      "ticket_data": {
+        "id": 37536,
+        "source_id": "django",
+        "title": "Admin changelist raises FieldError when only() defers a foreign key in list_display",
+        "description": "After upgrading from Django 6.0.10 to 6.1, an existing admin changelist can fail to render when `ModelAdmin.get_queryset()` uses `only()` and `list_display` includes a deferred foreign key. The changelist should display the row and load the deferred relation on access, as it does on 6.0.10.\r\n\r\nSave the script below as `repro.py` and run `python repro.py` in an environment with Django installed. It uses in-memory SQLite and needs no project or database setup. The `Control` disables the implicit join with `list_select_related = ()`.\r\n\r\n{{{#!python\r\nfrom types import SimpleNamespace\r\n\r\nimport django\r\nfrom django.conf import settings\r\n\r\nsettings.configure(\r\n    SECRET_KEY=\"demo\",\r\n    ROOT_URLCONF=__name__,\r\n    DATABASES={\"default\": {\"ENGINE\": \"django.db.backends.sqlite3\", \"NAME\": \":memory:\"}},\r\n    INSTALLED_APPS=[\"django.contrib.contenttypes\", \"django.contrib.auth\", \"django.contrib.admin\"],\r\n)\r\nurlpatterns = []\r\ndjango.setup()\r\nfrom django.contrib import admin\r\nfrom django.db import connection, models\r\nfrom django.test import RequestFactory\r\n\r\nclass Author(models.Model):\r\n    name = models.CharField(max_length=20)\r\n    class Meta:\r\n        app_label = \"demo\"\r\n    def __str__(self):\r\n        return self.name\r\n\r\nclass Book(models.Model):\r\n    title = models.CharField(max_length=40)\r\n    author = models.ForeignKey(Author, null=True, on_delete=models.CASCADE)\r\n    class Meta:\r\n        app_label = \"demo\"\r\n\r\nclass BookAdmin(admin.ModelAdmin):\r\n    list_display = (\"title\", \"author\")\r\n    def get_queryset(self, request):\r\n        return super().get_queryset(request).only(\"title\")\r\n\r\nwith connection.schema_editor() as schema:\r\n    schema.create_model(Author)\r\n    schema.create_model(Book)\r\nBook.objects.create(title=\"Novel\", author=Author.objects.create(name=\"Writer\"))\r\nrequest = RequestFactory().get(\"/\")\r\nrequest.user = SimpleNamespace(is_active=True, is_staff=True, has_perm=lambda *args: True)\r\nfor form in [type(\"Control\",(BookAdmin,),{\"list_select_related\": ()}), BookAdmin]:\r\n    changelist = form(Book, admin.AdminSite()).get_changelist_instance(request)\r\n    try:\r\n        print(django.get_version(), form.__name__, [(obj.title,str(obj.author)) for obj in changelist.result_list], flush=True)\r\n    except Exception as exc:\r\n        print(django.get_version(), form.__name__, type(exc).__name__, str(exc), flush=True)\r\n}}}\r\n\r\nOn Django 6.0.10, both admin classes return `[('Novel', 'Writer')]`. On Django 6.1 and 6.1.3, the control still returns the row, but the default admin raises:\r\n\r\n{{{\r\nFieldError: Field Book.author cannot be both deferred and traversed using select_related at the same time.\r\n}}}\r\n\r\nThe same result occurs on main at f14af5a88472ca10e2e94b37d6c17ee48cbdeb4d. The script passes on 4d455ae2d7689ce066dfffef9fc29a6f6d3ed33e and first fails at 0c634de4e6950ec6fb83ab420b4af9c645b28acd (#36593). That commit changed the default changelist to pass the displayed foreign key explicitly to `select_related()`. The ORM rejects the resulting query because `only(\"title\")` defers that field.\r\n\r\nA separate Django test exercising `ModelAdmin.changelist_view()` on main also fails with the same `FieldError` before the response can render (one test, SQLite).\r\n\r\nThis is a release-blocker candidate because a Django upgrade can leave the affected model's entire changelist unavailable until the application changes its admin configuration. Setting `list_select_related = ()` restores access in the example.\r\n\r\nOpenAI Codex with GPT-6.2 Astra and GPT-6.2 Sol assisted with investigating the regression, writing and running the reproduction.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 23, 2026, 3:43:00 PM",
+        "updated_at": "Nov 23, 2026, 4:13:29 PM",
+        "reporter": "Cleisson",
+        "owner": "Cleisson",
+        "component": "contrib.admin",
+        "priority": "Release blocker",
+        "severity": "Release blocker",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37536",
+        "pr_url": "https://github.com/cleissonom/django/pull/3",
+        "pr_status": "open",
+        "raw_data": {
+          "id": "37536",
+          "Summary": "Admin changelist raises FieldError when only() defers a foreign key in list_display",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "contrib.admin",
+          "Severity": "Release blocker",
+          "Resolution": "",
+          "Created": "Nov 23, 2026, 3:43:00 PM",
+          "Modified": "Nov 23, 2026, 4:13:29 PM",
+          "Reporter": "Cleisson",
+          "Owner": "Cleisson",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "After upgrading from Django 6.0.10 to 6.1, an existing admin changelist can fail to render when `ModelAdmin.get_queryset()` uses `only()` and `list_display` includes a deferred foreign key. The changelist should display the row and load the deferred relation on access, as it does on 6.0.10.\r\n\r\nSave the script below as `repro.py` and run `python repro.py` in an environment with Django installed. It uses in-memory SQLite and needs no project or database setup. The `Control` disables the implicit join with `list_select_related = ()`.\r\n\r\n{{{#!python\r\nfrom types import SimpleNamespace\r\n\r\nimport django\r\nfrom django.conf import settings\r\n\r\nsettings.configure(\r\n    SECRET_KEY=\"demo\",\r\n    ROOT_URLCONF=__name__,\r\n    DATABASES={\"default\": {\"ENGINE\": \"django.db.backends.sqlite3\", \"NAME\": \":memory:\"}},\r\n    INSTALLED_APPS=[\"django.contrib.contenttypes\", \"django.contrib.auth\", \"django.contrib.admin\"],\r\n)\r\nurlpatterns = []\r\ndjango.setup()\r\nfrom django.contrib import admin\r\nfrom django.db import connection, models\r\nfrom django.test import RequestFactory\r\n\r\nclass Author(models.Model):\r\n    name = models.CharField(max_length=20)\r\n    class Meta:\r\n        app_label = \"demo\"\r\n    def __str__(self):\r\n        return self.name\r\n\r\nclass Book(models.Model):\r\n    title = models.CharField(max_length=40)\r\n    author = models.ForeignKey(Author, null=True, on_delete=models.CASCADE)\r\n    class Meta:\r\n        app_label = \"demo\"\r\n\r\nclass BookAdmin(admin.ModelAdmin):\r\n    list_display = (\"title\", \"author\")\r\n    def get_queryset(self, request):\r\n        return super().get_queryset(request).only(\"title\")\r\n\r\nwith connection.schema_editor() as schema:\r\n    schema.create_model(Author)\r\n    schema.create_model(Book)\r\nBook.objects.create(title=\"Novel\", author=Author.objects.create(name=\"Writer\"))\r\nrequest = RequestFactory().get(\"/\")\r\nrequest.user = SimpleNamespace(is_active=True, is_staff=True, has_perm=lambda *args: True)\r\nfor form in [type(\"Control\",(BookAdmin,),{\"list_select_related\": ()}), BookAdmin]:\r\n    changelist = form(Book, admin.AdminSite()).get_changelist_instance(request)\r\n    try:\r\n        print(django.get_version(), form.__name__, [(obj.title,str(obj.author)) for obj in changelist.result_list], flush=True)\r\n    except Exception as exc:\r\n        print(django.get_version(), form.__name__, type(exc).__name__, str(exc), flush=True)\r\n}}}\r\n\r\nOn Django 6.0.10, both admin classes return `[('Novel', 'Writer')]`. On Django 6.1 and 6.1.3, the control still returns the row, but the default admin raises:\r\n\r\n{{{\r\nFieldError: Field Book.author cannot be both deferred and traversed using select_related at the same time.\r\n}}}\r\n\r\nThe same result occurs on main at f14af5a88472ca10e2e94b37d6c17ee48cbdeb4d. The script passes on 4d455ae2d7689ce066dfffef9fc29a6f6d3ed33e and first fails at 0c634de4e6950ec6fb83ab420b4af9c645b28acd (#36593). That commit changed the default changelist to pass the displayed foreign key explicitly to `select_related()`. The ORM rejects the resulting query because `only(\"title\")` defers that field.\r\n\r\nA separate Django test exercising `ModelAdmin.changelist_view()` on main also fails with the same `FieldError` before the response can render (one test, SQLite).\r\n\r\nThis is a release-blocker candidate because a Django upgrade can leave the affected model's entire changelist unavailable until the application changes its admin configuration. Setting `list_select_related = ()` restores access in the example.\r\n\r\nOpenAI Codex with GPT-6.2 Astra and GPT-6.2 Sol assisted with investigating the regression, writing and running the reproduction."
         }
       }
     }
