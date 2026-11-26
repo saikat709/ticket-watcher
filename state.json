@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37538
+      "last_seen_id": 37540
     }
   },
   "tracked": {
@@ -3521,6 +3521,106 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "Since the CVE-2026-84429 fix (5.2.18 / 6.0.9 / 6.1.2), which made `parse_header_parameters()` use `email.message.Message`, short Accept media ranges with RFC 2231 extended parameters raise `ValueError` (or its subclass `UnicodeError`). `HttpRequest.accepted_types` calls `MediaType(token)` on client-supplied tokens without handling `ValueError`, so `accepts()`, `get_preferred_type()` and `accepted_type()` crash with a 500.\r\n\r\nThis affects the built-in `set_language` view when no `next` parameter is given:\r\n\r\n{{{\r\nGET /i18n/setlang/ HTTP/1.1\r\nHost: example.com\r\nAccept: text/html; a*=idna''v\r\n}}}\r\n\r\n * 6.1.3, 6.0.10, 5.2.19, main: 500 (`UnicodeError: Unsupported error handling replace`)\r\n * 6.1.1, 6.0.8, 5.2.17: 204\r\n\r\nOther values that crash on the affected versions: `text/html; a*=x-no-such-charset''v` (`ValueError: Invalid encoding`), `text/html; a*=undefined''v` (`UnicodeError`), and `text/html; a*` + 4301 digits + `=v` (int digit limit). Percent-encoded variants such as `a*=undefined''%41` already crashed before the change. The CVE fix widened what triggers it.\r\n\r\nOther callers of `parse_header_parameters()` already handle `ValueError` (`_set_content_type_params()`, the multipart parser), and `MediaType.quality` already ignores invalid `q` values. A possible fix is to skip media ranges in `accepted_types` that fail to parse. I have a patch with a regression test in `requests_tests.test_accept_header` and can open a PR.\r\n\r\nRelated but distinct: #37445 (Content-Type raising during request construction). Its PR doesn't touch `accepted_types`.\r\n\r\nTested with Python 3.12.10.\r\n\r\nAI disclosure: Claude Code (Claude Opus 5.5) was used to investigate the code, write and run the reproduction scripts across Django versions, search Trac, and draft this text. I reviewed and re-ran the reproduction myself before filing."
+        }
+      }
+    },
+    "django:37539": {
+      "source": "django",
+      "ticket_id": 37539,
+      "watcher_issue_number": 205,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-26T23:57:24.814904+00:00",
+      "last_updated": "2026-11-26T23:57:24.814904+00:00",
+      "ticket_data": {
+        "id": 37539,
+        "source_id": "django",
+        "title": "Model formsets can duplicate or omit objects from an annotated queryset",
+        "description": "Since Django 6.1, passing an annotated queryset to a model formset can change which objects appear in the formset. With one book and two reviews, the queryset returns the book with a count of two. The formset shows it twice with a count of one each. Filtering for books with at least two reviews leaves the formset empty.\r\n\r\nPut these models in `library/models.py` in an installed app named `library`.\r\n\r\n{{{#!python\r\nfrom django.db import models\r\n\r\n\r\nclass Book(models.Model):\r\n    title = models.CharField(max_length=100)\r\n\r\n    class Meta:\r\n        ordering = [\"reviews__rating\"]\r\n\r\n\r\nclass Review(models.Model):\r\n    book = models.ForeignKey(\r\n        Book, related_name=\"reviews\", on_delete=models.CASCADE\r\n    )\r\n    rating = models.IntegerField()\r\n}}}\r\n\r\nRun `python manage.py makemigrations library` and `python manage.py migrate`, then run this in `python manage.py shell` against empty tables.\r\n\r\n{{{#!python\r\nfrom django.db.models import Count\r\nfrom django.forms import modelformset_factory\r\nfrom library.models import Book, Review\r\n\r\nbook = Book.objects.create(title=\"Example\")\r\nReview.objects.create(book=book, rating=2)\r\nReview.objects.create(book=book, rating=3)\r\nbooks = Book.objects.annotate(n=Count(\"reviews\"))\r\nBookFormSet = modelformset_factory(Book, fields=[\"title\"], extra=0)\r\n\r\ndef form_rows(queryset):\r\n    forms = BookFormSet(queryset=queryset)\r\n    return [(form.instance.title, form.instance.n) for form in forms]\r\n\r\nprint(\"queryset:\", [(book.title, book.n) for book in books])\r\nprint(\"formset:\", form_rows(books))\r\nprint(\"formset with n >= 2:\", form_rows(books.filter(n__gte=2)))\r\n}}}\r\n\r\nOn Django 6.0.10, all three lines contain `[('Example', 2)]`. On 6.1, 6.1.3, and `main` at `f0e7bd9088`, SQLite produces different rows for the formset.\r\n\r\n{{{\r\nqueryset: [('Example', 2)]\r\nformset: [('Example', 1), ('Example', 1)]\r\nformset with n >= 2: []\r\n}}}\r\n\r\nThis started with [https://github.com/django/django/commit/856c915326768962806705ca7733e4abbb8f794f 856c915326] (#37004). When adding a primary-key tiebreaker, `BaseModelFormSet.get_queryset()` reapplies `Meta.ordering` even though the ORM ignores it for grouped queries. Ordering by `reviews__rating` adds the rating to the SQL `GROUP BY` and splits the book into two groups. Passing `books.order_by(\"pk\")` to the formset keeps the count at two.\r\n\r\n#37531 fixed a crash with sliced querysets. This queryset is unsliced, and the example still fails on the commit that fixed #37531.\r\n\r\nA patch with regression tests is on my fork. Both formset test modules pass with the fix on SQLite and PostgreSQL 18.6.\r\n\r\nOpenAI Codex (GPT-6.2 Astra and Sol) helped investigate the regression, prepare the patch and tests and run the examples.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 26, 2026, 2:16:40 PM",
+        "updated_at": "Nov 26, 2026, 2:19:19 PM",
+        "reporter": "Cleisson",
+        "owner": "Cleisson",
+        "component": "Forms",
+        "priority": "Release blocker",
+        "severity": "Release blocker",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37539",
+        "pr_url": "https://github.com/cleissonom/django/pull/4",
+        "pr_status": "open",
+        "raw_data": {
+          "id": "37539",
+          "Summary": "Model formsets can duplicate or omit objects from an annotated queryset",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Forms",
+          "Severity": "Release blocker",
+          "Resolution": "",
+          "Created": "Nov 26, 2026, 2:16:40 PM",
+          "Modified": "Nov 26, 2026, 2:19:19 PM",
+          "Reporter": "Cleisson",
+          "Owner": "Cleisson",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "Since Django 6.1, passing an annotated queryset to a model formset can change which objects appear in the formset. With one book and two reviews, the queryset returns the book with a count of two. The formset shows it twice with a count of one each. Filtering for books with at least two reviews leaves the formset empty.\r\n\r\nPut these models in `library/models.py` in an installed app named `library`.\r\n\r\n{{{#!python\r\nfrom django.db import models\r\n\r\n\r\nclass Book(models.Model):\r\n    title = models.CharField(max_length=100)\r\n\r\n    class Meta:\r\n        ordering = [\"reviews__rating\"]\r\n\r\n\r\nclass Review(models.Model):\r\n    book = models.ForeignKey(\r\n        Book, related_name=\"reviews\", on_delete=models.CASCADE\r\n    )\r\n    rating = models.IntegerField()\r\n}}}\r\n\r\nRun `python manage.py makemigrations library` and `python manage.py migrate`, then run this in `python manage.py shell` against empty tables.\r\n\r\n{{{#!python\r\nfrom django.db.models import Count\r\nfrom django.forms import modelformset_factory\r\nfrom library.models import Book, Review\r\n\r\nbook = Book.objects.create(title=\"Example\")\r\nReview.objects.create(book=book, rating=2)\r\nReview.objects.create(book=book, rating=3)\r\nbooks = Book.objects.annotate(n=Count(\"reviews\"))\r\nBookFormSet = modelformset_factory(Book, fields=[\"title\"], extra=0)\r\n\r\ndef form_rows(queryset):\r\n    forms = BookFormSet(queryset=queryset)\r\n    return [(form.instance.title, form.instance.n) for form in forms]\r\n\r\nprint(\"queryset:\", [(book.title, book.n) for book in books])\r\nprint(\"formset:\", form_rows(books))\r\nprint(\"formset with n >= 2:\", form_rows(books.filter(n__gte=2)))\r\n}}}\r\n\r\nOn Django 6.0.10, all three lines contain `[('Example', 2)]`. On 6.1, 6.1.3, and `main` at `f0e7bd9088`, SQLite produces different rows for the formset.\r\n\r\n{{{\r\nqueryset: [('Example', 2)]\r\nformset: [('Example', 1), ('Example', 1)]\r\nformset with n >= 2: []\r\n}}}\r\n\r\nThis started with [https://github.com/django/django/commit/856c915326768962806705ca7733e4abbb8f794f 856c915326] (#37004). When adding a primary-key tiebreaker, `BaseModelFormSet.get_queryset()` reapplies `Meta.ordering` even though the ORM ignores it for grouped queries. Ordering by `reviews__rating` adds the rating to the SQL `GROUP BY` and splits the book into two groups. Passing `books.order_by(\"pk\")` to the formset keeps the count at two.\r\n\r\n#37531 fixed a crash with sliced querysets. This queryset is unsliced, and the example still fails on the commit that fixed #37531.\r\n\r\nA patch with regression tests is on my fork. Both formset test modules pass with the fix on SQLite and PostgreSQL 18.6.\r\n\r\nOpenAI Codex (GPT-6.2 Astra and Sol) helped investigate the regression, prepare the patch and tests and run the examples."
+        }
+      }
+    },
+    "django:37540": {
+      "source": "django",
+      "ticket_id": 37540,
+      "watcher_issue_number": 206,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-26T23:57:26.177861+00:00",
+      "last_updated": "2026-11-26T23:57:26.177861+00:00",
+      "ticket_data": {
+        "id": 37540,
+        "source_id": "django",
+        "title": "send_mail() can ignore fail_silently=False with a legacy EMAIL_BACKEND",
+        "description": "On Django 6.1, `send_mail()` can return zero instead of raising a delivery error when a project still uses `EMAIL_BACKEND`. This happens with a custom backend whose constructor defaults to `fail_silently=True`. Both omitting the argument to `send_mail()` and passing `fail_silently=False` explicitly should let the exception reach the caller.\r\n\r\nSave this as `mail_repro.py` and run `python mail_repro.py` with Django installed. The backend simulates a failed delivery without contacting a mail server.\r\n\r\n{{{#!python\r\nfrom django.conf import settings\r\nfrom django.core.mail import send_mail\r\nfrom django.core.mail.backends.base import BaseEmailBackend\r\n\r\nsettings.configure(EMAIL_BACKEND=\"__main__.Backend\")\r\n\r\n\r\nclass Backend(BaseEmailBackend):\r\n    def __init__(self, *, fail_silently=True, **kwargs):\r\n        super().__init__(**kwargs)\r\n        self.fail_silently = fail_silently\r\n\r\n    def send_messages(self, messages):\r\n        if self.fail_silently:\r\n            return 0\r\n        raise OSError(\"connection refused\")\r\n\r\n\r\nfor options in ({}, {\"fail_silently\": False}, {\"fail_silently\": True}):\r\n    try:\r\n        result = send_mail(\r\n            \"Subject\", \"Body\", \"a@example.com\", [\"b@example.com\"], **options\r\n        )\r\n    except OSError as error:\r\n        result = f\"OSError: {error}\"\r\n    print(options, result)\r\n}}}\r\n\r\nOn Django 6.0.10 the first two calls raise the simulated error.\r\n\r\n{{{\r\n{} OSError: connection refused\r\n{'fail_silently': False} OSError: connection refused\r\n{'fail_silently': True} 0\r\n}}}\r\n\r\nOn 6.1, 6.1.3, and `main` at `f0e7bd9088`, all three calls return zero. An application that catches delivery exceptions can miss the failure.\r\n\r\nThis started with [https://github.com/django/django/commit/0f581cd29d42d1b5ed1dafb67794c2f3ce6705c9 0f581cd29d] (#35514). With `EMAIL_BACKEND` set and `MAILERS` unset, `get_connection()` now passes the flag to the backend constructor only when it is true. Omitting the keyword leaves this backend's own default in effect. In #36894 the caller supplies an existing `connection`. This example lets Django construct the backend.\r\n\r\nA patch and regression test are on my fork. With the patch, the script gives the 6.0.10 output again.\r\n\r\nOpenAI Codex (GPT-6.2 Astra and Sol) helped investigate the regression, prepare the patch and tests and run the example.",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 26, 2026, 2:17:10 PM",
+        "updated_at": "Nov 26, 2026, 2:19:24 PM",
+        "reporter": "Cleisson",
+        "owner": "Cleisson",
+        "component": "Core (Mail)",
+        "priority": "Release blocker",
+        "severity": "Release blocker",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37540",
+        "pr_url": "https://github.com/cleissonom/django/pull/5",
+        "pr_status": "open",
+        "raw_data": {
+          "id": "37540",
+          "Summary": "send_mail() can ignore fail_silently=False with a legacy EMAIL_BACKEND",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "Core (Mail)",
+          "Severity": "Release blocker",
+          "Resolution": "",
+          "Created": "Nov 26, 2026, 2:17:10 PM",
+          "Modified": "Nov 26, 2026, 2:19:24 PM",
+          "Reporter": "Cleisson",
+          "Owner": "Cleisson",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "On Django 6.1, `send_mail()` can return zero instead of raising a delivery error when a project still uses `EMAIL_BACKEND`. This happens with a custom backend whose constructor defaults to `fail_silently=True`. Both omitting the argument to `send_mail()` and passing `fail_silently=False` explicitly should let the exception reach the caller.\r\n\r\nSave this as `mail_repro.py` and run `python mail_repro.py` with Django installed. The backend simulates a failed delivery without contacting a mail server.\r\n\r\n{{{#!python\r\nfrom django.conf import settings\r\nfrom django.core.mail import send_mail\r\nfrom django.core.mail.backends.base import BaseEmailBackend\r\n\r\nsettings.configure(EMAIL_BACKEND=\"__main__.Backend\")\r\n\r\n\r\nclass Backend(BaseEmailBackend):\r\n    def __init__(self, *, fail_silently=True, **kwargs):\r\n        super().__init__(**kwargs)\r\n        self.fail_silently = fail_silently\r\n\r\n    def send_messages(self, messages):\r\n        if self.fail_silently:\r\n            return 0\r\n        raise OSError(\"connection refused\")\r\n\r\n\r\nfor options in ({}, {\"fail_silently\": False}, {\"fail_silently\": True}):\r\n    try:\r\n        result = send_mail(\r\n            \"Subject\", \"Body\", \"a@example.com\", [\"b@example.com\"], **options\r\n        )\r\n    except OSError as error:\r\n        result = f\"OSError: {error}\"\r\n    print(options, result)\r\n}}}\r\n\r\nOn Django 6.0.10 the first two calls raise the simulated error.\r\n\r\n{{{\r\n{} OSError: connection refused\r\n{'fail_silently': False} OSError: connection refused\r\n{'fail_silently': True} 0\r\n}}}\r\n\r\nOn 6.1, 6.1.3, and `main` at `f0e7bd9088`, all three calls return zero. An application that catches delivery exceptions can miss the failure.\r\n\r\nThis started with [https://github.com/django/django/commit/0f581cd29d42d1b5ed1dafb67794c2f3ce6705c9 0f581cd29d] (#35514). With `EMAIL_BACKEND` set and `MAILERS` unset, `get_connection()` now passes the flag to the backend constructor only when it is true. Omitting the keyword leaves this backend's own default in effect. In #36894 the caller supplies an existing `connection`. This example lets Django construct the backend.\r\n\r\nA patch and regression test are on my fork. With the patch, the script gives the 6.0.10 output again.\r\n\r\nOpenAI Codex (GPT-6.2 Astra and Sol) helped investigate the regression, prepare the patch and tests and run the example."
         }
       }
     }
