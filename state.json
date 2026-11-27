@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37540
+      "last_seen_id": 37541
     }
   },
   "tracked": {
@@ -3621,6 +3621,56 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "On Django 6.1, `send_mail()` can return zero instead of raising a delivery error when a project still uses `EMAIL_BACKEND`. This happens with a custom backend whose constructor defaults to `fail_silently=True`. Both omitting the argument to `send_mail()` and passing `fail_silently=False` explicitly should let the exception reach the caller.\r\n\r\nSave this as `mail_repro.py` and run `python mail_repro.py` with Django installed. The backend simulates a failed delivery without contacting a mail server.\r\n\r\n{{{#!python\r\nfrom django.conf import settings\r\nfrom django.core.mail import send_mail\r\nfrom django.core.mail.backends.base import BaseEmailBackend\r\n\r\nsettings.configure(EMAIL_BACKEND=\"__main__.Backend\")\r\n\r\n\r\nclass Backend(BaseEmailBackend):\r\n    def __init__(self, *, fail_silently=True, **kwargs):\r\n        super().__init__(**kwargs)\r\n        self.fail_silently = fail_silently\r\n\r\n    def send_messages(self, messages):\r\n        if self.fail_silently:\r\n            return 0\r\n        raise OSError(\"connection refused\")\r\n\r\n\r\nfor options in ({}, {\"fail_silently\": False}, {\"fail_silently\": True}):\r\n    try:\r\n        result = send_mail(\r\n            \"Subject\", \"Body\", \"a@example.com\", [\"b@example.com\"], **options\r\n        )\r\n    except OSError as error:\r\n        result = f\"OSError: {error}\"\r\n    print(options, result)\r\n}}}\r\n\r\nOn Django 6.0.10 the first two calls raise the simulated error.\r\n\r\n{{{\r\n{} OSError: connection refused\r\n{'fail_silently': False} OSError: connection refused\r\n{'fail_silently': True} 0\r\n}}}\r\n\r\nOn 6.1, 6.1.3, and `main` at `f0e7bd9088`, all three calls return zero. An application that catches delivery exceptions can miss the failure.\r\n\r\nThis started with [https://github.com/django/django/commit/0f581cd29d42d1b5ed1dafb67794c2f3ce6705c9 0f581cd29d] (#35514). With `EMAIL_BACKEND` set and `MAILERS` unset, `get_connection()` now passes the flag to the backend constructor only when it is true. Omitting the keyword leaves this backend's own default in effect. In #36894 the caller supplies an existing `connection`. This example lets Django construct the backend.\r\n\r\nA patch and regression test are on my fork. With the patch, the script gives the 6.0.10 output again.\r\n\r\nOpenAI Codex (GPT-6.2 Astra and Sol) helped investigate the regression, prepare the patch and tests and run the example."
+        }
+      }
+    },
+    "django:37541": {
+      "source": "django",
+      "ticket_id": 37541,
+      "watcher_issue_number": 207,
+      "status": "assigned",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-27T16:51:40.457166+00:00",
+      "last_updated": "2026-11-27T16:51:40.457166+00:00",
+      "ticket_data": {
+        "id": 37541,
+        "source_id": "django",
+        "title": "Admin search for a lone quote character matches all rows",
+        "description": "`unescape_string_literal()` accepts a string consisting of a single quote character and returns an empty string instead of raising `ValueError`:\r\n\r\n{{{#!python\r\n>>> from django.utils.text import unescape_string_literal\r\n>>> unescape_string_literal('\"')\r\n''\r\n>>> unescape_string_literal(\"'\")\r\n''\r\n}}}\r\n\r\nThe check `s[-1] != s[0]` passes for a one-character string, so `s[1:-1]` is empty.\r\n\r\n`ModelAdmin.get_search_results()` has the same blind spot in its guard (`bit.startswith(('\"', \"'\")) and bit[0] == bit[-1]`, added for #32649). A search term that is a single `\"` or `'` is therefore unescaped to `''`, and the empty string matches every row.\r\n\r\n'''Steps to reproduce'''\r\n1. Use a `ModelAdmin` with `search_fields = [\"name\"]`.\r\n2. Create rows named `plain`, `other` and `has\"quote`.\r\n3. Search the changelist for `\"`.\r\n\r\nExpected: only `has\"quote` is returned.[[br]]\r\nActual: all three rows are returned.\r\n\r\n'''Proposed fix'''\r\nRequire `len(s) >= 2` in `unescape_string_literal()`, and add `len(bit) >= 2` to the quote check in `get_search_results()`. Fixing only the helper is not enough: the admin would then raise an uncaught `ValueError` when searching for a lone quote. This also applies to the unbalanced input from #32649, for example `Foo \"Bar \"Baz\"`.\r\n\r\n'''Possible fix'''\r\n\r\n`django/utils/text.py`:\r\n{{{#!diff\r\n--- a/django/utils/text.py\r\n+++ b/django/utils/text.py\r\n@@ -474 +474 @@ def unescape_string_literal(s):\r\n-    if not s or s[0] not in \"\\\"'\" or s[-1] != s[0]:\r\n+    if len(s) < 2 or s[0] not in \"\\\"'\" or s[-1] != s[0]:\r\n}}}\r\n\r\n`django/contrib/admin/options.py`:\r\n{{{#!diff\r\n--- a/django/contrib/admin/options.py\r\n+++ b/django/contrib/admin/options.py\r\n@@ -1360 +1360 @@ class ModelAdmin(BaseModelAdmin):\r\n-                if bit.startswith(('\"', \"'\")) and bit[0] == bit[-1]:\r\n+                if len(bit) >= 2 and bit.startswith(('\"', \"'\")) and bit[0] == bit[-1]:\r\n}}}\r\n\r\nWith both changes, `unescape_string_literal('\"')` raises `ValueError` and the admin search above returns only `has\"quote`. I ran `utils_tests.test_text`, `admin_changelist`, `admin_views` and `template_tests.syntax_tests` with both changes applied (1550 tests, OK).\r\n\r\nRelated: #32649 (unbalanced quotes), #6933 (quoted-phrase search, [26a41350]). This is not a duplicate of #34831, which is about limiting the number of OR'd search terms in the same loop.\r\n\r\nI can prepare a patch with tests once the ticket is accepted.\r\n\r\n'''AI disclosure'''\r\nI found and reproduced this with Claude (Anthropic).",
+        "status": "assigned",
+        "resolution": "",
+        "created_at": "Nov 27, 2026, 12:57:18 AM",
+        "updated_at": "Nov 27, 2026, 9:45:25 AM",
+        "reporter": "Vaibhav Pant",
+        "owner": "Vaibhav Pant",
+        "component": "contrib.admin",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Accepted",
+        "labels": [
+          "Accepted"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37541",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37541",
+          "Summary": "Admin search for a lone quote character matches all rows",
+          "Type": "Bug",
+          "Status": "assigned",
+          "Component": "contrib.admin",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 27, 2026, 12:57:18 AM",
+          "Modified": "Nov 27, 2026, 9:45:25 AM",
+          "Reporter": "Vaibhav Pant",
+          "Owner": "Vaibhav Pant",
+          "Triage Stage": "Accepted",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "`unescape_string_literal()` accepts a string consisting of a single quote character and returns an empty string instead of raising `ValueError`:\r\n\r\n{{{#!python\r\n>>> from django.utils.text import unescape_string_literal\r\n>>> unescape_string_literal('\"')\r\n''\r\n>>> unescape_string_literal(\"'\")\r\n''\r\n}}}\r\n\r\nThe check `s[-1] != s[0]` passes for a one-character string, so `s[1:-1]` is empty.\r\n\r\n`ModelAdmin.get_search_results()` has the same blind spot in its guard (`bit.startswith(('\"', \"'\")) and bit[0] == bit[-1]`, added for #32649). A search term that is a single `\"` or `'` is therefore unescaped to `''`, and the empty string matches every row.\r\n\r\n'''Steps to reproduce'''\r\n1. Use a `ModelAdmin` with `search_fields = [\"name\"]`.\r\n2. Create rows named `plain`, `other` and `has\"quote`.\r\n3. Search the changelist for `\"`.\r\n\r\nExpected: only `has\"quote` is returned.[[br]]\r\nActual: all three rows are returned.\r\n\r\n'''Proposed fix'''\r\nRequire `len(s) >= 2` in `unescape_string_literal()`, and add `len(bit) >= 2` to the quote check in `get_search_results()`. Fixing only the helper is not enough: the admin would then raise an uncaught `ValueError` when searching for a lone quote. This also applies to the unbalanced input from #32649, for example `Foo \"Bar \"Baz\"`.\r\n\r\n'''Possible fix'''\r\n\r\n`django/utils/text.py`:\r\n{{{#!diff\r\n--- a/django/utils/text.py\r\n+++ b/django/utils/text.py\r\n@@ -474 +474 @@ def unescape_string_literal(s):\r\n-    if not s or s[0] not in \"\\\"'\" or s[-1] != s[0]:\r\n+    if len(s) < 2 or s[0] not in \"\\\"'\" or s[-1] != s[0]:\r\n}}}\r\n\r\n`django/contrib/admin/options.py`:\r\n{{{#!diff\r\n--- a/django/contrib/admin/options.py\r\n+++ b/django/contrib/admin/options.py\r\n@@ -1360 +1360 @@ class ModelAdmin(BaseModelAdmin):\r\n-                if bit.startswith(('\"', \"'\")) and bit[0] == bit[-1]:\r\n+                if len(bit) >= 2 and bit.startswith(('\"', \"'\")) and bit[0] == bit[-1]:\r\n}}}\r\n\r\nWith both changes, `unescape_string_literal('\"')` raises `ValueError` and the admin search above returns only `has\"quote`. I ran `utils_tests.test_text`, `admin_changelist`, `admin_views` and `template_tests.syntax_tests` with both changes applied (1550 tests, OK).\r\n\r\nRelated: #32649 (unbalanced quotes), #6933 (quoted-phrase search, [26a41350]). This is not a duplicate of #34831, which is about limiting the number of OR'd search terms in the same loop.\r\n\r\nI can prepare a patch with tests once the ticket is accepted.\r\n\r\n'''AI disclosure'''\r\nI found and reproduced this with Claude (Anthropic)."
         }
       }
     }
