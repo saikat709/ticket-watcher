@@ -1,7 +1,7 @@
 {
   "sources": {
     "django": {
-      "last_seen_id": 37541
+      "last_seen_id": 37545
     }
   },
   "tracked": {
@@ -3671,6 +3671,156 @@
           "Needs documentation": "0",
           "UI/UX": "0",
           "Description": "`unescape_string_literal()` accepts a string consisting of a single quote character and returns an empty string instead of raising `ValueError`:\r\n\r\n{{{#!python\r\n>>> from django.utils.text import unescape_string_literal\r\n>>> unescape_string_literal('\"')\r\n''\r\n>>> unescape_string_literal(\"'\")\r\n''\r\n}}}\r\n\r\nThe check `s[-1] != s[0]` passes for a one-character string, so `s[1:-1]` is empty.\r\n\r\n`ModelAdmin.get_search_results()` has the same blind spot in its guard (`bit.startswith(('\"', \"'\")) and bit[0] == bit[-1]`, added for #32649). A search term that is a single `\"` or `'` is therefore unescaped to `''`, and the empty string matches every row.\r\n\r\n'''Steps to reproduce'''\r\n1. Use a `ModelAdmin` with `search_fields = [\"name\"]`.\r\n2. Create rows named `plain`, `other` and `has\"quote`.\r\n3. Search the changelist for `\"`.\r\n\r\nExpected: only `has\"quote` is returned.[[br]]\r\nActual: all three rows are returned.\r\n\r\n'''Proposed fix'''\r\nRequire `len(s) >= 2` in `unescape_string_literal()`, and add `len(bit) >= 2` to the quote check in `get_search_results()`. Fixing only the helper is not enough: the admin would then raise an uncaught `ValueError` when searching for a lone quote. This also applies to the unbalanced input from #32649, for example `Foo \"Bar \"Baz\"`.\r\n\r\n'''Possible fix'''\r\n\r\n`django/utils/text.py`:\r\n{{{#!diff\r\n--- a/django/utils/text.py\r\n+++ b/django/utils/text.py\r\n@@ -474 +474 @@ def unescape_string_literal(s):\r\n-    if not s or s[0] not in \"\\\"'\" or s[-1] != s[0]:\r\n+    if len(s) < 2 or s[0] not in \"\\\"'\" or s[-1] != s[0]:\r\n}}}\r\n\r\n`django/contrib/admin/options.py`:\r\n{{{#!diff\r\n--- a/django/contrib/admin/options.py\r\n+++ b/django/contrib/admin/options.py\r\n@@ -1360 +1360 @@ class ModelAdmin(BaseModelAdmin):\r\n-                if bit.startswith(('\"', \"'\")) and bit[0] == bit[-1]:\r\n+                if len(bit) >= 2 and bit.startswith(('\"', \"'\")) and bit[0] == bit[-1]:\r\n}}}\r\n\r\nWith both changes, `unescape_string_literal('\"')` raises `ValueError` and the admin search above returns only `has\"quote`. I ran `utils_tests.test_text`, `admin_changelist`, `admin_views` and `template_tests.syntax_tests` with both changes applied (1550 tests, OK).\r\n\r\nRelated: #32649 (unbalanced quotes), #6933 (quoted-phrase search, [26a41350]). This is not a duplicate of #34831, which is about limiting the number of OR'd search terms in the same loop.\r\n\r\nI can prepare a patch with tests once the ticket is accepted.\r\n\r\n'''AI disclosure'''\r\nI found and reproduced this with Claude (Anthropic)."
+        }
+      }
+    },
+    "django:37543": {
+      "source": "django",
+      "ticket_id": 37543,
+      "watcher_issue_number": 208,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-28T08:11:39.371734+00:00",
+      "last_updated": "2026-11-28T08:11:39.371734+00:00",
+      "ticket_data": {
+        "id": 37543,
+        "source_id": "django",
+        "title": "Apps.get_models() and Apps.get_swappable_settings_name() share a single cache across all Apps instances",
+        "description": "`Apps.get_models()` and `Apps.get_swappable_settings_name()` are decorated with `@functools.cache` on the class methods in `django/apps/registry.py`. Because `@functools.cache` stores a single cache on the function object, every `Apps` (and `StateApps`) instance shares that cache, and calling `clear_cache()` on any registry empties the cached entries for every other registry\u2014including the global `django.apps.apps` registry.\r\n\r\nDuring migrations, Django creates many temporary `StateApps` registries and calls `clear_cache()` repeatedly (on every model registration/render and re-render after state changes). Meanwhile, `Field.deconstruct()` on related fields queries the global registry via `global_apps.get_swappable_settings_name()`, which calls `global_apps.get_models(include_swapped=True)`. Because each `StateApps.clear_cache()` wipes the global registry's cache, the global registry rebuilds its model list on almost every historical model rendered.\r\n\r\nIn addition, the shared cache retains strong references to every `Apps` / `StateApps` instance cached in it until the next `clear_cache()`.\r\n\r\n=== Impact ===\r\n\r\n* Synthetic benchmark (1,000 models with FKs to `AUTH_USER_MODEL`): during a single `ProjectState.apps` render, the global registry rebuilds its model list **2,002 times** on `main`, compared to **2 times** with per-registry caches.\r\n* Production project with thousands of migrations: 2x performance\r\n\r\n=== Proposed fix ===\r\n\r\nWrap `self.get_models` and `self.get_swappable_settings_name` with `functools.cache` per instance in `Apps.__init__()`. This preserves `cache_clear()` and `cache_info()` per registry (including `django.test.utils.isolate_lru_cache`), isolates `clear_cache()` to the registry being cleared, and allows unreachable temporary registries to be garbage-collected.\r\n\r\n(Related: #34687 added `get_swappable_settings_name.cache_clear()` to `Apps.clear_cache()`.)\r\n\r\nI have a patch with regression tests ready and will open a PR referencing this ticket.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 28, 2026, 12:04:55 AM",
+        "updated_at": "Nov 28, 2026, 12:04:55 AM",
+        "reporter": "Robert Lechte",
+        "owner": "",
+        "component": "Migrations",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37543",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37543",
+          "Summary": "Apps.get_models() and Apps.get_swappable_settings_name() share a single cache across all Apps instances",
+          "Type": "Cleanup/optimization",
+          "Status": "new",
+          "Component": "Migrations",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 28, 2026, 12:04:55 AM",
+          "Modified": "Nov 28, 2026, 12:04:55 AM",
+          "Reporter": "Robert Lechte",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "`Apps.get_models()` and `Apps.get_swappable_settings_name()` are decorated with `@functools.cache` on the class methods in `django/apps/registry.py`. Because `@functools.cache` stores a single cache on the function object, every `Apps` (and `StateApps`) instance shares that cache, and calling `clear_cache()` on any registry empties the cached entries for every other registry\u2014including the global `django.apps.apps` registry.\r\n\r\nDuring migrations, Django creates many temporary `StateApps` registries and calls `clear_cache()` repeatedly (on every model registration/render and re-render after state changes). Meanwhile, `Field.deconstruct()` on related fields queries the global registry via `global_apps.get_swappable_settings_name()`, which calls `global_apps.get_models(include_swapped=True)`. Because each `StateApps.clear_cache()` wipes the global registry's cache, the global registry rebuilds its model list on almost every historical model rendered.\r\n\r\nIn addition, the shared cache retains strong references to every `Apps` / `StateApps` instance cached in it until the next `clear_cache()`.\r\n\r\n=== Impact ===\r\n\r\n* Synthetic benchmark (1,000 models with FKs to `AUTH_USER_MODEL`): during a single `ProjectState.apps` render, the global registry rebuilds its model list **2,002 times** on `main`, compared to **2 times** with per-registry caches.\r\n* Production project with thousands of migrations: 2x performance\r\n\r\n=== Proposed fix ===\r\n\r\nWrap `self.get_models` and `self.get_swappable_settings_name` with `functools.cache` per instance in `Apps.__init__()`. This preserves `cache_clear()` and `cache_info()` per registry (including `django.test.utils.isolate_lru_cache`), isolates `clear_cache()` to the registry being cleared, and allows unreachable temporary registries to be garbage-collected.\r\n\r\n(Related: #34687 added `get_swappable_settings_name.cache_clear()` to `Apps.clear_cache()`.)\r\n\r\nI have a patch with regression tests ready and will open a PR referencing this ticket."
+        }
+      }
+    },
+    "django:37544": {
+      "source": "django",
+      "ticket_id": 37544,
+      "watcher_issue_number": 209,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-28T08:11:40.870286+00:00",
+      "last_updated": "2026-11-28T08:11:40.870286+00:00",
+      "ticket_data": {
+        "id": 37544,
+        "source_id": "django",
+        "title": "ProjectState.alter_field() runs field_is_referenced() scan even when models are unrendered",
+        "description": "In `django/db/migrations/state.py`, `ProjectState.alter_field()` unconditionally computes:\r\n\r\n{{{\r\n#!python\r\ndelay = not field.is_relation and not field_is_referenced(\r\n    self, model_key, (name, field)\r\n)\r\nself.reload_model(*model_key, delay=delay)\r\n}}}\r\n\r\n`field_is_referenced()` scans every field of every model in the `ProjectState`, but `reload_model()` immediately checks `if \"apps\" in self.__dict__:` and does nothing when the state's models have not been rendered.\r\n\r\nWhen `migrate` builds the project state by replaying migration history, the `ProjectState` is unrendered throughout, so `field_is_referenced()` performs an O(total fields in project) scan on every `AlterField` operation only for the result to be discarded\u2014making history replay quadratic in the number of fields/alterations.\r\n\r\n=== Impact ===\r\n\r\n* Synthetic benchmark (1,000-model unrendered `ProjectState`, 1,000 `alter_field()` calls): **1.14s** on `main` vs **<0.01s** with the check guarded by `if \"apps\" in self.__dict__:`.\r\n\r\n\r\n=== Proposed fix ===\r\n\r\nGuard the `delay` computation and `self.reload_model()` call in `ProjectState.alter_field()` with `if \"apps\" in self.__dict__:` (the same check `reload_model()` already uses). Behavior for rendered states is unchanged.\r\n\r\nI have a patch with regression tests ready and will open a PR referencing this ticket.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 28, 2026, 12:07:33 AM",
+        "updated_at": "Nov 28, 2026, 12:07:33 AM",
+        "reporter": "Robert Lechte",
+        "owner": "",
+        "component": "Migrations",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37544",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37544",
+          "Summary": "ProjectState.alter_field() runs field_is_referenced() scan even when models are unrendered",
+          "Type": "Uncategorized",
+          "Status": "new",
+          "Component": "Migrations",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 28, 2026, 12:07:33 AM",
+          "Modified": "Nov 28, 2026, 12:07:33 AM",
+          "Reporter": "Robert Lechte",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "In `django/db/migrations/state.py`, `ProjectState.alter_field()` unconditionally computes:\r\n\r\n{{{\r\n#!python\r\ndelay = not field.is_relation and not field_is_referenced(\r\n    self, model_key, (name, field)\r\n)\r\nself.reload_model(*model_key, delay=delay)\r\n}}}\r\n\r\n`field_is_referenced()` scans every field of every model in the `ProjectState`, but `reload_model()` immediately checks `if \"apps\" in self.__dict__:` and does nothing when the state's models have not been rendered.\r\n\r\nWhen `migrate` builds the project state by replaying migration history, the `ProjectState` is unrendered throughout, so `field_is_referenced()` performs an O(total fields in project) scan on every `AlterField` operation only for the result to be discarded\u2014making history replay quadratic in the number of fields/alterations.\r\n\r\n=== Impact ===\r\n\r\n* Synthetic benchmark (1,000-model unrendered `ProjectState`, 1,000 `alter_field()` calls): **1.14s** on `main` vs **<0.01s** with the check guarded by `if \"apps\" in self.__dict__:`.\r\n\r\n\r\n=== Proposed fix ===\r\n\r\nGuard the `delay` computation and `self.reload_model()` call in `ProjectState.alter_field()` with `if \"apps\" in self.__dict__:` (the same check `reload_model()` already uses). Behavior for rendered states is unchanged.\r\n\r\nI have a patch with regression tests ready and will open a PR referencing this ticket."
+        }
+      }
+    },
+    "django:37545": {
+      "source": "django",
+      "ticket_id": 37545,
+      "watcher_issue_number": 210,
+      "status": "new",
+      "notification_comment_created": true,
+      "last_checked": "2026-11-28T08:11:42.674315+00:00",
+      "last_updated": "2026-11-28T08:11:42.674315+00:00",
+      "ticket_data": {
+        "id": 37545,
+        "source_id": "django",
+        "title": "Quadratic _get_altered_foo_together_operations(\"index_together\") calls in MigrationAutodetector.",
+        "description": "In `django/db/migrations/autodetector.py`, `MigrationAutodetector.create_altered_indexes()` iterates over every model in `sorted(self.kept_model_keys)` and, inside that loop, calls `self._get_altered_foo_together_operations(operations.AlterIndexTogether.option_name)`:\r\n\r\n{{{\r\n#!python\r\nfor app_label, model_name in sorted(self.kept_model_keys):\r\n    ...\r\n    for (\r\n        old_value,\r\n        new_value,\r\n        index_together_app_label,\r\n        index_together_model_name,\r\n        dependencies,\r\n    ) in self._get_altered_foo_together_operations(\r\n        operations.AlterIndexTogether.option_name\r\n    ):\r\n        if (\r\n            app_label != index_together_app_label\r\n            or model_name != index_together_model_name\r\n        ):\r\n            continue\r\n        ...\r\n}}}\r\n\r\n`_get_altered_foo_together_operations()` itself sorts and iterates over all of `self.kept_model_keys`, making `create_altered_indexes()` O(models^2). This runs on every `makemigrations` invocation and on every `migrate` invocation (which runs the autodetector to check for unmigrated model changes).\r\n\r\nNothing read by `_get_altered_foo_together_operations()` (`from_state`, `to_state`, `kept_model_keys`, `renamed_models`, `renamed_fields`) is modified during the loop.\r\n\r\n=== Impact ===\r\n\r\n* Synthetic benchmark (autodetecting changes between two 1,000-model states): **0.70s** on `main` vs **0.28s** after hoisting the call out of the loop.\r\n\r\n\r\n=== Proposed fix ===\r\n\r\nCall `self._get_altered_foo_together_operations(operations.AlterIndexTogether.option_name)` once before the `for app_label, model_name in sorted(self.kept_model_keys):` loop, grouping the results by `(app_label, model_name)`. This preserves detection of historical `index_together` \u2192 `Meta.indexes` renames while reducing the loop from O(N^2) to O(N).\r\n\r\nI have a patch with regression tests ready and will open a PR referencing this ticket.",
+        "status": "new",
+        "resolution": "",
+        "created_at": "Nov 28, 2026, 12:08:43 AM",
+        "updated_at": "Nov 28, 2026, 12:08:43 AM",
+        "reporter": "Robert Lechte",
+        "owner": "",
+        "component": "Migrations",
+        "priority": "Normal",
+        "severity": "Normal",
+        "triage_stage": "Unreviewed",
+        "labels": [
+          "Unreviewed"
+        ],
+        "url": "https://code.djangoproject.com/ticket/37545",
+        "pr_url": null,
+        "pr_status": null,
+        "raw_data": {
+          "id": "37545",
+          "Summary": "Quadratic _get_altered_foo_together_operations(\"index_together\") calls in MigrationAutodetector.",
+          "Type": "Uncategorized",
+          "Status": "new",
+          "Component": "Migrations",
+          "Severity": "Normal",
+          "Resolution": "",
+          "Created": "Nov 28, 2026, 12:08:43 AM",
+          "Modified": "Nov 28, 2026, 12:08:43 AM",
+          "Reporter": "Robert Lechte",
+          "Owner": "",
+          "Triage Stage": "Unreviewed",
+          "Has patch": "0",
+          "Needs tests": "0",
+          "Needs documentation": "0",
+          "UI/UX": "0",
+          "Description": "In `django/db/migrations/autodetector.py`, `MigrationAutodetector.create_altered_indexes()` iterates over every model in `sorted(self.kept_model_keys)` and, inside that loop, calls `self._get_altered_foo_together_operations(operations.AlterIndexTogether.option_name)`:\r\n\r\n{{{\r\n#!python\r\nfor app_label, model_name in sorted(self.kept_model_keys):\r\n    ...\r\n    for (\r\n        old_value,\r\n        new_value,\r\n        index_together_app_label,\r\n        index_together_model_name,\r\n        dependencies,\r\n    ) in self._get_altered_foo_together_operations(\r\n        operations.AlterIndexTogether.option_name\r\n    ):\r\n        if (\r\n            app_label != index_together_app_label\r\n            or model_name != index_together_model_name\r\n        ):\r\n            continue\r\n        ...\r\n}}}\r\n\r\n`_get_altered_foo_together_operations()` itself sorts and iterates over all of `self.kept_model_keys`, making `create_altered_indexes()` O(models^2). This runs on every `makemigrations` invocation and on every `migrate` invocation (which runs the autodetector to check for unmigrated model changes).\r\n\r\nNothing read by `_get_altered_foo_together_operations()` (`from_state`, `to_state`, `kept_model_keys`, `renamed_models`, `renamed_fields`) is modified during the loop.\r\n\r\n=== Impact ===\r\n\r\n* Synthetic benchmark (autodetecting changes between two 1,000-model states): **0.70s** on `main` vs **0.28s** after hoisting the call out of the loop.\r\n\r\n\r\n=== Proposed fix ===\r\n\r\nCall `self._get_altered_foo_together_operations(operations.AlterIndexTogether.option_name)` once before the `for app_label, model_name in sorted(self.kept_model_keys):` loop, grouping the results by `(app_label, model_name)`. This preserves detection of historical `index_together` \u2192 `Meta.indexes` renames while reducing the loop from O(N^2) to O(N).\r\n\r\nI have a patch with regression tests ready and will open a PR referencing this ticket."
         }
       }
     }
